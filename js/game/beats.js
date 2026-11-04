@@ -5,12 +5,12 @@
 
 function resetBattleChrome() {
   $("view-battle").classList.remove("run-over");
-  $("b-boss-card").classList.remove("defeated", "player-dead");
+  $("b-boss-card").classList.remove("defeated", "player-dead", "abandoned", "returned", "completed");
 }
 
 function showVictoryBeat() {
   const k = state.lastKill || { kanji: state.enemyKanji, turns: state.turn, dmgTaken: 0 };
-  $("b-boss-card").classList.remove("hit");
+  $("b-boss-card").classList.remove("hit", "player-dead", "abandoned", "returned", "completed");
   $("b-boss-card").classList.add("defeated");
   if (typeof playSealStampSfx === "function") playSealStampSfx();
   else playGongSfx();
@@ -43,14 +43,66 @@ function runSummary() {
 }
 
 function endRunDock(depthId, { cleared }) {
-  const buttons = [{ label: t("retryBtn"), onClick: () => startRun(depthId), gold: !cleared }];
-  const next = `depth_${depthNumber(depthId) + 1}`;
-  if (cleared && KANKEN_DATA[next]) {
-    buttons.push({ label: `⛩ ${depthNumStr(next)} ${depthName(next)}`, onClick: () => startRun(next), gold: true });
+  if (cleared) {
+    setDockActions([
+      { label: t("continueExpeditionBtn"), onClick: continueExpeditionFromClear, gold: true },
+      { label: t("finishExpeditionBtn"), onClick: finishExpeditionFromClear }
+    ]);
+    return;
   }
-  buttons.push({ label: t("copyLogBtn"), onClick: exportBattleLog });
-  buttons.push({ label: t("titleBtn"), onClick: () => transitionToView("title") });
-  setDockActions(buttons);
+  setDockActions([
+    { label: t("retryBtn"), onClick: () => startRun(depthId), gold: true },
+    { label: t("titleBtn"), onClick: () => transitionToView("title") }
+  ]);
+}
+
+function continueExpeditionFromClear() {
+  playClickSfx();
+  state.active = true;
+  state.phase = "returned";
+  state.enemyKanji = "";
+  state.pending = null;
+  state.offer = [];
+  saveRunToStorage();
+  transitionToView("select", "【 帰 還 】", depthName(state.depthId));
+}
+
+function finishExpeditionFromClear() {
+  if (typeof playSealStampSfx === "function") playSealStampSfx();
+  else playClickSfx();
+  clearSavedRun();
+  showToast(t("toastExpeditionFinished"));
+  transitionToView("title");
+}
+
+function triggerFormalReturn() {
+  state.active = true;
+  state.phase = "returned";
+  state.enemyKanji = "";
+  state.pending = null;
+  state.offer = [];
+  saveRunToStorage();
+
+  const bossCard = $("b-boss-card");
+  bossCard.classList.remove("hit", "defeated", "player-dead", "abandoned", "completed");
+  bossCard.classList.add("returned");
+  if (typeof playSealStampSfx === "function") playSealStampSfx();
+  else playGongSfx();
+
+  renderPhase();
+  logBeat("clear-log", t("returnBeatTitle"), [
+    t("returnBeatDesc")(state.deck.length, state.playerHp, state.maxHp),
+    `*${t("returnSelectHint")}*`
+  ]);
+  setDockActions([
+    { label: t("selectNextGaolBtn"), onClick: () => transitionToView("select"), gold: true },
+    { label: t("titleBtn"), onClick: () => transitionToView("title") }
+  ]);
+  setTimeout(() => {
+    if (currentView === "battle" && state.phase === "returned") {
+      transitionToView("select");
+    }
+  }, 650);
 }
 
 function achievementLine() {
@@ -61,14 +113,23 @@ function runCleared() {
   const depthId = state.depthId;
   const rec = runSummary();
   addClearRecord(depthId, rec);
-  showVictoryBeat();
   achOnRunCleared({ depthId, fights: state.fights });
 
+  state.active = true;
   state.phase = "cleared";
-  clearSavedRun();
+  state.pending = null;
+  state.offer = [];
+  saveRunToStorage();
+
+  const bossCard = $("b-boss-card");
+  bossCard.classList.remove("hit", "defeated", "player-dead", "abandoned", "returned");
+  bossCard.classList.add("completed");
+  if (typeof playSealStampSfx === "function") playSealStampSfx();
+  else playGongSfx();
+
   renderPhase();
 
-  logBeat("clear-log", `【踏破】 ${depthName(depthId)}`, [
+  logBeat("clear-log", `【完】 ${depthName(depthId)}`, [
     t("clearDesc")(depthName(depthId), depthGloss(depthId)),
     `⏱ **${formatTime(rec.timeSec)}** · ${rec.totalTurns}T · ⚔ ${rec.kills} · HP ${rec.hp}/${rec.maxHp} · 🀄 ${rec.deckSize}`,
     `**${t("goModel")}**: ${modelTag(rec)}`,
@@ -81,17 +142,19 @@ function runCleared() {
 function showRunEnd(wasAbandoned = false) {
   const depthId = state.depthId;
   const rec = runSummary();
-  state.phase = "dead";
+  state.phase = wasAbandoned ? "abandoned" : "dead";
+  state.deck = [];
   clearSavedRun();
-  $("b-boss-card").classList.remove("hit", "defeated");
-  $("b-boss-card").classList.add("player-dead");
+  const bossCard = $("b-boss-card");
+  bossCard.classList.remove("hit", "defeated", "player-dead", "abandoned", "returned", "completed");
+  bossCard.classList.add(wasAbandoned ? "abandoned" : "player-dead");
   if (typeof playSealStampSfx === "function") playSealStampSfx();
   if (!wasAbandoned) playGongSfx();
   renderPhase();
 
   logBeat("death-log", wasAbandoned ? t("goAbandon") : t("goDead"), [
     `**${t("goDepth")}**: ${depthNumStr(depthId)} ${depthName(depthId)} — ${depthGloss(depthId)}`,
-    `**${t("goReached")}**: ${Math.max(1, state.step)}/${PATH_STEPS} · ${t("goBoss")} 【${state.enemyKanji || "—"}】`,
+    `**${t("goReached")}**: ${Math.max(1, state.step)}/${PATH_STEPS} · ${t("goBoss")} 【${state.enemyKanji || state.sign || "—"}】`,
     `**${t("goStreak")}**: ⚔ ${rec.kills} · ${rec.totalTurns}T · ⏱ ${formatTime(rec.timeSec)}`,
     `**${t("goModel")}**: ${modelTag(rec)}`,
     `**${t("goAch")}**: ${achievementLine()}`,

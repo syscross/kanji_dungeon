@@ -34,19 +34,28 @@ async function initApp() {
   });
 
   setInterval(() => {
-    if (currentView === "battle" && state.active && state.playerHp > 0 && !anyModalOpen() && !document.hidden) {
+    const runningPhase = !["cleared", "dead", "abandoned", "returned"].includes(state.phase);
+    if (currentView === "battle" && state.active && runningPhase && state.playerHp > 0 && !anyModalOpen() && !document.hidden) {
       state.elapsedSec = (state.elapsedSec || 0) + 1;
       updateTimerBadge();
     }
   }, 1000);
 }
 
-/* A refresh keeps you where you were: #battle resumes the saved run, #select reopens depth select. */
+/* A refresh keeps you where you were: #battle resumes the saved run, #select reopens depth select (only if not mid-gaol). */
 function restoreViewFromHash() {
   const view = location.hash.replace("#", "");
-  if (view === "battle" && hasActiveRun()) resumeSavedRun();
-  else if (view === "select") switchDomView("select", true);
-  else if (view) history.replaceState(null, "", location.pathname);
+  if (view === "battle" && hasActiveRun()) {
+    resumeSavedRun();
+  } else if (view === "select") {
+    if (hasActiveRun() && state.phase !== "returned" && state.phase !== "cleared") {
+      resumeSavedRun();
+    } else {
+      switchDomView("select", true);
+    }
+  } else if (view) {
+    history.replaceState(null, "", location.pathname);
+  }
 }
 
 initApp();

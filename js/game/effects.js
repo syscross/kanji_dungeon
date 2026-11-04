@@ -64,6 +64,12 @@ function runEffects(list) {
     } else if (fx.offerSpoils) {
       updateBattleHUD(false);
       return offerRewards(fx.offerSpoils);
+    } else if (fx.bossClear) {
+      updateBattleHUD(false);
+      return runCleared();
+    } else if (fx.returnGaol) {
+      updateBattleHUD(false);
+      return triggerFormalReturn();
     } else if (fx.battle) {
       const rank = fx.battle === "elite" ? "elite" : "normal";
       const forced = ["normal", "elite"].includes(fx.battle) ? null : fx.battle;
@@ -221,7 +227,7 @@ function renderFusePicker(p) {
   }
   actions.push({
     label: t("fuseCancelBtn"),
-    onClick: () => resolveFusePick(null)
+    onClick: () => cancelPendingPick()
   });
 
   openPicker({
@@ -288,10 +294,12 @@ function openPendingPick() {
     return;
   }
 
-  // Note: "burn" and "dup" do NOT show a free Skip button that bypasses the cost!
+  // Allow backing out to the current Event/Spoil choice list BEFORE picking a card to burn/dup!
   const actions = p.mode === "add"
     ? [{ label: t("skipBtn"), onClick: () => resolvePick(null) }]
-    : [];
+    : (p.mode === "burn" || p.mode === "dup")
+      ? [{ label: t("fuseCancelBtn"), onClick: () => cancelPendingPick() }]
+      : [];
 
   openPicker({
     title: t(PICK_PROMPTS[p.mode]),
@@ -300,6 +308,24 @@ function openPendingPick() {
     onCard: (k) => resolvePick(k),
     actions
   });
+}
+
+function cancelPendingPick() {
+  state.pending = null;
+  saveRunToStorage();
+  closePicker();
+  if (state.phase === "event") {
+    renderEventOptions();
+    return;
+  }
+  if (state.phase === "reward" && state._lastRewardOffer && state._lastRewardOffer.length) {
+    state.offer = [...state._lastRewardOffer];
+    saveRunToStorage();
+    renderRewardOffer();
+    return;
+  }
+  updateBattleHUD(false);
+  advance();
 }
 
 function resolveScavengePick(pickedList) {
@@ -330,7 +356,14 @@ function resolvePick(k) {
         return;
       }
     }
-    if (mode === "dup") { addCardToDeck(k); logMd(t("fxCardDup")(k), "fx-log"); }
+    if (mode === "dup") {
+      addCardToDeck(k);
+      logMd(t("fxCardDup")(k), "fx-log");
+      if (thenEffects && thenEffects.length) {
+        runEffects([...thenEffects, ...rest]);
+        return;
+      }
+    }
   } else {
     logMd(t("fxNothing"), "fx-log");
   }

@@ -7,7 +7,11 @@ function updateSavedRunBanner() {
   const playBtn = $("play-btn");
   const exitBtn = $("title-exit-btn");
   if (hasActiveRun()) {
-    banner.textContent = t("ongoingBadge")(depthName(state.depthId), Math.max(1, state.step), PATH_STEPS, state.playerHp, state.maxHp);
+    if (state.phase === "returned") {
+      banner.textContent = t("ongoingReturnedBadge")(state.deck.length, state.playerHp, state.maxHp, formatTime(state.elapsedSec));
+    } else {
+      banner.textContent = t("ongoingBadge")(depthName(state.depthId), Math.max(1, state.step), PATH_STEPS, state.playerHp, state.maxHp);
+    }
     banner.classList.add("show");
     if (playBtn) playBtn.textContent = t("resumeGame");
     if (exitBtn) exitBtn.style.display = "";
@@ -49,6 +53,18 @@ function renderGuidePage() {
 
 /* Depth select — hides unseen foes as '？', shows encountered as gray, slain as red. */
 function renderDepthSpine() {
+  const expBar = $("select-exp-bar");
+  if (expBar) {
+    if (hasActiveRun() && state.phase === "returned") {
+      expBar.style.display = "flex";
+      const infoEl = $("select-exp-info");
+      if (infoEl) infoEl.textContent = t("selectExpBarInfo")(state.deck.length, state.playerHp, state.maxHp, formatTime(state.elapsedSec));
+      const bagBtn = $("select-bag-btn");
+      if (bagBtn) bagBtn.textContent = `${t("deckBtn")} (${state.deck.length})`;
+    } else {
+      expBar.style.display = "none";
+    }
+  }
   const spine = $("depth-spine");
   if (!spine) return;
   spine.innerHTML = "";
@@ -93,6 +109,10 @@ function renderDepthSpine() {
 
 /* Pre-Entry Gate Lore & Stage Briefing Modal (with double-confirmation for Red Zone Depths 11 & 12) */
 function openDepthEnterModal(did) {
+  if (hasActiveRun() && state.phase !== "returned" && state.phase !== "cleared") {
+    resumeSavedRun();
+    return;
+  }
   if (typeof playGateSlideSfx === "function") playGateSlideSfx();
   else playClickSfx();
   const d = KANKEN_DATA[did];

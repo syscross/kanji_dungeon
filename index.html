@@ -261,6 +261,13 @@
         <span class="select-title" data-i18n="selectDepth">【THE TWELVE GAOLS — SEALED GATES】</span>
         <button class="btn" data-i18n="toTitle" onclick="transitionToView('title')">↩ Title</button>
       </div>
+      <div class="select-exp-bar" id="select-exp-bar" style="display:none">
+        <span class="select-exp-info" id="select-exp-info"></span>
+        <div class="select-exp-btns">
+          <button class="btn btn-gold" id="select-bag-btn" onclick="openDeckViewer()">🀄 Bag</button>
+          <button class="btn" data-i18n="exit" onclick="promptExitFromSelect()">🕯 End Run</button>
+        </div>
+      </div>
       <div class="abyss-scroll">
         <div class="abyss-spine" id="depth-spine"></div>
       </div>

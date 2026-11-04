@@ -10,28 +10,77 @@ function startRun(depthId) {
     config.provider = "free_keyless";
     config.model = "openai";
   }
-  config.stats.runs = (config.stats.runs || 0) + 1;
-  persistStats();
+
+  const isContinuing = Boolean(
+    state.active &&
+    state.playerHp > 0 &&
+    (state.phase === "returned" || state.phase === "cleared")
+  );
+
+  if (!isContinuing) {
+    config.stats.runs = (config.stats.runs || 0) + 1;
+    persistStats();
+  }
 
   const roster = depthRoster(depthId);
   const bossPool = roster.bossPool && roster.bossPool.length ? roster.bossPool : [roster.boss];
   const runBoss = bossPool[Math.floor(Math.random() * bossPool.length)];
 
-  state = createRunState();
-  Object.assign(state, {
-    active: true,
-    depthId,
-    runNo: config.stats.runs,
-    maxHp: STARTING_MAX_HP,
-    playerHp: STARTING_MAX_HP,
-    phase: "path",
-    step: 1,
-    sign: "", // No stage assigned yet until the player chooses at the first fork!
-    fieldState: t("forkFieldState"),
-    runBoss,
-    bossEncountered: false,
-    deck: []
-  });
+  if (isContinuing) {
+    const keptDeck = Array.isArray(state.deck)
+      ? state.deck.map(k => String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "")).filter(Boolean)
+      : [];
+    Object.assign(state, {
+      active: true,
+      depthId,
+      phase: "path",
+      step: 1,
+      sign: "",
+      fork: [],
+      revealNext: false,
+      eventId: null,
+      offer: [],
+      pending: null,
+      deck: keptDeck,
+      stageCards: [],
+      drawPile: [],
+      discard: [],
+      playerHand: [],
+      playerHandSources: [],
+      enemyHand: [],
+      runBoss,
+      bossEncountered: false,
+      enemyKanji: "",
+      enemyRank: "normal",
+      enemyHp: 0,
+      enemyMaxHp: 0,
+      encounteredEnemies: [],
+      defeatedEnemies: [],
+      woundedEnemies: {},
+      lastKill: null,
+      turn: 1,
+      dmgTakenThisEnemy: 0,
+      fieldState: t("forkFieldState"),
+      playerState: "",
+      enemyState: ""
+    });
+  } else {
+    state = createRunState();
+    Object.assign(state, {
+      active: true,
+      depthId,
+      runNo: config.stats.runs,
+      maxHp: STARTING_MAX_HP,
+      playerHp: STARTING_MAX_HP,
+      phase: "path",
+      step: 1,
+      sign: "",
+      fieldState: t("forkFieldState"),
+      runBoss,
+      bossEncountered: false,
+      deck: []
+    });
+  }
 
   state.fork = generateFork(1);
   achOnRunStart(depthId);
@@ -42,11 +91,7 @@ function startRun(depthId) {
   logMd(`⛩ 1/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
   saveRunToStorage();
 
-  if (currentView !== "battle") {
-    enterGaolCinematic(depthId, () => renderPhase());
-  } else {
-    enterGaolCinematic(depthId, () => renderPhase());
-  }
+  enterGaolCinematic(depthId, () => renderPhase());
 }
 
 /* Closing the draft (legacy fallback) backs out of the descent. */
@@ -59,11 +104,14 @@ function cancelDraft() {
 /* Map the current phase to screen state. Safe to call any time (also after a reload). */
 function renderPhase() {
   const view = $("view-battle");
-  const over = ["cleared", "dead"].includes(state.phase);
+  const over = ["cleared", "dead", "abandoned", "returned"].includes(state.phase);
   view.classList.toggle("intermission", !over && state.phase !== "battle");
   view.classList.toggle("run-over", over);
-  if (!["reward", "cleared"].includes(state.phase)) $("b-boss-card").classList.remove("defeated");
+  if (state.phase !== "reward") $("b-boss-card").classList.remove("defeated");
   if (state.phase !== "dead") $("b-boss-card").classList.remove("player-dead");
+  if (state.phase !== "abandoned") $("b-boss-card").classList.remove("abandoned");
+  if (state.phase !== "returned") $("b-boss-card").classList.remove("returned");
+  if (state.phase !== "cleared") $("b-boss-card").classList.remove("completed");
   updateBattleHUD(false);
   if (!state.pending) closePicker();
 
@@ -77,6 +125,13 @@ function renderPhase() {
     case "battle": setDockActions([]); break;
     case "reward": state.pending ? openPendingPick() : renderRewardOffer(); break;
     case "event": state.pending ? openPendingPick() : renderEventOptions(); break;
+    case "cleared": endRunDock(state.depthId, { cleared: true }); break;
+    case "returned":
+      setDockActions([
+        { label: t("selectNextGaolBtn"), onClick: () => transitionToView("select"), gold: true },
+        { label: t("titleBtn"), onClick: () => transitionToView("title") }
+      ]);
+      break;
     default: break;
   }
 }
@@ -167,10 +222,13 @@ function renderFork() {
   if (state.fork.length === 1 && state.fork[0].outcome === "boss") {
     const boss = state.fork[0].sign;
     const labelKanji = state.bossEncountered ? boss : "？";
-    setDockActions([{ label: t("bossBtn")(labelKanji), onClick: () => choosePath(0), gold: true, cls: "boss-door" }]);
+    setDockActions([
+      { label: t("bossBtn")(labelKanji), onClick: () => choosePath(0), gold: true, cls: "boss-door" },
+      { label: t("returnGaolBtn"), onClick: () => triggerFormalReturn(), cls: "fork-return-btn" }
+    ]);
     return;
   }
-  setDockActions(state.fork.map((f, i) => {
+  const tiles = state.fork.map((f, i) => {
     const def = STAGE_SIGNS[f.sign] || STAGE_SIGNS.田;
     const maxD = depthNumber(state.depthId);
     const validCards = (def.cards || []).filter(k => getKanjiDepthNum(k) <= maxD);
@@ -183,7 +241,13 @@ function renderFork() {
       onClick: () => choosePath(i),
       cls: "fork-tile"
     };
-  }));
+  });
+  tiles.push({
+    label: t("returnGaolBtn"),
+    onClick: () => triggerFormalReturn(),
+    cls: "fork-return-btn"
+  });
+  setDockActions(tiles);
 }
 
 function choosePath(i) {
@@ -319,6 +383,10 @@ function resumeSavedRun() {
   if (Array.isArray(state.playerHand)) {
     state.playerHand = state.playerHand
       .map(k => String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "") || "火");
+  }
+  if (state.phase === "returned") {
+    transitionToView("select", "漢字地獄", "");
+    return;
   }
   resetBattleChrome();
   if (!$("b-gm-log").children.length) replayHistory();

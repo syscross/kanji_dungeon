@@ -375,19 +375,20 @@ function onEnemyDefeated() {
   const isRunBoss = rank === "boss" || state.enemyKanji === state.runBoss;
   state.lastKill = { kanji: state.enemyKanji, turns: state.turn, dmgTaken: state.dmgTakenThisEnemy };
 
-  if (isRunBoss) {
-    state.phase = "reward";
-    updateBattleHUD(false);
-    setTimeout(runCleared, 650);
-    return;
-  }
   state.phase = "reward";
   state.offer = [];
   updateBattleHUD(false);
   saveRunToStorage();
 
-  // Immediately show victory beat in the log and open the inline enemy/intent harvest in the bottom dock!
+  // Immediately show victory beat (殺) in the log and open the inline enemy/intent harvest in the bottom dock!
   showVictoryBeat();
+  if (isRunBoss) {
+    runEffects([
+      { foeScavenge: 5 },
+      { bossClear: true }
+    ]);
+    return;
+  }
   runEffects([
     { foeScavenge: 5 },
     { offerSpoils: rank === "elite" ? "elite" : "normal" }

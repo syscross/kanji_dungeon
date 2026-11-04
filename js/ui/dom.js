@@ -187,8 +187,23 @@ function promptExitGame() {
     `**${t("goAch")}**: ${typeof achievementLine === "function" ? achievementLine() : t("goNone")}`
   ]);
 
-  state.phase = "dead";
+  const bossCard = $("b-boss-card");
+  if (bossCard) {
+    bossCard.classList.remove("hit", "defeated", "player-dead", "returned", "completed");
+    bossCard.classList.add("abandoned");
+  }
+  state.phase = "abandoned";
+  state.deck = [];
   clearSavedRun();
+  if (currentView === "select") renderDepthSpine();
   showToast(t("toastRunEnded"));
+}
+
+function promptExitFromSelect() {
+  playClickSfx();
+  if (!hasActiveRun()) return;
+  openConfirmModal(t("abandonModalTitle"), t("abandonModalDesc"), () => {
+    promptExitGame();
+  });
 }
 

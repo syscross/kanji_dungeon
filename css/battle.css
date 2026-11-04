@@ -456,6 +456,19 @@ body.kb-open .gm-box { min-height: 48px; }
 }
 .fork-reveal { position: absolute; top: 4px; right: 6px; font-size: 0.9rem; }
 .dock-action .boss-door { flex-basis: 100%; padding: 16px; font-family: 'Noto Serif JP', serif; font-size: 1rem; border-color: var(--crimson); color: #ff8a95; }
+.dock-action .fork-return-btn {
+  flex: 1 1 100%;
+  padding: 9px 12px;
+  font-size: 0.8rem;
+  color: var(--gold);
+  border-color: rgba(229, 192, 123, 0.45);
+  background: rgba(229, 192, 123, 0.07);
+}
+.dock-action .fork-return-btn:hover {
+  border-color: var(--gold);
+  background: rgba(229, 192, 123, 0.16);
+  box-shadow: 0 0 16px rgba(229, 192, 123, 0.28);
+}
 
 /* Spoil / event option buttons */
 .dock-action .opt-btn { flex: 1 1 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 14px; }
@@ -666,11 +679,19 @@ body.kb-open .gm-box { min-height: 48px; }
 .log-entry.choice-log { background: none; border-left-color: #6e5931; color: var(--gold); padding: 3px 10px; font-size: 0.8rem; }
 .log-entry.fx-log { background: none; border-left-color: #3a4a5e; color: #b8c7dc; padding: 3px 10px; font-size: 0.8rem; }
 
-/* Defeated boss (殺) & Player death (死) mirror seals */
+/* Defeated boss (殺), Player death (死), Abandon (閉), Formal Return (帰), & Boss Complete (完) seals */
 .boss-card.defeated,
-.boss-card.player-dead {
+.boss-card.player-dead,
+.boss-card.abandoned {
   border-color: #6b1d28;
   box-shadow: 0 0 34px rgba(215, 58, 73, 0.42), inset 0 0 18px rgba(215, 58, 73, 0.22);
+  animation: deathblowTremor 0.48s cubic-bezier(0.18, 0.88, 0.3, 1);
+}
+.boss-card.returned,
+.boss-card.completed {
+  border-color: var(--gold);
+  background: radial-gradient(circle, #2a2112 0%, #0b0d14 100%);
+  box-shadow: 0 0 36px rgba(229, 192, 123, 0.48), inset 0 0 20px rgba(229, 192, 123, 0.22);
   animation: deathblowTremor 0.48s cubic-bezier(0.18, 0.88, 0.3, 1);
 }
 @keyframes deathblowTremor {
@@ -680,14 +701,20 @@ body.kb-open .gm-box { min-height: 48px; }
   100% { transform: scale(1); filter: none; }
 }
 .boss-card.defeated .boss-kanji,
-.boss-card.player-dead .boss-kanji {
+.boss-card.player-dead .boss-kanji,
+.boss-card.abandoned .boss-kanji,
+.boss-card.returned .boss-kanji,
+.boss-card.completed .boss-kanji {
   color: #3a2025;
-  opacity: 0.2;
+  opacity: 0.18;
   text-shadow: none;
   transition: color 0.35s ease, opacity 0.35s ease;
 }
 .boss-card.defeated::after,
-.boss-card.player-dead::after {
+.boss-card.player-dead::after,
+.boss-card.abandoned::after,
+.boss-card.returned::after,
+.boss-card.completed::after {
   content: "殺";
   position: absolute;
   inset: 0;
@@ -707,9 +734,27 @@ body.kb-open .gm-box { min-height: 48px; }
   color: #ff1e38;
   text-shadow: 0 0 18px rgba(0,0,0,0.98), 0 0 32px rgba(255,30,56,0.95), 0 0 54px rgba(215,30,56,0.75);
 }
+.boss-card.abandoned::after {
+  content: "閉";
+  color: #ff3b4e;
+  text-shadow: 0 0 18px rgba(0,0,0,0.98), 0 0 30px rgba(255,59,78,0.9), 0 0 48px rgba(215,58,73,0.7);
+}
+.boss-card.returned::after {
+  content: "帰";
+  color: #ffd166;
+  text-shadow: 0 0 16px rgba(0,0,0,0.98), 0 0 28px rgba(255,209,102,0.92), 0 0 48px rgba(229,192,123,0.7);
+}
+.boss-card.completed::after {
+  content: "完";
+  color: #ffd166;
+  text-shadow: 0 0 18px rgba(0,0,0,0.98), 0 0 32px rgba(255,209,102,0.95), 0 0 54px rgba(229,192,123,0.8);
+}
 @media (max-width: 680px) {
   .boss-card.defeated::after,
-  .boss-card.player-dead::after {
+  .boss-card.player-dead::after,
+  .boss-card.abandoned::after,
+  .boss-card.returned::after,
+  .boss-card.completed::after {
     font-size: 2.35rem;
   }
 }

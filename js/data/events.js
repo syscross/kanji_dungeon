@@ -213,7 +213,8 @@ const EVENTS = {
       { label: EVT_L("Search the temple grounds — scavenge stage kanji", "경내를 탐사한다 — 주변 스테이지 한자 갈무리", "境内を探索する — 周囲のステージ漢字を回収"), effects: [{ scavenge: 4 }] },
       { label: EVT_L("Inscribe a compound — combine 2 kanji in your bag", "제단에 합자(合字)를 새긴다 — 챙긴 두 글자를 하나로 합체", "祭壇に合字を刻む — 袋の二字を一つに合成"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
       { label: EVT_L("Feed the brazier — burn a kanji from your bag", "화로에 넣는다 — 챙긴 글자 하나를 태운다", "火鉢にくべる — 袋の字を一つ焼く"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 },
-      { label: EVT_L("Pray — summon cost back to 10, 1 free reroll", "기도한다 — 소환 비용 10, 무료 리롤 1", "祈る — 召喚コスト10、無料引き直し1"), effects: [{ summonReset: true }, { tokens: 1 }] }
+      { label: EVT_L("Pray — summon cost back to 10, 1 free reroll", "기도한다 — 소환 비용 10, 무료 리롤 1", "祈る — 召喚コスト10、無料引き直し1"), effects: [{ summonReset: true }, { tokens: 1 }] },
+      { label: EVT_L("⛩ 【帰】 Return from this Gaol (keep bag & run)", "⛩ 【帰】 옥문 밖으로 귀환 — 가방과 원정 기록을 유지한 채 퇴각", "⛩ 【帰】 獄門の外へ帰還 — 所持漢字と探索を維持して退く"), effects: [{ returnGaol: true }] }
     ]
   },
   forge: {
@@ -271,13 +272,26 @@ const EVENTS = {
   },
   corpse: {
     kanji: "屍",
-    title: EVT_L("The Clutching Corpse", "무언가를 쥔 시체", "何かを握る屍"),
-    text: EVT_L("A body, fingers locked around something small.",
-            "시체 하나. 손가락이 작은 무언가를 꽉 움켜쥐고 있다.",
-            "屍がひとつ。指が小さな何かを固く握っている。"),
+    title: EVT_L("The Dying Exorcist", "숨이 붙어 있는 퇴마사", "息のある退魔師"),
+    text: EVT_L("A bloodied figure slumped against the wall gasps: \"Do you carry any talisman of healing, medicine, or water…?\"",
+            "벽에 기댄 피투성이 퇴마사가 가쁜 숨을 몰아쉰다. \"크윽… 혹시 가방에 치유나 약초, 물에 관한 부적이 있소…?\"",
+            "壁にもたれた血塗れの退魔師が荒い息を吐く。「くっ…袋に治癒や薬草、水にまつわる札を持ってはいないか…？」"),
     options: [
-      { label: EVT_L("Pry its fingers open", "손가락을 벌린다", "指をこじ開ける"),
-        effects: [{ chance: 0.65, win: [{ addCard: "pick", choices: 3 }], lose: [{ say: EVT_L("It was not dead.", "죽은 게 아니었다.", "死んではいなかった。") }, { battle: "normal" }] }] },
+      {
+        label: EVT_L("✨ Offer a healing/water/herb talisman — Max HP +14 & HP +25", "✨ 회생의 부적을 건넨다 (가방의 글자 1장 공양) — 최대 HP +14 · HP +25", "✨ 回生の札を渡す (袋の字を1枚供養) — 最大HP +14・HP +25"),
+        effects: [{
+          burn: "pick",
+          then: [
+            { say: EVT_L("\"You saved my soul… Take this blessing.\"", "\"은혜를 입었소… 내 남은 영력을 그대에게 넘기겠소.\"", "「命拾いした…我が残りの霊力をそなたに託そう。」") },
+            { maxHp: 14 },
+            { hp: 25 },
+            { tokens: 2 }
+          ]
+        }],
+        when: s => s.deck.some(k => /[薬医水草命活癒回茶救生泉露]/.test(k))
+      },
+      { label: EVT_L("Pry their fingers open for spoils", "손가락을 벌려 유류품을 챙긴다", "指をこじ開けて遺品を漁る"),
+        effects: [{ chance: 0.65, win: [{ addCard: "pick", choices: 3 }], lose: [{ say: EVT_L("It was a trap — a corpse fiend lunges!", "함정이었다 — 시체 귀신이 덮쳐온다!", "罠だった — 屍鬼が襲いかかる！") }, { battle: "normal" }] }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
@@ -314,7 +328,7 @@ const EVENTS = {
             "거울 속의 내가 한 박자 늦게 움직인다. 손에 글자를 쥐고 있다.",
             "鏡の自分が一拍遅れて動く。手に字を握っている。"),
     options: [
-      { label: EVT_L("Reach in (Max HP −6) — copy a kanji", "손을 넣는다 (최대 HP −6) — 글자 복제", "手を入れる (最大HP −6) — 字を写す"), effects: [{ maxHp: -6 }, { dup: "pick" }], when: s => s.deck.length > 0 },
+      { label: EVT_L("Reach in (Max HP −6) — copy a kanji", "손을 넣는다 (최대 HP −6) — 글자 복제", "手を入れる (最大HP −6) — 字を写す"), effects: [{ dup: "pick", then: [{ maxHp: -6 }] }], when: s => s.deck.length > 0 },
       { label: EVT_L("Shatter it (−6 HP) — take a shard (鏡) & reset summon", "깨뜨린다 (−6 HP) — 거울 조각(鏡)을 챙기고 소환 비용 10으로", "割る (−6 HP) — 鏡の欠片を拾い召喚コスト10に"), effects: [{ hp: -6 }, { addCard: "鏡" }, { summonReset: true }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]

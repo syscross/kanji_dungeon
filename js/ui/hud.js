@@ -27,6 +27,15 @@ function stageCardContent() {
   if (state.phase === "dead") {
     return { kanji: state.enemyKanji || "死", neutral: false, dead: true };
   }
+  if (state.phase === "abandoned") {
+    return { kanji: state.enemyKanji || state.sign || "閉", neutral: false, abandoned: true };
+  }
+  if (state.phase === "returned") {
+    return { kanji: state.sign || "門", neutral: true, returned: true };
+  }
+  if (state.phase === "cleared") {
+    return { kanji: state.enemyKanji || state.runBoss || "完", neutral: false, completed: true };
+  }
   if (state.phase === "battle" || (state.phase === "reward" && state.enemyKanji)) {
     return { kanji: state.enemyKanji, neutral: false };
   }
@@ -95,11 +104,15 @@ function updateBattleHUD(animateCards = false) {
   const bossTier = typeof getKanjiTier === "function" ? getKanjiTier(card.kanji) : "edu";
   bossKanjiEl.dataset.tier = bossTier;
   const bossCardEl = $("b-boss-card");
+  const isEndSeal = Boolean(card.dead || card.abandoned || card.returned || card.completed);
   bossCardEl.classList.toggle("neutral", Boolean(card.neutral));
   bossCardEl.classList.toggle("player-dead", Boolean(card.dead));
-  $("enemy-stage").classList.toggle("no-foe", Boolean(card.neutral) || Boolean(card.dead));
+  bossCardEl.classList.toggle("abandoned", Boolean(card.abandoned));
+  bossCardEl.classList.toggle("returned", Boolean(card.returned));
+  bossCardEl.classList.toggle("completed", Boolean(card.completed));
+  $("enemy-stage").classList.toggle("no-foe", Boolean(card.neutral) || isEndSeal);
   $("b-rank").textContent = RANK_MARK[state.enemyRank] || "";
-  $("b-rank").style.display = !card.neutral && !card.dead && RANK_MARK[state.enemyRank] ? "" : "none";
+  $("b-rank").style.display = !card.neutral && !isEndSeal && RANK_MARK[state.enemyRank] ? "" : "none";
   $("b-enemy-state").textContent = state.enemyState || "";
   $("b-field-state").textContent = state.fieldState || "";
   setHpBar("b-enemy-bar", "b-enemy-hp", state.enemyHp, state.enemyMaxHp || 1);

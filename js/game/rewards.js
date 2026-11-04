@@ -43,6 +43,7 @@ function chooseReward(i) {
   playClickSfx();
   const o = state.offer[i];
   if (!o) return;
+  state._lastRewardOffer = [...state.offer];
   state.offer = [];
   setDockActions([]);
   logMd(`→ ${REWARDS[o.id].kanji} ${pickLang(REWARDS[o.id].label)(o.params)}`, "choice-log");
