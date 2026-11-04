@@ -65,7 +65,7 @@ button { font-family: inherit; }
 #cinematic-curtain {
   position: fixed;
   inset: 0;
-  background: #040508;
+  background: radial-gradient(circle at 50% 45%, #160910 0%, #030407 82%);
   z-index: 999;
   display: flex;
   flex-direction: column;
@@ -73,27 +73,68 @@ button { font-family: inherit; }
   justify-content: center;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 #cinematic-curtain.active { opacity: 1; pointer-events: auto; }
+#cinematic-curtain.descent {
+  box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.95);
+}
+#cinematic-curtain.descent.tier-edu { background: radial-gradient(circle at 50% 45%, #0c1c16 0%, #030407 82%); }
+#cinematic-curtain.descent.tier-common { background: radial-gradient(circle at 50% 45%, #22120a 0%, #030407 82%); }
+#cinematic-curtain.descent.tier-abyss {
+  background: radial-gradient(circle at 50% 45%, #320810 0%, #020204 86%);
+  box-shadow: inset 0 0 160px rgba(215, 58, 73, 0.45);
+}
+.curtain-badge {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0.35rem;
+  margin-bottom: 10px;
+  opacity: 0.85;
+}
 .curtain-title {
   font-family: 'Noto Serif JP', serif;
-  font-size: clamp(2rem, 6vw, 3.6rem);
+  font-size: clamp(2.1rem, 7vw, 3.8rem);
   color: var(--crimson);
   letter-spacing: 0.4rem;
-  text-shadow: 0 0 30px rgba(215, 58, 73, 0.75);
-  transform: scale(0.92);
-  transition: transform 0.42s ease;
+  text-shadow: 0 0 34px rgba(215, 58, 73, 0.85);
+  transform: scale(0.88);
+  transition: transform 0.95s cubic-bezier(0.16, 0.84, 0.3, 1), filter 0.6s ease;
 }
-#cinematic-curtain.active .curtain-title { transform: scale(1.04); }
+#cinematic-curtain.active .curtain-title { transform: scale(1.06); }
+#cinematic-curtain.descent.tier-edu .curtain-title { color: #8ce0a8; text-shadow: 0 0 30px rgba(107, 196, 141, 0.65); }
+#cinematic-curtain.descent.tier-common .curtain-title { color: #f5b066; text-shadow: 0 0 34px rgba(245, 176, 102, 0.7); }
+#cinematic-curtain.descent.tier-abyss .curtain-title {
+  color: #ff3b4e;
+  text-shadow: 0 0 42px rgba(255, 59, 78, 0.95), 0 0 14px #000;
+  animation: abyssGateTremor 0.55s ease;
+}
+@keyframes abyssGateTremor {
+  0% { transform: scale(1.45); filter: blur(6px) brightness(2.5); }
+  45% { transform: scale(0.95) rotate(-1.5deg); filter: none; }
+  75% { transform: scale(1.08) rotate(1deg); }
+  100% { transform: scale(1.06); }
+}
 .curtain-sub {
   color: var(--gold);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   margin-top: 12px;
   letter-spacing: 2px;
   text-align: center;
   padding: 0 16px;
 }
+.curtain-stages {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.84rem;
+  color: #8a92a3;
+  margin-top: 20px;
+  letter-spacing: 2px;
+  padding: 6px 16px;
+  border-top: 1px solid rgba(229, 192, 123, 0.22);
+  border-bottom: 1px solid rgba(229, 192, 123, 0.22);
+}
+.curtain-badge:empty, .curtain-stages:empty { display: none; }
 
 #damage-vignette {
   position: fixed;
@@ -223,6 +264,7 @@ button { font-family: inherit; }
 .menu-item small { color: var(--muted); }
 .menu-item:hover { background: rgba(215, 58, 73, 0.22); color: var(--gold); }
 .menu-item.danger { color: #ff8a95; border-top: 1px solid var(--border); }
+#battle-menu .menu-item { justify-content: flex-start; gap: 8px; }
 
 /* Modals */
 .modal-backdrop {

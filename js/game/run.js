@@ -42,8 +42,11 @@ function startRun(depthId) {
   logMd(`⛩ 1/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
   saveRunToStorage();
 
-  if (currentView !== "battle") transitionToView("battle", depthName(depthId), depthGloss(depthId));
-  renderPhase();
+  if (currentView !== "battle") {
+    enterGaolCinematic(depthId, () => renderPhase());
+  } else {
+    enterGaolCinematic(depthId, () => renderPhase());
+  }
 }
 
 /* Closing the draft (legacy fallback) backs out of the descent. */

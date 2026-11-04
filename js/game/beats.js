@@ -12,7 +12,8 @@ function showVictoryBeat() {
   const k = state.lastKill || { kanji: state.enemyKanji, turns: state.turn, dmgTaken: 0 };
   $("b-boss-card").classList.remove("hit");
   $("b-boss-card").classList.add("defeated");
-  playGongSfx();
+  if (typeof playSealStampSfx === "function") playSealStampSfx();
+  else playGongSfx();
   logBeat("victory-log", `【${k.kanji}】 斬`, [t("victoryStats")(k.turns, k.dmgTaken)]);
 }
 

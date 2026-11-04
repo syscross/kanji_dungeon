@@ -23,12 +23,30 @@
   <canvas id="ember-canvas"></canvas>
 
   <div id="cinematic-curtain">
+    <div class="curtain-badge" id="curtain-badge"></div>
     <div class="curtain-title" id="curtain-title">漢字地獄</div>
     <div class="curtain-sub" id="curtain-sub">DESCENDING INTO THE ABYSS...</div>
+    <div class="curtain-stages" id="curtain-stages"></div>
   </div>
   <div id="damage-vignette"></div>
   <div id="ach-toast"></div>
   <div id="global-toast"></div>
+
+  <!-- Depth Gate Lore & Entry Confirmation Modal -->
+  <div class="modal-backdrop" id="depth-enter-modal">
+    <div class="modal-card depth-modal-card" id="depth-modal-card">
+      <div class="depth-modal-seal" id="dm-seal">01</div>
+      <div class="depth-modal-zone" id="dm-zone"></div>
+      <div class="modal-title depth-modal-title" id="dm-title">獄門</div>
+      <div class="depth-modal-meta" id="dm-meta"></div>
+      <div class="depth-modal-lore" id="dm-lore"></div>
+      <div class="depth-modal-stages-wrap" id="dm-stages-wrap">
+        <div class="depth-modal-stages-label" id="dm-stages-label">출현 지역</div>
+        <div class="depth-modal-stages" id="dm-stages"></div>
+      </div>
+      <div class="modal-actions depth-modal-actions" id="dm-actions"></div>
+    </div>
+  </div>
 
   <!-- Confirm (exit / abandon) -->
   <div class="modal-backdrop" id="confirm-modal">
@@ -221,7 +239,7 @@
         <button class="menu-btn" id="play-btn" onclick="handlePlayGameClick()">⚔ PLAY GAME</button>
         <button class="menu-btn" id="install-btn" data-i18n="installBtn" onclick="handleInstallClick()" style="display:none">📲 Install app</button>
         <button class="menu-btn" onclick="openSettingsModal()">⚙ <span data-i18n="settings">Settings</span></button>
-        <button class="menu-btn" data-i18n="exit" onclick="promptExitGame()">🚪 EXIT</button>
+        <button class="menu-btn" id="title-exit-btn" data-i18n="exit" onclick="promptExitGame()" style="display:none">🏳️ Abandon run</button>
       </div>
 
       <button class="corner-btn left" data-i18n-title="guideBtn" onclick="openGuideModal()">📖</button>
@@ -231,7 +249,7 @@
     <!-- VIEW: DEPTH SELECT -->
     <div id="view-select" class="view">
       <div class="select-header">
-        <span class="select-title" data-i18n="selectDepth">【SELECT ABYSSAL DEPTH : 01 → 12】</span>
+        <span class="select-title" data-i18n="selectDepth">【THE TWELVE GAOLS — SEALED GATES】</span>
         <button class="btn" data-i18n="toTitle" onclick="transitionToView('title')">↩ Title</button>
       </div>
       <div class="abyss-scroll">
@@ -254,7 +272,7 @@
           <div class="dropdown align-right" id="battle-menu">
             <button class="btn icon-btn" data-i18n-title="menuBtn" onclick="toggleDropdown('battle-menu', event)">⋮</button>
             <div class="dropdown-menu">
-              <button class="menu-item" onclick="openDeckViewer()">🀄 <span data-i18n="deckBtn">Deck</span></button>
+              <button class="menu-item" data-i18n="deckBtn" onclick="openDeckViewer()">🀄 Bag</button>
               <button class="menu-item" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy log</button>
               <button class="menu-item" data-i18n="logClear" onclick="closeDropdowns(); clearGmLog(true)">🧹 Clear log</button>
               <button class="menu-item" data-i18n="pauseTitle" onclick="pauseRunToTitle()">⏸ Save & title</button>

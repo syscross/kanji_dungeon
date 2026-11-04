@@ -5,13 +5,16 @@ function updateSavedRunBanner() {
   const banner = $("saved-run-banner");
   if (!banner) return;
   const playBtn = $("play-btn");
+  const exitBtn = $("title-exit-btn");
   if (hasActiveRun()) {
     banner.textContent = t("ongoingBadge")(depthName(state.depthId), Math.max(1, state.step), PATH_STEPS, state.playerHp, state.maxHp);
     banner.classList.add("show");
     if (playBtn) playBtn.textContent = t("resumeGame");
+    if (exitBtn) exitBtn.style.display = "";
   } else {
     banner.classList.remove("show");
     if (playBtn) playBtn.textContent = t("playGame");
+    if (exitBtn) exitBtn.style.display = "none";
   }
 }
 
@@ -74,7 +77,7 @@ function renderDepthSpine() {
 
     const node = document.createElement("div");
     node.className = `abyss-node tier-${dTier}` + (best ? " cleared" : "");
-    node.onclick = () => requestStartRun(did);
+    node.onclick = () => openDepthEnterModal(did);
     node.innerHTML = `
       <div class="node-num tier-${dTier}">${depthNumStr(did)}</div>
       <div class="node-body">
@@ -87,3 +90,106 @@ function renderDepthSpine() {
     spine.appendChild(node);
   });
 }
+
+/* Pre-Entry Gate Lore & Stage Briefing Modal (with double-confirmation for Red Zone Depths 11 & 12) */
+function openDepthEnterModal(did) {
+  playClickSfx();
+  const d = KANKEN_DATA[did];
+  const dNum = depthNumber(did);
+  const tier = typeof depthTier === "function" ? depthTier(did) : (dNum >= 11 ? "abyss" : dNum >= 7 ? "common" : "edu");
+  const card = $("depth-modal-card");
+  card.className = `modal-card depth-modal-card tier-${tier}`;
+
+  const seal = $("dm-seal");
+  seal.textContent = depthNumStr(did);
+  seal.className = `depth-modal-seal tier-${tier}`;
+
+  const zoneMap = {
+    edu: t("zoneEduBadge"),
+    common: t("zoneCommonBadge"),
+    abyss: t("zoneAbyssBadge")
+  };
+  const zoneEl = $("dm-zone");
+  zoneEl.textContent = zoneMap[tier] || "";
+  zoneEl.className = `depth-modal-zone tier-${tier}`;
+
+  $("dm-title").textContent = `【${depthName(did)}】 — ${depthGloss(did)}`;
+  $("dm-meta").textContent = `${kankenLabel(did)} · ${(d ? d.count : 0).toLocaleString()}字`;
+  $("dm-lore").textContent = typeof depthLore === "function" ? depthLore(did) : "";
+  $("dm-lore").classList.remove("warn-step");
+
+  const stageWrap = $("dm-stages-wrap");
+  stageWrap.style.display = "";
+  $("dm-stages-label").textContent = t("dmStagesLabel");
+  const stagesEl = $("dm-stages");
+  const stageSigns = (typeof DEPTH_STAGE_POOLS !== "undefined" && DEPTH_STAGE_POOLS[did]) || [];
+  stagesEl.innerHTML = stageSigns.map((s) => {
+    const sDef = typeof STAGE_SIGNS !== "undefined" ? STAGE_SIGNS[s] : null;
+    const omen = sDef ? pickLang(sDef.omen) : "";
+    const sTier = typeof getKanjiTier === "function" ? getKanjiTier(s) : tier;
+    return `<div class="dm-stage-chip tier-${sTier}"><span class="dm-stage-kanji">${escapeHtml(s)}</span><span class="dm-stage-omen">${escapeHtml(omen)}</span></div>`;
+  }).join("");
+
+  const actions = $("dm-actions");
+  actions.innerHTML = "";
+
+  const enterBtn = document.createElement("button");
+  enterBtn.className = tier === "abyss" ? "btn btn-abyss-enter" : "btn btn-gold";
+  enterBtn.textContent = tier === "abyss" ? t("unsealAbyssBtn") : t("enterGaolBtn");
+  enterBtn.onclick = () => {
+    if (tier === "abyss") openAbyssSecondConfirm(did);
+    else confirmEnterDepth(did);
+  };
+
+  const backBtn = document.createElement("button");
+  backBtn.className = "btn";
+  backBtn.textContent = t("stepBackBtn");
+  backBtn.onclick = () => {
+    playClickSfx();
+    closeModal("depth-enter-modal");
+  };
+
+  actions.appendChild(enterBtn);
+  actions.appendChild(backBtn);
+  openModal("depth-enter-modal");
+}
+
+function openAbyssSecondConfirm(did) {
+  if (typeof playDamageSfx === "function") playDamageSfx();
+  const card = $("depth-modal-card");
+  card.classList.remove("abyss-second-step");
+  void card.offsetWidth;
+  card.classList.add("abyss-second-step");
+
+  const def = DEPTHS[did] || {};
+  $("dm-title").textContent = pickLang(def.abyssWarnTitle) || "【WARNING】";
+  const loreEl = $("dm-lore");
+  loreEl.textContent = pickLang(def.abyssWarnDesc) || "";
+  loreEl.classList.add("warn-step");
+  $("dm-stages-wrap").style.display = "none";
+
+  const actions = $("dm-actions");
+  actions.innerHTML = "";
+
+  const confirmBtn = document.createElement("button");
+  confirmBtn.className = "btn btn-abyss-enter final";
+  confirmBtn.textContent = pickLang(def.abyssConfirmBtn) || t("enterGaolBtn");
+  confirmBtn.onclick = () => confirmEnterDepth(did);
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "btn";
+  cancelBtn.textContent = t("stepBackBtn");
+  cancelBtn.onclick = () => {
+    playClickSfx();
+    closeModal("depth-enter-modal");
+  };
+
+  actions.appendChild(confirmBtn);
+  actions.appendChild(cancelBtn);
+}
+
+function confirmEnterDepth(did) {
+  closeModal("depth-enter-modal");
+  requestStartRun(did);
+}
+

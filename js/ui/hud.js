@@ -259,6 +259,12 @@ function triggerCombatFX(enemyDmg, playerDmg, playerHeal = 0) {
     bossCard.classList.remove("hit");
     void bossCard.offsetWidth;
     bossCard.classList.add("hit");
+
+    const slash = document.createElement("div");
+    slash.className = "slash-streak";
+    bossCard.appendChild(slash);
+    setTimeout(() => slash.remove(), 480);
+
     popNumber(bossCard, `-${enemyDmg}`, "dmg");
   }
   if (playerHeal > 0) popNumber($("b-player-stat"), `+${playerHeal}`, "heal");
@@ -271,7 +277,7 @@ function triggerCombatFX(enemyDmg, playerDmg, playerHeal = 0) {
     void appRoot.offsetWidth;
     appRoot.classList.add("shake");
     vig.classList.add("flash");
-    setTimeout(() => vig.classList.remove("flash"), 340);
+    setTimeout(() => vig.classList.remove("flash"), 380);
   }
 }
 

@@ -76,13 +76,48 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
     return;
   }
   playGongSfx();
+  curtain.className = "active";
+  if ($("curtain-badge")) $("curtain-badge").textContent = "";
   $("curtain-title").textContent = curtainKanji;
   $("curtain-sub").textContent = curtainSub;
-  curtain.classList.add("active");
+  if ($("curtain-stages")) $("curtain-stages").textContent = "";
   setTimeout(() => {
     switchDomView(viewName, true);
-    setTimeout(() => curtain.classList.remove("active"), 240);
+    setTimeout(() => {
+      curtain.className = "";
+    }, 240);
   }, 330);
+}
+
+/* Heavy gate-unsealing descent animation when entering a Gaol */
+function enterGaolCinematic(depthId, onReady) {
+  closeDropdowns();
+  const curtain = $("cinematic-curtain");
+  const tier = typeof depthTier === "function" ? depthTier(depthId) : "edu";
+  const stageSigns = (typeof DEPTH_STAGE_POOLS !== "undefined" && DEPTH_STAGE_POOLS[depthId]) || [];
+
+  playGongSfx();
+  setTimeout(() => {
+    if (typeof playSealStampSfx === "function") playSealStampSfx();
+  }, 340);
+
+  if ($("curtain-badge")) {
+    $("curtain-badge").textContent = `第 ${depthNumStr(depthId)} 獄 · ${kankenLabel(depthId)}`;
+  }
+  $("curtain-title").textContent = `【 ${depthName(depthId)} 】`;
+  $("curtain-sub").textContent = depthGloss(depthId);
+  if ($("curtain-stages")) {
+    $("curtain-stages").textContent = stageSigns.length ? `⛩ ${stageSigns.join("  ·  ")}` : "";
+  }
+
+  curtain.className = `active descent tier-${tier}`;
+  setTimeout(() => {
+    switchDomView("battle", true);
+    if (typeof onReady === "function") onReady();
+    setTimeout(() => {
+      curtain.className = "";
+    }, 460);
+  }, 1150);
 }
 
 function switchDomView(name, pushHist = true) {
@@ -132,22 +167,27 @@ function handleBrandClick() {
 }
 
 function promptExitGame() {
-  playClickSfx();
-  openConfirmModal(t("exitModalTitle"), t("exitModalDesc"), () => {
-    playGongSfx();
-    const curtain = $("cinematic-curtain");
-    $("curtain-title").textContent = "閉 門";
-    $("curtain-sub").textContent = "SEVERING CONNECTION... FAREWELL.";
-    curtain.classList.add("active");
-    setTimeout(() => {
-      window.open("", "_self");
-      window.close();
-      $("curtain-sub").textContent = "CONNECTION CLOSED. YOU MAY CLOSE THIS TAB (OR TAP TO RETURN).";
-      curtain.onclick = () => {
-        curtain.onclick = null;
-        curtain.classList.remove("active");
-        switchDomView("title", false);
-      };
-    }, 850);
-  });
+  if (!hasActiveRun()) return;
+  if (typeof playSealStampSfx === "function") playSealStampSfx();
+  else playGongSfx();
+
+  // Ensure previous log entries are rendered in #b-gm-log so the full run log remains intact behind
+  if (!$("b-gm-log").children.length && state.history && state.history.length) {
+    replayHistory();
+  }
+
+  const depthId = state.depthId;
+  const rec = typeof runSummary === "function" ? runSummary() : { kills: state.kills || 0, totalTurns: state.totalTurns || 0, timeSec: state.elapsedSec || 0 };
+  logBeat("death-log", t("goAbandon"), [
+    `**${t("goDepth")}**: ${depthNumStr(depthId)} ${depthName(depthId)} — ${depthGloss(depthId)}`,
+    `**${t("goReached")}**: ${Math.max(1, state.step)}/${PATH_STEPS} · ${t("goBoss")} 【${state.enemyKanji || state.sign || "—"}】`,
+    `**${t("goStreak")}**: ⚔ ${rec.kills} · ${rec.totalTurns}T · ⏱ ${formatTime(rec.timeSec)}`,
+    `**${t("goModel")}**: ${typeof modelTag === "function" ? modelTag(rec) : ""}`,
+    `**${t("goAch")}**: ${typeof achievementLine === "function" ? achievementLine() : t("goNone")}`
+  ]);
+
+  state.phase = "dead";
+  clearSavedRun();
+  showToast(t("toastRunEnded"));
 }
+

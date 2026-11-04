@@ -38,6 +38,11 @@
   background: linear-gradient(180deg, rgba(40,14,22,0.72) 0%, rgba(10,11,17,0.92) 100%);
   box-shadow: 0 0 60px rgba(215, 58, 73, 0.25), inset 0 0 28px rgba(215, 58, 73, 0.16);
   max-width: 100%;
+  animation: sealBreath 4.5s ease-in-out infinite;
+}
+@keyframes sealBreath {
+  0%, 100% { box-shadow: 0 0 50px rgba(215, 58, 73, 0.22), inset 0 0 24px rgba(215, 58, 73, 0.14); }
+  50% { box-shadow: 0 0 78px rgba(215, 58, 73, 0.42), inset 0 0 38px rgba(215, 58, 73, 0.28); }
 }
 .title-kanji {
   font-family: 'Noto Serif JP', serif;
@@ -388,3 +393,174 @@
 }
 .pick-tile:disabled { cursor: default; opacity: 1; }
 #pick-actions .btn { flex: 1; padding: 10px; }
+
+/* ---- Depth Gate Entry & Lore Briefing Modal ---- */
+.depth-modal-card {
+  max-width: 540px;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 22px 22px 18px;
+  background: linear-gradient(180deg, #151724 0%, #0b0d14 100%);
+  position: relative;
+}
+.depth-modal-card.tier-edu {
+  border-color: #4ea870;
+  box-shadow: 0 0 42px rgba(78, 168, 112, 0.25);
+}
+.depth-modal-card.tier-common {
+  border-color: #d48232;
+  box-shadow: 0 0 46px rgba(212, 130, 50, 0.3);
+}
+.depth-modal-card.tier-abyss {
+  border-color: #ff3b4e;
+  background: linear-gradient(180deg, #210b12 0%, #09070b 100%);
+  box-shadow: 0 0 60px rgba(255, 59, 78, 0.45), inset 0 0 28px rgba(215, 58, 73, 0.2);
+}
+.depth-modal-card.abyss-second-step {
+  animation: abyssWarnShake 0.42s cubic-bezier(0.2, 0.85, 0.3, 1);
+  border-color: #ff1e38;
+  box-shadow: 0 0 80px rgba(255, 30, 56, 0.65), inset 0 0 42px rgba(255, 30, 56, 0.28);
+}
+@keyframes abyssWarnShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-10px, 4px) scale(1.02); }
+  45% { transform: translate(9px, -5px); }
+  70% { transform: translate(-6px, -2px); }
+}
+.depth-modal-seal {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.35rem;
+  border: 2px solid var(--crimson);
+  background: #080a10;
+  margin-bottom: 2px;
+}
+.depth-modal-seal.tier-edu { border-color: #4ea870; color: #8ce0a8; }
+.depth-modal-seal.tier-common { border-color: #d48232; color: #f5b066; }
+.depth-modal-seal.tier-abyss {
+  border-color: #ff3b4e;
+  color: #ff4d5e;
+  box-shadow: 0 0 18px rgba(255, 59, 78, 0.5);
+}
+.depth-modal-zone {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.depth-modal-zone.tier-edu { color: #8ce0a8; background: rgba(78, 168, 112, 0.14); border: 1px solid rgba(78, 168, 112, 0.4); }
+.depth-modal-zone.tier-common { color: #f5b066; background: rgba(212, 130, 50, 0.14); border: 1px solid rgba(212, 130, 50, 0.4); }
+.depth-modal-zone.tier-abyss { color: #ff6b7b; background: rgba(255, 59, 78, 0.16); border: 1px solid rgba(255, 59, 78, 0.5); }
+
+.depth-modal-title {
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+  color: #f5efe6;
+}
+.depth-modal-card.tier-abyss .depth-modal-title {
+  color: #ff4d5e;
+  text-shadow: 0 0 14px rgba(255, 59, 78, 0.55);
+}
+.depth-modal-meta {
+  font-size: 0.76rem;
+  color: var(--gold);
+  margin-top: -4px;
+}
+.depth-modal-lore {
+  width: 100%;
+  background: rgba(7, 8, 13, 0.78);
+  border: 1px solid #2b2228;
+  border-left: 3px solid var(--gold);
+  padding: 12px 14px;
+  font-size: 0.83rem;
+  line-height: 1.68;
+  color: #ddd6ca;
+  text-align: left;
+  white-space: pre-line;
+  word-break: keep-all;
+}
+.depth-modal-card.tier-edu .depth-modal-lore { border-left-color: #4ea870; }
+.depth-modal-card.tier-common .depth-modal-lore { border-left-color: #d48232; }
+.depth-modal-card.tier-abyss .depth-modal-lore {
+  border-left-color: #ff3b4e;
+  background: rgba(20, 6, 10, 0.82);
+  color: #f2d5d8;
+}
+.depth-modal-lore.warn-step {
+  text-align: center;
+  font-weight: 700;
+  color: #ff9aa6;
+  border: 1.5px solid #ff3b4e;
+  padding: 16px 14px;
+}
+
+.depth-modal-stages-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.depth-modal-stages-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: left;
+}
+.depth-modal-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dm-stage-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  background: #0c0e16;
+  border: 1px solid #2e252b;
+  border-radius: 4px;
+  font-size: 0.74rem;
+}
+.dm-stage-kanji {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 900;
+  font-size: 0.98rem;
+}
+.dm-stage-chip.tier-edu .dm-stage-kanji { color: #8ce0a8; }
+.dm-stage-chip.tier-common .dm-stage-kanji { color: #f5b066; }
+.dm-stage-chip.tier-abyss .dm-stage-kanji { color: #ff5c6c; }
+.dm-stage-omen { color: #9aa2b2; font-size: 0.7rem; }
+
+.depth-modal-actions {
+  width: 100%;
+  margin-top: 4px;
+}
+.depth-modal-actions .btn {
+  flex: 1;
+  padding: 11px 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.btn-abyss-enter {
+  border-color: #ff3b4e;
+  color: #ff6b7b;
+  background: linear-gradient(180deg, rgba(160, 20, 38, 0.32), rgba(28, 8, 14, 0.92));
+}
+.btn-abyss-enter:hover {
+  border-color: #ff6b7b;
+  color: #fff;
+  box-shadow: 0 0 22px rgba(255, 59, 78, 0.6);
+}
+.btn-abyss-enter.final {
+  border-color: #ff1e38;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(215, 30, 56, 0.55), rgba(60, 8, 16, 0.95));
+  box-shadow: 0 0 20px rgba(255, 30, 56, 0.45);
+}
+
