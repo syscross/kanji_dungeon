@@ -11,20 +11,19 @@
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <!-- Background Ember Particle Canvas -->
   <canvas id="ember-canvas"></canvas>
 
-  <!-- Fullscreen Cinematic Curtain -->
   <div id="cinematic-curtain">
     <div class="curtain-title" id="curtain-title">漢字地獄</div>
     <div class="curtain-sub" id="curtain-sub">DESCENDING INTO THE ABYSS...</div>
   </div>
   <div id="damage-vignette"></div>
+  <div id="ach-toast">🏆 업적 달성!</div>
 
-  <!-- Confirmation Modal (For Exit & Leave Battle) -->
+  <!-- MODAL 1: Confirm (Exit / Abandon) -->
   <div class="modal-backdrop" id="confirm-modal">
     <div class="modal-card">
-      <div class="modal-title" id="modal-title">【 閉門 】</div>
+      <div class="modal-title" id="modal-title">【閉門】</div>
       <div class="modal-desc" id="modal-desc">Are you sure?</div>
       <div class="modal-actions">
         <button class="btn btn-gold" data-i18n="confirm" onclick="closeConfirmModal(true)">Confirm</button>
@@ -33,20 +32,118 @@
     </div>
   </div>
 
+  <!-- MODAL 2: Settings Popup (Works anytime, even mid-battle!) -->
+  <div class="modal-backdrop" id="settings-modal">
+    <div class="modal-card wide">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title" data-i18n="settingsTitle">【SETTINGS】</div>
+        <button class="btn" data-i18n="closeBtn" onclick="closeSettingsModal()">✕ Close</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#0b0d14; padding:8px 12px; border:1px solid var(--border);">
+        <span style="font-size:0.8rem; color:var(--gold);" data-i18n="lblSound">Sound Effects (SFX)</span>
+        <button class="btn" id="sound-toggle-btn" onclick="toggleSound()">🔊 ON</button>
+      </div>
+
+      <p style="font-size:0.75rem; color:var(--muted);">
+        <span data-i18n="keyNotice">🔒 Instant Free Keyless mode works out-of-the-box!</span>
+        <a id="s-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold); margin-left:6px;">[Get Key ↗]</a>
+      </p>
+
+      <div class="field-group">
+        <label data-i18n="lblProvider">1. AI Provider</label>
+        <select id="s-provider" onchange="onProviderChange()"></select>
+      </div>
+
+      <div class="field-group" id="s-endpoint-group" style="display:none;">
+        <label data-i18n="lblEndpoint">Custom OpenAI-Compatible Base URL</label>
+        <input type="text" id="s-endpoint" class="input-ctrl" placeholder="http://localhost:11434/v1/chat/completions" />
+      </div>
+
+      <div class="field-group" id="s-apikey-group">
+        <label data-i18n="lblApiKey">2. API Key</label>
+        <input type="password" id="s-apikey" class="input-ctrl" placeholder="Paste API Key here..." />
+      </div>
+
+      <div class="field-group">
+        <label data-i18n="lblModel">3. Model Preset or Custom ID</label>
+        <select id="s-model-preset" onchange="document.getElementById('s-model-custom').value = this.value"></select>
+        <input type="text" id="s-model-custom" class="input-ctrl" placeholder="Or type any model ID..." />
+      </div>
+
+      <div class="field-group">
+        <label data-i18n="lblInstMode">4. Instruction Mode</label>
+        <select id="s-inst-mode" onchange="onInstModeChange()">
+          <option value="Default">🏆 Default (Official Rules — Read-Only)</option>
+          <option value="Custom">🛠 Custom (Official Rules + Your Addon Patch)</option>
+          <option value="Sandbox">🧪 Sandbox (Full Custom Ruleset)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label data-i18n="lblDefaultInst">Official GM Rules (Read-Only)</label>
+        <textarea id="s-default-inst" readonly style="opacity:0.65;"></textarea>
+      </div>
+
+      <div class="field-group" id="s-custom-group">
+        <label data-i18n="lblCustomInst">Custom Addon / Sandbox Rules</label>
+        <textarea id="s-custom-inst" placeholder="Add extra GM persona rules..."></textarea>
+      </div>
+
+      <div class="modal-actions" style="justify-content:flex-end;">
+        <button class="btn" data-i18n="testKey" onclick="testApiKey()">🧪 Test Key</button>
+        <button class="btn btn-gold" data-i18n="saveBtn" onclick="saveSettings()">💾 Save & Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Paginated Guide (Bottom-Left) -->
+  <div class="modal-backdrop" id="guide-modal">
+    <div class="modal-card wide">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title" id="guide-page-title">📖 1/5</div>
+        <button class="btn" onclick="document.getElementById('guide-modal').classList.remove('active')">✕</button>
+      </div>
+      <div class="modal-desc" id="guide-page-body" style="white-space:pre-wrap; min-height:130px;"></div>
+      <div class="modal-actions" style="justify-content:space-between;">
+        <button class="btn" onclick="stepGuidePage(-1)">◀ Prev</button>
+        <button class="btn btn-gold" onclick="stepGuidePage(1)">Next ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Achievements (Bottom-Right) -->
+  <div class="modal-backdrop" id="ach-modal">
+    <div class="modal-card wide">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title">🏆 【 業 蹟 — ACHIEVEMENTS 】</div>
+        <button class="btn" onclick="document.getElementById('ach-modal').classList.remove('active')">✕</button>
+      </div>
+      <div class="ach-grid" id="ach-grid"></div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Slay the Spire Style Game Over Screen -->
+  <div class="modal-backdrop" id="gameover-modal">
+    <div class="modal-card">
+      <div class="modal-title" id="go-title">【死 — GAME OVER】</div>
+      <div class="modal-desc" id="go-stats" style="text-align:left; white-space:pre-wrap; background:#0b0d14; padding:12px; border:1px solid var(--border);"></div>
+      <div class="modal-actions">
+        <button class="btn btn-gold" id="go-retry-btn">🔄 Retry Floor</button>
+        <button class="btn" onclick="exportBattleLog()">📋 Copy Log</button>
+        <button class="btn" onclick="closeGameOverToTitle()">⛩ Title</button>
+      </div>
+    </div>
+  </div>
+
   <div class="app-container" id="app-root">
-    <!-- Top Bar -->
+    <!-- Top Bar: Left Logo Fixed, Right Controls with Volume on the Far Right -->
     <div class="topbar">
-      <div class="top-left">
-        <button class="btn" id="back-btn" style="display:none;" data-i18n="back" onclick="handleBackButton()">← Back</button>
-        <div class="brand" onclick="handleBrandClick()">
-          <span>⛩</span> KANJI DUNGEON
-        </div>
+      <div class="brand" onclick="handleBrandClick()">
+        <span>⛩</span> KANJI DUNGEON
       </div>
 
       <div class="top-controls">
-        <button class="btn" id="sound-btn" onclick="toggleSound()" title="Toggle Sound FX">🔊</button>
-
-        <!-- Language Dropdown (EN / JA / KO / ZH ▸ ZH_CN, ZH_TW) -->
         <div class="lang-dropdown" id="lang-dropdown">
           <button class="btn" id="lang-current-label" onclick="toggleLangMenu(event)">🌐 KO ▾</button>
           <div class="lang-menu">
@@ -63,15 +160,16 @@
           </div>
         </div>
 
-        <button class="btn btn-gold" id="mode-badge" onclick="transitionToView('settings')">⚙ Mode: Default</button>
+        <button class="btn btn-gold" id="mode-badge" onclick="openSettingsModal()">⚙ Mode: Default</button>
         <button class="btn" data-i18n="testKey" onclick="testApiKey()">🧪 Test Key</button>
-        <button class="btn" data-i18n="settings" onclick="transitionToView('settings')">🔑 Settings</button>
+        <button class="btn" data-i18n="settings" onclick="openSettingsModal()">🔑 Settings</button>
+        <button class="btn" id="sound-btn" onclick="toggleSound()" title="Sound ON/OFF">🔊</button>
       </div>
     </div>
 
     <div id="global-toast"></div>
 
-    <!-- VIEW 1: TITLE SCREEN -->
+    <!-- VIEW 1: TITLE SCREEN (4 Uniform Buttons + Bottom-Left Guide & Bottom-Right Achievements) -->
     <div id="view-title" class="view active">
       <div class="title-seal">
         <div class="title-kanji">漢字地獄</div>
@@ -79,18 +177,29 @@
         <div class="title-sub" data-i18n="titleSub">6,355 Kanji Dark-Fantasy AI TRPG Roguelike</div>
       </div>
 
+      <div class="saved-run-banner" id="saved-run-banner" onclick="handlePlayGameClick()" style="cursor:pointer;"></div>
+
       <div class="title-menu">
-        <button class="menu-btn primary" data-i18n="playGame" onclick="transitionToView('select', '奈落選択', 'CHOOSE YOUR DEPTH (01 — 12)')">⚔ PLAY GAME</button>
+        <button class="menu-btn" data-i18n="playGame" onclick="handlePlayGameClick()">⚔ PLAY GAME</button>
         <button class="menu-btn" data-i18n="testKey" onclick="testApiKey()">🧪 TEST KEY</button>
-        <button class="menu-btn" data-i18n="settings" onclick="transitionToView('settings', '環境設定', 'ARCANE CONFIGURATION')">🔑 SETTINGS</button>
+        <button class="menu-btn" data-i18n="settings" onclick="openSettingsModal()">🔑 SETTINGS</button>
         <button class="menu-btn" data-i18n="exit" onclick="promptExitGame()">🚪 EXIT</button>
+      </div>
+
+      <!-- Bottom-Left Guide & Bottom-Right Achievements -->
+      <div class="title-corner left">
+        <button class="corner-btn" data-i18n="guideBtn" onclick="openGuideModal()">📖 가이드</button>
+      </div>
+      <div class="title-corner right">
+        <button class="corner-btn" id="ach-corner-btn" onclick="openAchievementsModal()">🏆 업적 (0/10)</button>
       </div>
     </div>
 
-    <!-- VIEW 2: ABYSSAL DESCENT (01 -> 12 Vertical Spine) -->
+    <!-- VIEW 2: ABYSSAL DESCENT (01 -> 12) -->
     <div id="view-select" class="view">
       <div class="select-header">
-        <span style="color:var(--crimson); font-weight:700; font-size:0.9rem;" data-i18n="selectDepth">【 SELECT ABYSSAL DEPTH : 01 → 12 】</span>
+        <span style="color:var(--crimson); font-weight:700; font-size:0.9rem;" data-i18n="selectDepth">【SELECT ABYSSAL DEPTH : 01 → 12】</span>
+        <button class="btn" data-i18n="toTitle" onclick="transitionToView('title')">↩ Title</button>
       </div>
       <div class="abyss-scroll">
         <div class="abyss-spine" id="depth-spine"></div>
@@ -103,17 +212,18 @@
         <div>
           <strong id="b-depth-title" style="color:var(--crimson)">01 — 拾ノ獄</strong>
           <span id="b-turn" style="margin-left:6px; color:var(--muted)">Turn 1</span>
+          <span class="badge" id="b-timer" style="margin-left:6px;">⏱ 00:00</span>
         </div>
         <div><span data-i18n="field">Field</span>: <span class="badge" id="b-field-state">Pitch-Black Dungeon</span></div>
         <div style="display:flex; gap:4px; align-items:center;">
           <span class="badge" id="b-streak">🔥 0 Kills</span>
           <button class="btn" style="padding:2px 7px;" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy</button>
           <button class="btn" style="padding:2px 7px;" data-i18n="logClear" onclick="clearGmLog(true)">🧹 Clear</button>
-          <button class="btn" style="padding:2px 7px;" data-i18n="leave" onclick="handleBackButton()">↩ Leave</button>
+          <button class="btn" style="padding:2px 7px;" data-i18n="pauseTitle" onclick="pauseRunToTitle()">⏸ Title</button>
+          <button class="btn" style="padding:2px 7px; border-color:var(--crimson); color:var(--crimson);" data-i18n="abandon" onclick="promptAbandonRun()">🏳️ Abandon</button>
         </div>
       </div>
 
-      <!-- Enemy Stage -->
       <div class="enemy-stage">
         <div class="boss-left">
           <div class="boss-card" id="b-boss-card" onclick="insertKanji(state.enemyKanji)" title="Click to insert Boss Kanji">
@@ -133,10 +243,8 @@
         </div>
       </div>
 
-      <!-- Cumulative GM Scroll Log -->
       <div class="gm-box" id="b-gm-log"></div>
 
-      <!-- Player Bottom Dock with Large Cards & Visual Deck -->
       <div class="player-dock">
         <div class="player-stat-row">
           <div style="display:flex; align-items:center; gap:8px;">
@@ -169,64 +277,6 @@
           <input type="text" id="b-input" class="prompt-input" placeholder="Click Kanji cards or type spell..." autocomplete="off" />
           <button type="submit" class="btn btn-gold" id="b-send-btn" data-i18n="castBtn">⚔️ Cast</button>
         </form>
-      </div>
-    </div>
-
-    <!-- VIEW 4: SETTINGS -->
-    <div id="view-settings" class="view">
-      <div class="panel-box">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="color:var(--crimson); font-size:0.95rem;" data-i18n="settingsTitle">【 SETTINGS — PROVIDER, MODEL & GM MODE 】</h3>
-        </div>
-        <p style="font-size:0.76rem; color:var(--muted);">
-          <span data-i18n="keyNotice">🔒 API Keys are saved per-provider in your browser's localStorage only.</span>
-          <a id="s-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold); margin-left:6px;">[Get Free Gemini API Key ↗]</a>
-        </p>
-
-        <div class="field-group">
-          <label data-i18n="lblProvider">1. AI Provider (8 Supported)</label>
-          <select id="s-provider" onchange="onProviderChange()"></select>
-        </div>
-
-        <div class="field-group" id="s-endpoint-group" style="display:none;">
-          <label data-i18n="lblEndpoint">Custom OpenAI-Compatible Base URL</label>
-          <input type="text" id="s-endpoint" class="input-ctrl" placeholder="http://localhost:11434/v1/chat/completions" />
-        </div>
-
-        <div class="field-group">
-          <label data-i18n="lblApiKey">2. API Key (Saved per provider)</label>
-          <input type="password" id="s-apikey" class="input-ctrl" placeholder="Paste API Key here..." />
-        </div>
-
-        <div class="field-group">
-          <label data-i18n="lblModel">3. Model Preset or Custom Model ID</label>
-          <select id="s-model-preset" onchange="document.getElementById('s-model-custom').value = this.value"></select>
-          <input type="text" id="s-model-custom" class="input-ctrl" placeholder="Or type any model ID directly..." />
-        </div>
-
-        <div class="field-group">
-          <label data-i18n="lblInstMode">4. Instruction Mode (Scores tracked separately)</label>
-          <select id="s-inst-mode" onchange="onInstModeChange()">
-            <option value="Default">🏆 Default (Official Rules — Read-Only)</option>
-            <option value="Custom">🛠 Custom (Official Rules + Your Addon Patch)</option>
-            <option value="Sandbox">🧪 Sandbox (Full Custom Ruleset)</option>
-          </select>
-        </div>
-
-        <div class="field-group">
-          <label data-i18n="lblDefaultInst">Official GM Rules (Read-Only)</label>
-          <textarea id="s-default-inst" readonly style="opacity:0.65;"></textarea>
-        </div>
-
-        <div class="field-group" id="s-custom-group">
-          <label data-i18n="lblCustomInst">Custom Addon / Sandbox Rules</label>
-          <textarea id="s-custom-inst" placeholder="Add extra GM persona rules, generosity tweaks, or custom mechanics..."></textarea>
-        </div>
-
-        <div style="display:flex; gap:10px;">
-          <button class="btn btn-gold" data-i18n="saveBtn" onclick="saveSettings(false)">💾 Save Settings</button>
-          <button class="btn" data-i18n="testKey" onclick="testApiKey()">🧪 Test Key</button>
-        </div>
       </div>
     </div>
   </div>

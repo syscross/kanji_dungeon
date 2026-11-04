@@ -6,25 +6,30 @@ const DEFAULT_GM_RULES = `1. Judge the Player's action using ONLY Kanji present 
 
 let KANKEN_DATA = {};
 let currentView = "title";
-let viewStack = ["title"];
+let guidePageIdx = 0;
+let kbIndex = 0;
 
 let savedKeys = JSON.parse(localStorage.getItem("kd_keys") || "{}");
 const legacyKey = localStorage.getItem("kd_apikey");
 if (legacyKey && !savedKeys.gemini) savedKeys.gemini = legacyKey;
 
+const initialProvider = localStorage.getItem("kd_provider") || (legacyKey ? "gemini" : "free_keyless");
+
 let config = {
-  provider: localStorage.getItem("kd_provider") || "gemini",
+  provider: initialProvider,
   apiKey: "",
   customEndpoint: localStorage.getItem("kd_custom_endpoint") || "http://localhost:11434/v1/chat/completions",
-  model: localStorage.getItem("kd_model") || "gemini-flash-lite-latest",
+  model: localStorage.getItem("kd_model") || (initialProvider === "free_keyless" ? "openai" : "gemini-flash-lite-latest"),
   instMode: localStorage.getItem("kd_inst_mode") || "Default",
   customInst: localStorage.getItem("kd_custom_inst") || "",
   lang: localStorage.getItem("kd_lang") || "KO",
-  scores: JSON.parse(localStorage.getItem("kd_scores") || "{}")
+  scores: JSON.parse(localStorage.getItem("kd_scores") || "{}"),
+  achievements: JSON.parse(localStorage.getItem("kd_achievements") || "{}")
 };
 config.apiKey = savedKeys[config.provider] || legacyKey || "";
 
 let state = {
+  active: false,
   depthId: "depth_1",
   turn: 1,
   streak: 0,
@@ -39,15 +44,16 @@ let state = {
   enemyHand: [],
   prevPlayerHand: [],
   prevEnemyHand: [],
-  history: []
+  elapsedSec: 0,
+  history: [],
+  runAchievements: []
 };
 
 async function initApp() {
   startEmberCanvas();
-  document.getElementById("sound-btn").textContent = soundEnabled ? "🔊" : "🔇";
+  syncSoundBtn();
   document.getElementById("s-default-inst").value = DEFAULT_GM_RULES;
 
-  // Populate Provider Select
   const pSel = document.getElementById("s-provider");
   pSel.innerHTML = "";
   Object.entries(PROVIDERS).forEach(([k, v]) => {
@@ -58,34 +64,245 @@ async function initApp() {
   });
 
   syncSettingsUI();
-  applyLocalization();
 
-  // Close language dropdown on outside click
+  const res = await fetch("./kanken_data.json");
+  KANKEN_DATA = await res.json();
+
+  loadSavedRunFromStorage();
+  renderDepthSpine();
+  applyLocalization();
+  setupKeyboardNavigation();
+
   document.addEventListener("click", (e) => {
     const dd = document.getElementById("lang-dropdown");
     if (dd && !dd.contains(e.target)) dd.classList.remove("open");
   });
 
-  // Browser Hardware Back Button Support (Never goes back into battle)
   window.addEventListener("popstate", () => {
+    if (anyModalOpen()) {
+      closeAllModals();
+      return;
+    }
     if (currentView === "battle") {
-      history.pushState({ view: "battle" }, "", "#battle");
-      askLeaveBattle(() => transitionToView("select", "撤退", "RETREATING FROM FLOOR"));
+      pauseRunToTitle();
     } else if (currentView !== "title") {
       switchDomView("title", false);
     }
   });
 
-  const res = await fetch("./kanken_data.json");
-  KANKEN_DATA = await res.json();
-  renderDepthSpine();
+  setInterval(() => {
+    if (currentView === "battle" && state.active && state.playerHp > 0 && !anyModalOpen()) {
+      state.elapsedSec = (state.elapsedSec || 0) + 1;
+      updateTimerBadge();
+    }
+  }, 1000);
+}
+
+function formatTime(sec) {
+  const m = String(Math.floor((sec || 0) / 60)).padStart(2, "0");
+  const s = String((sec || 0) % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function updateTimerBadge() {
+  const el = document.getElementById("b-timer");
+  if (el) el.textContent = `⏱ ${formatTime(state.elapsedSec)}`;
 }
 
 function showToast(msg) {
   document.getElementById("global-toast").textContent = msg;
 }
 
-/* Language Dropdown Logic */
+/* Achievements */
+function unlockAchievement(id) {
+  const ach = ACHIEVEMENTS.find(a => a.id === id);
+  if (!ach) return;
+  if (!state.runAchievements.includes(id)) state.runAchievements.push(id);
+  if (config.achievements[id]) return;
+
+  config.achievements[id] = Date.now();
+  localStorage.setItem("kd_achievements", JSON.stringify(config.achievements));
+  updateAchCounter();
+
+  const toast = document.getElementById("ach-toast");
+  toast.textContent = `🏆 업적 달성: ${ach.icon} ${ach.name}`;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3400);
+}
+
+function updateAchCounter() {
+  const unlockedCount = Object.keys(config.achievements).length;
+  const btn = document.getElementById("ach-corner-btn");
+  if (btn) btn.textContent = `${t("achBtn")} (${unlockedCount}/${ACHIEVEMENTS.length})`;
+}
+
+function openAchievementsModal() {
+  playClickSfx();
+  const grid = document.getElementById("ach-grid");
+  grid.innerHTML = "";
+  ACHIEVEMENTS.forEach(a => {
+    const isUnlocked = Boolean(config.achievements[a.id]);
+    const item = document.createElement("div");
+    item.className = "ach-item" + (isUnlocked ? " unlocked" : "");
+    item.innerHTML = `
+      <div class="ach-name">${a.icon} ${a.name} ${isUnlocked ? "✓" : "🔒"}</div>
+      <div class="ach-desc">${a.desc}</div>
+    `;
+    grid.appendChild(item);
+  });
+  document.getElementById("ach-modal").classList.add("active");
+}
+
+/* Guide Modal */
+function openGuideModal() {
+  playClickSfx();
+  guidePageIdx = 0;
+  renderGuidePage();
+  document.getElementById("guide-modal").classList.add("active");
+}
+
+function stepGuidePage(delta) {
+  playClickSfx();
+  guidePageIdx = (guidePageIdx + delta + GUIDE_PAGES.length) % GUIDE_PAGES.length;
+  renderGuidePage();
+}
+
+function renderGuidePage() {
+  const p = GUIDE_PAGES[guidePageIdx];
+  document.getElementById("guide-page-title").textContent = `📖 ${p.title}`;
+  document.getElementById("guide-page-body").innerHTML = formatGmText(p.body);
+}
+
+/* Settings Modal (Popup overlay — never interrupts active battle!) */
+function openSettingsModal() {
+  playClickSfx();
+  syncSettingsUI();
+  document.getElementById("settings-modal").classList.add("active");
+}
+
+function closeSettingsModal() {
+  playClickSfx();
+  document.getElementById("settings-modal").classList.remove("active");
+}
+
+function anyModalOpen() {
+  return document.querySelectorAll(".modal-backdrop.active").length > 0;
+}
+
+function closeAllModals() {
+  document.querySelectorAll(".modal-backdrop.active").forEach(m => m.classList.remove("active"));
+}
+
+/* Run Persistence */
+function saveRunToStorage() {
+  if (!state.active || state.playerHp <= 0) {
+    localStorage.removeItem("kd_saved_run");
+  } else {
+    localStorage.setItem("kd_saved_run", JSON.stringify(state));
+  }
+  updateSavedRunBanner();
+}
+
+function loadSavedRunFromStorage() {
+  try {
+    const raw = localStorage.getItem("kd_saved_run");
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.active && parsed.playerHp > 0 && KANKEN_DATA[parsed.depthId]) {
+      state = { ...state, ...parsed };
+    }
+  } catch (_) {}
+  updateSavedRunBanner();
+}
+
+function clearSavedRun() {
+  state.active = false;
+  localStorage.removeItem("kd_saved_run");
+  updateSavedRunBanner();
+}
+
+function updateSavedRunBanner() {
+  const banner = document.getElementById("saved-run-banner");
+  if (!banner) return;
+  if (state.active && state.playerHp > 0 && KANKEN_DATA[state.depthId]) {
+    const dTitle = KANKEN_DATA[state.depthId].title;
+    banner.textContent = t("ongoingBadge")(dTitle, state.turn, state.playerHp);
+    banner.classList.add("show");
+  } else {
+    banner.classList.remove("show");
+  }
+}
+
+function handlePlayGameClick() {
+  playClickSfx();
+  if (state.active && state.playerHp > 0 && KANKEN_DATA[state.depthId]) {
+    resumeSavedRun();
+  } else {
+    transitionToView("select", "奈落選択", "CHOOSE YOUR DEPTH (01 — 12)");
+  }
+}
+
+function resumeSavedRun() {
+  const d = KANKEN_DATA[state.depthId];
+  clearGmLog(false);
+  updateBattleHUD(true);
+  if (state.history.length > 0) {
+    state.history.slice(-6).forEach(h => appendGmLog(h));
+  } else {
+    appendGmLog(t("enteredMsg")(d.title, state.enemyKanji), "sys-log");
+  }
+  transitionToView("battle", "探索再開", `RESUMING ${d.title} (TURN ${state.turn})`);
+}
+
+function pauseRunToTitle() {
+  saveRunToStorage();
+  transitionToView("title", "一時中断", "RUN SAVED — CLICK PLAY GAME TO RESUME");
+}
+
+function promptAbandonRun() {
+  playClickSfx();
+  openConfirmModal(t("abandonModalTitle"), t("abandonModalDesc"), () => {
+    showGameOverModal(true);
+  });
+}
+
+function showGameOverModal(wasAbandoned = false) {
+  const dTitle = KANKEN_DATA[state.depthId] ? KANKEN_DATA[state.depthId].title : state.depthId;
+  const savedDepth = state.depthId;
+  clearSavedRun();
+
+  document.getElementById("go-title").textContent = wasAbandoned
+    ? "【원정 포기 — RUN ABANDONED】"
+    : "【死 — YOU HAVE MET YOUR DEMISE】";
+
+  const achNames = state.runAchievements
+    .map(id => ACHIEVEMENTS.find(a => a.id === id))
+    .filter(Boolean)
+    .map(a => `${a.icon} ${a.name}`)
+    .join(", ") || "None";
+
+  document.getElementById("go-stats").innerHTML = formatGmText(
+    `• **계층 (Depth)**: ${dTitle}\n` +
+    `• **마주한 보스 (Boss)**: 【${state.enemyKanji}】 (HP: ${state.enemyHp}/100)\n` +
+    `• **연속 처치 (Streak)**: 🔥 ${state.streak} Kills (Mode: ${config.instMode})\n` +
+    `• **진행 턴 / 소요 시간**: ${state.turn} Turns · ⏱ ${formatTime(state.elapsedSec)}\n` +
+    `• **달성 업적**: ${achNames}`
+  );
+
+  document.getElementById("go-retry-btn").onclick = () => {
+    document.getElementById("gameover-modal").classList.remove("active");
+    startRun(savedDepth, savedDepth.replace("depth_", "").padStart(2, "0"), dTitle);
+  };
+
+  document.getElementById("gameover-modal").classList.add("active");
+}
+
+function closeGameOverToTitle() {
+  playClickSfx();
+  document.getElementById("gameover-modal").classList.remove("active");
+  transitionToView("title");
+}
+
 function toggleLangMenu(e) {
   e.stopPropagation();
   playClickSfx();
@@ -101,21 +318,11 @@ function selectLanguage(langCode, e) {
   applyLocalization();
 }
 
-/* Deterministic Navigation: Battle -> Select -> Title (Never loops back to Battle) */
 function handleBrandClick() {
   playClickSfx();
   if (currentView === "title") return;
   if (currentView === "battle") {
-    askLeaveBattle(() => transitionToView("title", "漢字地獄", "RETURNING TO MAIN GATE"));
-  } else {
-    transitionToView("title");
-  }
-}
-
-function handleBackButton() {
-  playClickSfx();
-  if (currentView === "battle") {
-    askLeaveBattle(() => transitionToView("select", "撤退", "RETREATING FROM FLOOR"));
+    pauseRunToTitle();
   } else {
     transitionToView("title");
   }
@@ -131,8 +338,8 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
     curtain.classList.add("active");
     setTimeout(() => {
       switchDomView(viewName, true);
-      setTimeout(() => curtain.classList.remove("active"), 260);
-    }, 340);
+      setTimeout(() => curtain.classList.remove("active"), 240);
+    }, 330);
   } else {
     switchDomView(viewName, true);
   }
@@ -140,16 +347,16 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
 
 function switchDomView(name, pushHist = true) {
   currentView = name;
+  kbIndex = 0;
   if (pushHist) {
     history.replaceState({ view: name }, "", name === "title" ? window.location.pathname : `#${name}`);
   }
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById(`view-${name}`).classList.add("active");
-  document.getElementById("back-btn").style.display = name === "title" ? "none" : "inline-block";
   if (name === "select") renderDepthSpine();
+  if (name === "title") updateSavedRunBanner();
 }
 
-/* Confirmation Modal System */
 let modalConfirmCallback = null;
 function openConfirmModal(title, desc, onConfirm) {
   document.getElementById("modal-title").textContent = title;
@@ -165,10 +372,6 @@ function closeConfirmModal(confirmed) {
   modalConfirmCallback = null;
 }
 
-function askLeaveBattle(onConfirm) {
-  openConfirmModal(t("leaveBattleTitle"), t("leaveBattleDesc"), onConfirm);
-}
-
 function promptExitGame() {
   playClickSfx();
   openConfirmModal(t("exitModalTitle"), t("exitModalDesc"), () => {
@@ -180,14 +383,13 @@ function promptExitGame() {
     setTimeout(() => {
       window.open("", "_self");
       window.close();
-      // Fallback if browser blocks closing tab not opened by window.open
       document.getElementById("curtain-sub").textContent = "CONNECTION CLOSED. YOU MAY CLOSE THIS TAB (OR CLICK TO REBOOT).";
       curtain.onclick = () => {
         curtain.onclick = null;
         curtain.classList.remove("active");
         switchDomView("title", false);
       };
-    }, 900);
+    }, 850);
   });
 }
 
@@ -239,19 +441,25 @@ function sample5(arr) {
 }
 
 function startRun(depthId, numStr = "01", cleanTitle = "") {
-  if (!config.apiKey && config.provider !== "custom") {
-    showToast("⚠ Please set your API Key in Settings first!");
-    transitionToView("settings");
-    return;
+  if (!config.apiKey && config.provider !== "free_keyless" && config.provider !== "custom") {
+    showToast("⚡ Switched to Free Keyless mode for instant play!");
+    config.provider = "free_keyless";
+    config.model = "openai";
   }
+  state.active = true;
   state.depthId = depthId;
   state.streak = 0;
   state.playerHp = 100;
   state.playerState = "Normal";
   state.fieldState = "Pitch-Black Dungeon";
+  state.elapsedSec = 0;
   state.history = [];
+  state.runAchievements = [];
+  if (depthId === "depth_12") unlockAchievement("abyss_12");
+
   clearGmLog(false);
   spawnNextEnemy(true);
+  saveRunToStorage();
   transitionToView("battle", `DEPTH ${numStr}`, cleanTitle || KANKEN_DATA[depthId].title);
 }
 
@@ -268,9 +476,10 @@ function spawnNextEnemy(isFirst = false) {
 
   const msg = isFirst
     ? t("enteredMsg")(d.title, state.enemyKanji)
-    : `🩸 Enemy slain! Streak: **🔥 ${state.streak} Kills** (/summon reset to 10 HP)\nNext Challenger: **【 ${state.enemyKanji} 】** (HP: 100/100) emerges!`;
+    : `🩸 Enemy slain! Streak: **🔥 ${state.streak} Kills** (/summon reset to 10 HP)\nNext Challenger: **【${state.enemyKanji}】** (HP: 100/100) emerges!`;
   updateBattleHUD(true);
   appendGmLog(msg, "sys-log");
+  saveRunToStorage();
 }
 
 function dealNewHands(animate = true) {
@@ -295,13 +504,12 @@ function makeCardEl(k, isEnemy = false, idx = 0, animate = true) {
   el.onclick = (e) => {
     if (e.target.tagName === "A") return;
     playClickSfx();
-    el.classList.add("selected-pulse");
-    setTimeout(() => el.classList.remove("selected-pulse"), 350);
     insertKanji(k);
   };
   el.innerHTML = `
     <a class="dict-link" href="https://jisho.org/search/${encodeURIComponent(k)}%20%23kanji" target="_blank" title="Dictionary">🔍</a>
     <div class="char">${k}</div>
+    ${!isEnemy ? `<span class="key-hint">Alt+${idx + 1}</span>` : ""}
   `;
   return el;
 }
@@ -326,7 +534,6 @@ function formatGmText(raw) {
     .replace(/`([^`]+)`/g, "<strong>[$1]</strong>");
 }
 
-/* Cumulative Append-Only GM Log */
 function appendGmLog(markdownText, extraClass = "") {
   const gmBox = document.getElementById("b-gm-log");
   const entry = document.createElement("div");
@@ -334,6 +541,7 @@ function appendGmLog(markdownText, extraClass = "") {
   entry.innerHTML = formatGmText(markdownText);
   gmBox.appendChild(entry);
   gmBox.scrollTop = gmBox.scrollHeight;
+  return entry;
 }
 
 function clearGmLog(toast = true) {
@@ -371,6 +579,7 @@ function updateBattleHUD(animateCards = false) {
   const d = KANKEN_DATA[state.depthId];
   document.getElementById("b-depth-title").textContent = `${d.title} [${config.instMode}]`;
   document.getElementById("b-turn").textContent = `Turn ${state.turn}`;
+  updateTimerBadge();
   document.getElementById("b-field-state").textContent = state.fieldState;
   document.getElementById("b-streak").textContent = `🔥 ${state.streak} Kills`;
 
@@ -430,20 +639,48 @@ function parseInputCommand(raw) {
   return { type: "UNKNOWN_SLASH", cmd, arg };
 }
 
+function startJudgingIndicator(customLabel = null) {
+  const gmBox = document.getElementById("b-gm-log");
+  const sendBtn = document.getElementById("b-send-btn");
+  const entry = document.createElement("div");
+  entry.className = "log-entry pending-log";
+  const label = customLabel || t("judgingMsg");
+  entry.innerHTML = `<span class="rune-spinner"></span><span class="judge-txt">${label} (0.0s)</span>`;
+  gmBox.appendChild(entry);
+  gmBox.scrollTop = gmBox.scrollHeight;
+
+  const t0 = performance.now();
+  const iv = setInterval(() => {
+    const sec = ((performance.now() - t0) / 1000).toFixed(1);
+    const txtEl = entry.querySelector(".judge-txt");
+    if (txtEl) txtEl.textContent = `${label} (${sec}s)`;
+    sendBtn.textContent = `⏳ ${sec}s`;
+  }, 100);
+
+  return () => {
+    clearInterval(iv);
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+    entry.remove();
+    sendBtn.textContent = t("castBtn");
+    return elapsed;
+  };
+}
+
 async function handleBattleSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
   const inp = document.getElementById("b-input");
   const raw = inp.value.trim();
   if (!raw) return;
 
+  state._lastRawInput = raw;
   const parsed = parseInputCommand(raw);
 
-  // 1. /reroll (Immediate, -5 HP, 3D Deck Draw Animation!)
   if (parsed.type === "REROLL") {
     if (state.playerHp <= 5) {
       appendGmLog("⚠ **[GM]**: Too weak to **/reroll**! (Requires > 5 HP)", "hint-log");
       return;
     }
+    unlockAchievement("gambler");
     state.playerHp -= 5;
     triggerCombatFX(0, 5);
     state.prevPlayerHand = [...state.playerHand];
@@ -451,13 +688,13 @@ async function handleBattleSubmit(e) {
     for (let i = 0; i < 5; i++) playCardDealSfx(i * 65);
     inp.value = "";
     updateBattleHUD(true);
+    saveRunToStorage();
     appendGmLog(`🎲 **[/reroll]**: Paid 5 HP and drew 5 fresh Kanji cards: **[ ${state.playerHand.join(" · ")} ]**`, "hint-log");
     return;
   }
 
-  // 2. /prompt requires argument
   if (parsed.type === "PROMPT" && !parsed.arg) {
-    appendGmLog("⚠ Usage: **/prompt [Your question]** (Tip: Click any Kanji card to insert it!)", "hint-log");
+    appendGmLog("⚠ Usage: **/prompt [Your question]** (Tip: Click any Kanji card or press Alt+1~5!)", "hint-log");
     return;
   }
 
@@ -468,11 +705,11 @@ async function handleBattleSubmit(e) {
 
   inp.disabled = true;
   document.getElementById("b-send-btn").disabled = true;
+  const stopJudging = startJudgingIndicator();
 
   try {
-    // 3. /hint or /prompt (Appends to log without wiping previous turns!)
     if (parsed.type === "HINT" || parsed.type === "PROMPT") {
-      appendGmLog(`🔮 **[ ${parsed.type} — Consulting the Abyss (${config.model})... ]**`, "hint-log");
+      unlockAchievement("scholar");
       const qText = parsed.type === "HINT"
         ? `Provide an ULTRA-CONCISE tactical briefing (max 6 lines total, no markdown headers) in ${config.lang}:
 - Player Hand ${JSON.stringify(state.playerHand)}: each Kanji(reading: meaning) on ONE compact line.
@@ -480,18 +717,24 @@ async function handleBattleSubmit(e) {
 - 2 clever 1-line combo ideas against Boss 【${state.enemyKanji}】.`
         : `Answer concisely (max 4 lines) in ${config.lang} for this Kanji battle (Player Hand: ${JSON.stringify(state.playerHand)}, Boss: ${state.enemyKanji}): "${parsed.arg}"`;
       const reply = await callLLM(qText, false);
+      const sec = stopJudging();
       inp.value = "";
-      appendGmLog(`💡 **[${parsed.type}]**\n${reply}`, "hint-log");
+      appendGmLog(`💡 **[${parsed.type} — ⏱ ${sec}s]**\n${reply}`, "hint-log");
       return;
     }
 
-    // 4. /summon (Escalating 10 -> 20 -> 30 HP cost)
+    if (state.playerHand.length === 5 && state.playerHand.every(k => raw.includes(k))) {
+      unlockAchievement("full_hand");
+    }
+
     let summonDirective = "";
     if (parsed.type === "SUMMON") {
       if (state.playerHp <= state.summonCost) {
+        stopJudging();
         appendGmLog(`⚠ Not enough HP for **/summon**! Current summon cost this round is **${state.summonCost} HP**.`, "hint-log");
         return;
       }
+      unlockAchievement("summoner");
       state.playerHp -= state.summonCost;
       const paid = state.summonCost;
       state.summonCost += 10;
@@ -532,9 +775,11 @@ Respond ONLY in valid JSON:
 }`;
 
     const res = await callLLM(gmPrompt, true);
-    applyTurnResult(raw, res);
+    const sec = stopJudging();
+    applyTurnResult(raw, res, sec);
     inp.value = "";
   } catch (err) {
+    stopJudging();
     appendGmLog(`⚠ **API Error**: ${err.message}`, "hint-log");
   } finally {
     inp.disabled = false;
@@ -543,7 +788,7 @@ Respond ONLY in valid JSON:
   }
 }
 
-function applyTurnResult(rawPrompt, res) {
+function applyTurnResult(rawPrompt, res, sec = "0.0") {
   const dmgE = Math.max(0, parseInt(res.enemy_damage_taken || 0, 10));
   const healP = Math.max(0, parseInt(res.player_heal || 0, 10));
   const dmgP = Math.max(0, parseInt(res.player_damage_taken || 0, 10));
@@ -559,7 +804,14 @@ function applyTurnResult(rawPrompt, res) {
     triggerCombatFX(dmgE, 0);
     state.streak += 1;
     recordKill(state.depthId);
-    const winLog = `🗣 **[Turn ${state.turn} — You]**: "${rawPrompt}"\n⚖ **[GM]**: ${res.gm_judgment} (**Enemy -${dmgE} HP**)`;
+
+    unlockAchievement("first_blood");
+    if (state.enemyKanji === "犬") unlockAchievement("dog_slayer");
+    if (state.enemyKanji === "天" || state.enemyKanji === "神") unlockAchievement("heaven_defier");
+    if (state.playerHp >= 100) unlockAchievement("flawless");
+    if (state.streak >= 5) unlockAchievement("streak_5");
+
+    const winLog = `🗣 **[Turn ${state.turn} — You]**: "${rawPrompt}"\n⚖ **[GM — ⏱ ${sec}s]**: ${res.gm_judgment} (**Enemy -${dmgE} HP**)`;
     state.history.push(winLog);
     appendGmLog(winLog);
     spawnNextEnemy(false);
@@ -569,46 +821,106 @@ function applyTurnResult(rawPrompt, res) {
   state.playerHp = Math.max(0, state.playerHp - dmgP);
   triggerCombatFX(dmgE, dmgP);
 
-  const turnLog = `🗣 **[Turn ${state.turn} — You]**: "${rawPrompt}" *(Hand: ${state.playerHand.join(" ")})*\n⚖ **[GM]**: ${res.gm_judgment} (**Enemy -${dmgE} HP**${healP ? `, **You +${healP} HP**` : ""})\n👹 **【${state.enemyKanji}】**: ${res.enemy_action} (**You -${dmgP} HP**)`;
+  const turnLog = `🗣 **[Turn ${state.turn} — You]**: "${rawPrompt}" *(Hand: ${state.playerHand.join(" ")})*\n⚖ **[GM — ⏱ ${sec}s]**: ${res.gm_judgment} (**Enemy -${dmgE} HP**${healP ? `, **You +${healP} HP**` : ""})\n👹 **【${state.enemyKanji}】**: ${res.enemy_action} (**You -${dmgP} HP**)`;
   state.history.push(turnLog);
   appendGmLog(turnLog);
 
   if (state.playerHp <= 0) {
     updateBattleHUD(false);
-    appendGmLog(`💀 **【 死 — YOU HAVE MET YOUR DEMISE 】**\nFinal Streak in ${KANKEN_DATA[state.depthId].title}: **🔥 ${state.streak} Kills** (Mode: ${config.instMode})`, "sys-log");
+    showGameOverModal(false);
     return;
   }
 
   state.turn += 1;
   dealNewHands(true);
   updateBattleHUD(true);
+  saveRunToStorage();
 }
 
 function exportBattleLog() {
   playClickSfx();
-  const header = `=== KANJI DUNGEON 【漢字地獄】 (${KANKEN_DATA[state.depthId].title}) ===\nMode: ${config.instMode} | Model: ${config.model} | Streak: 🔥 ${state.streak} Kills\n\n`;
+  const header = `=== KANJI DUNGEON 【漢字地獄】 (${KANKEN_DATA[state.depthId].title}) ===\nMode: ${config.instMode} | Model: ${config.model} | Streak: 🔥 ${state.streak} Kills | Time: ${formatTime(state.elapsedSec)}\n\n`;
   const body = state.history.length ? state.history.join("\n\n---\n\n") : document.getElementById("b-gm-log").innerText;
   navigator.clipboard.writeText(header + body);
   showToast("📋 Battle History copied to clipboard!");
 }
 
-/* Settings & Multi-Provider Key Management */
+/* Laptop / Keyboard Navigation (WASD / Arrow Keys / Alt+1~5 / ESC) */
+function setupKeyboardNavigation() {
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (anyModalOpen()) {
+        closeAllModals();
+        return;
+      }
+      if (document.activeElement && document.activeElement.tagName === "INPUT") {
+        document.activeElement.blur();
+        return;
+      }
+    }
+
+    // Alt + 1~5 inserts Player Hand Kanji directly even while typing
+    if (e.altKey && currentView === "battle" && ["1", "2", "3", "4", "5"].includes(e.key)) {
+      e.preventDefault();
+      const idx = parseInt(e.key, 10) - 1;
+      if (state.playerHand[idx]) {
+        playClickSfx();
+        insertKanji(state.playerHand[idx]);
+      }
+      return;
+    }
+
+    if (anyModalOpen()) return;
+    if (document.activeElement && ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
+
+    const selector = currentView === "title"
+      ? "#view-title .menu-btn"
+      : currentView === "select"
+      ? "#view-select .abyss-node"
+      : "#b-player-hand .kanji-card";
+
+    const items = Array.from(document.querySelectorAll(selector));
+    if (!items.length) return;
+
+    if (["ArrowDown", "ArrowRight", "s", "S", "d", "D"].includes(e.key)) {
+      e.preventDefault();
+      kbIndex = (kbIndex + 1) % items.length;
+      highlightKbItem(items);
+    } else if (["ArrowUp", "ArrowLeft", "w", "W", "a", "A"].includes(e.key)) {
+      e.preventDefault();
+      kbIndex = (kbIndex - 1 + items.length) % items.length;
+      highlightKbItem(items);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      const target = items[kbIndex] || items[0];
+      if (target) target.click();
+    }
+  });
+}
+
+function highlightKbItem(items) {
+  playClickSfx();
+  document.querySelectorAll(".kb-focus").forEach(el => el.classList.remove("kb-focus"));
+  const target = items[kbIndex];
+  if (target) {
+    target.classList.add("kb-focus");
+    target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+/* Settings & Provider Management */
 function onProviderChange() {
   const p = document.getElementById("s-provider").value;
-  const pInfo = PROVIDERS[p] || PROVIDERS.gemini;
+  const pInfo = PROVIDERS[p] || PROVIDERS.free_keyless;
 
-  // Load saved key for this specific provider
   document.getElementById("s-apikey").value = savedKeys[p] || "";
-
-  // Update Key Help Link
   const linkEl = document.getElementById("s-key-link");
   linkEl.href = pInfo.keyUrl;
   linkEl.textContent = `[${pInfo.keyLabel}]`;
 
-  // Show/Hide Custom Endpoint field
   document.getElementById("s-endpoint-group").style.display = p === "custom" ? "flex" : "none";
+  document.getElementById("s-apikey-group").style.display = p === "free_keyless" ? "none" : "flex";
 
-  // Populate Model Presets for this provider
   const presetSel = document.getElementById("s-model-preset");
   presetSel.innerHTML = "";
   pInfo.models.forEach(m => {
@@ -634,15 +946,16 @@ function syncSettingsUI() {
   document.getElementById("s-model-custom").value = config.model;
   document.getElementById("s-inst-mode").value = config.instMode;
   document.getElementById("s-custom-inst").value = config.customInst;
+  syncSoundBtn();
   onInstModeChange();
 }
 
-function saveSettings(stay = false) {
+function saveSettings() {
   playClickSfx();
   config.provider = document.getElementById("s-provider").value;
   config.apiKey = document.getElementById("s-apikey").value.trim();
   config.customEndpoint = document.getElementById("s-endpoint").value.trim();
-  config.model = document.getElementById("s-model-custom").value.trim() || "gemini-flash-lite-latest";
+  config.model = document.getElementById("s-model-custom").value.trim() || "openai";
   config.instMode = document.getElementById("s-inst-mode").value;
   config.customInst = document.getElementById("s-custom-inst").value.trim();
 
@@ -656,24 +969,20 @@ function saveSettings(stay = false) {
   localStorage.setItem("kd_custom_inst", config.customInst);
 
   applyLocalization();
+  if (currentView === "battle") updateBattleHUD(false);
+  closeSettingsModal();
   showToast(`✅ Saved! (${config.provider} / ${config.model} / Mode: ${config.instMode})`);
-  if (!stay) transitionToView("title");
 }
 
 async function testApiKey() {
   playClickSfx();
-  if (document.getElementById("view-settings").classList.contains("active")) {
-    saveSettings(true);
-  }
-  if (!config.apiKey && config.provider !== "custom") {
-    showToast("❌ API Key is empty! Opening Settings...");
-    transitionToView("settings");
-    return;
+  if (document.getElementById("settings-modal").classList.contains("active")) {
+    saveSettings();
   }
   showToast(`⏳ Testing ${config.provider} (${config.model})...`);
   try {
     const reply = await callLLM("Reply with the single word: READY", false);
-    showToast(`✅ OK [${config.model}]: "${String(reply).slice(0, 30).trim()}"`);
+    showToast(`✅ OK [${config.provider}]: "${String(reply).slice(0, 35).trim()}"`);
   } catch (err) {
     showToast(`❌ Error: ${err.message.slice(0, 90)}`);
   }

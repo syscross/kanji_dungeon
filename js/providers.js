@@ -1,4 +1,12 @@
 const PROVIDERS = {
+  free_keyless: {
+    name: "⚡ Free Keyless (Zero-Setup Instant Play — No API Key Needed!)",
+    keyUrl: "https://aistudio.google.com/app/apikey",
+    keyLabel: "Optional: Get Personal Gemini Key ↗",
+    models: [
+      { id: "openai", label: "Free Public AI + Built-in Kanji GM Engine (Zero-Setup)" }
+    ]
+  },
   gemini: {
     name: "Google Gemini API (Free Tier Available)",
     keyUrl: "https://aistudio.google.com/app/apikey",
@@ -27,8 +35,7 @@ const PROVIDERS = {
     models: [
       { id: "gpt-4o-mini", label: "gpt-4o-mini (Fast & Affordable)" },
       { id: "gpt-4.1-mini", label: "gpt-4.1-mini" },
-      { id: "gpt-4.1", label: "gpt-4.1" },
-      { id: "gpt-4o", label: "gpt-4o" }
+      { id: "gpt-4.1", label: "gpt-4.1" }
     ]
   },
   deepseek: {
@@ -69,8 +76,7 @@ const PROVIDERS = {
     models: [
       { id: "google/gemini-2.5-flash-lite", label: "google/gemini-2.5-flash-lite" },
       { id: "anthropic/claude-haiku-4.5", label: "anthropic/claude-haiku-4.5" },
-      { id: "deepseek/deepseek-chat-v3-0324:free", label: "deepseek/deepseek-chat-v3 (Free)" },
-      { id: "openai/gpt-4o-mini", label: "openai/gpt-4o-mini" }
+      { id: "deepseek/deepseek-chat-v3-0324:free", label: "deepseek/deepseek-chat-v3 (Free)" }
     ]
   },
   custom: {
@@ -85,10 +91,77 @@ const PROVIDERS = {
   }
 };
 
+/* Built-in Fallback Kanji TRPG Engine (Guarantees 100% Uptime in Free Keyless Mode) */
+function localKanjiEngine(systemPrompt, expectJson) {
+  if (!expectJson) {
+    return `• 내 손패 한자: [ ${state.playerHand.join(" · ")} ] — 각 한자를 클릭하거나 우상단 🔍를 눌러 사전을 확인하세요!\n• 적 손패 한자: [ ${state.enemyHand.join(" · ")} ]\n• 추천 전술 1: 손패의 한자 3~5개를 모두 문장에 포함시켜 보스 【${state.enemyKanji}】의 약점을 타격하세요.\n• 추천 전술 2: 적의 손패(${state.enemyHand.slice(0,2).join(", ")}) 공격을 미리 방어하거나 상쇄하는 묘사를 넣으세요.`;
+  }
+  const usedCards = state.playerHand.filter(k => state._lastRawInput && state._lastRawInput.includes(k));
+  const ePick = state.enemyHand[Math.floor(Math.random() * state.enemyHand.length)] || state.enemyKanji;
+  const healChars = ["休","水","生","草","林","森","気","雨","薬","医","癒","茶","食"];
+  const hasHeal = usedCards.some(k => healChars.includes(k));
+
+  if (usedCards.length === 0) {
+    return {
+      gm_judgment: `손패에 있는 한자(${state.playerHand.join(", ")})를 하나도 사용하지 않고 허공에 주문을 외웠습니다! 카드를 클릭해 문장에 포함시키세요.`,
+      enemy_damage_taken: 0,
+      player_heal: 0,
+      enemy_action: `보스 【${state.enemyKanji}】이(가) 빈틈을 노려 적패 【${ePick}】의 힘으로 반격합니다!`,
+      player_damage_taken: 18,
+      new_field_state: state.fieldState,
+      new_player_state: "Off-Balance",
+      new_enemy_state: "Aggressive"
+    };
+  }
+
+  const dmg = Math.min(55, 14 + usedCards.length * 8 + Math.floor(Math.random() * 8));
+  const heal = hasHeal ? 15 : 0;
+  const eDmg = Math.max(8, 22 - usedCards.length * 2);
+
+  return {
+    gm_judgment: `손패의 【${usedCards.join(" · ")}】(${usedCards.length}장 연계)의 기운을 형상화하여 보스 【${state.enemyKanji}】에게 적중시켰습니다!`,
+    enemy_damage_taken: dmg,
+    player_heal: heal,
+    enemy_action: `【${state.enemyKanji}】이(가) 고통스럽게 포효하며 적패 【${ePick}】을(를) 휘둘러 반격합니다!`,
+    player_damage_taken: eDmg,
+    new_field_state: ` Clash of ${usedCards[0]} & ${ePick}`,
+    new_player_state: usedCards.length >= 4 ? "Empowered" : "Focused",
+    new_enemy_state: dmg >= 35 ? "Staggered" : "Hostile"
+  };
+}
+
 async function callLLM(systemPrompt, expectJson = true) {
   const { provider, apiKey, model, customEndpoint } = config;
+
+  // 1. Free Keyless Mode (Tries Pollinations Free OpenAI Endpoint -> Seamless Fallback to Built-in Engine)
+  if (provider === "free_keyless") {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 9500);
+      const r = await fetch("https://text.pollinations.ai/openai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: ctrl.signal,
+        body: JSON.stringify({
+          model: "openai",
+          messages: [{ role: "user", content: systemPrompt }],
+          temperature: 0.75
+        })
+      });
+      clearTimeout(timer);
+      if (r.ok) {
+        const data = await r.json();
+        const txt = data.choices[0].message.content.trim();
+        return expectJson ? parseJsonSafe(txt) : txt;
+      }
+    } catch (_) {
+      // Fallback to instant local Kanji engine if free public endpoint is busy
+    }
+    return localKanjiEngine(systemPrompt, expectJson);
+  }
+
   if (!apiKey && provider !== "custom") {
-    throw new Error("API Key is missing. Click Settings to configure.");
+    throw new Error("API Key is missing. Open Settings or switch to '⚡ Free Keyless' mode!");
   }
 
   if (provider === "gemini") {
@@ -125,22 +198,19 @@ async function callLLM(systemPrompt, expectJson = true) {
     return expectJson ? parseJsonSafe(txt) : txt;
   }
 
-  // OpenAI-compatible providers (openai, deepseek, groq, xai, openrouter, custom)
   const pInfo = PROVIDERS[provider] || PROVIDERS.openrouter;
   const endpoint = provider === "custom" ? (customEndpoint || pInfo.endpoint) : pInfo.endpoint;
   const headers = { "Content-Type": "application/json" };
   if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-  const payload = {
-    model,
-    messages: [{ role: "user", content: systemPrompt }],
-    temperature: 0.75
-  };
-
   const r = await fetch(endpoint, {
     method: "POST",
     headers,
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: systemPrompt }],
+      temperature: 0.75
+    })
   });
   if (!r.ok) throw new Error(`${provider.toUpperCase()} HTTP ${r.status}: ${await r.text()}`);
   const data = await r.json();

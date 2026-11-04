@@ -9,10 +9,17 @@ function initAudio() {
   if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
 }
 
+function syncSoundBtn() {
+  const topBtn = document.getElementById("sound-btn");
+  if (topBtn) topBtn.textContent = soundEnabled ? "🔊" : "🔇";
+  const modalBtn = document.getElementById("sound-toggle-btn");
+  if (modalBtn) modalBtn.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
+}
+
 function toggleSound() {
   soundEnabled = !soundEnabled;
   localStorage.setItem("kd_sound", soundEnabled ? "on" : "off");
-  document.getElementById("sound-btn").textContent = soundEnabled ? "🔊" : "🔇";
+  syncSoundBtn();
   if (soundEnabled) playClickSfx();
 }
 
@@ -107,7 +114,6 @@ function playGongSfx() {
   osc.stop(t0 + 1.0);
 }
 
-/* Floating Crimson/Gold Ash Particle System */
 function startEmberCanvas() {
   const canvas = document.getElementById("ember-canvas");
   if (!canvas) return;
