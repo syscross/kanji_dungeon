@@ -71,6 +71,13 @@ function drawHand() {
  * - Strictly uses kanji from the current Kanken grade or lower.
  * - When a non-final enemy drops to <= 38% HP, it can telegraph an Escape Intent (e.g. 出/足, 走/帰, 逃/避)!
  */
+function recordSeenEnemyHands() {
+  if (!Array.isArray(state.enemyIntentsSeen)) state.enemyIntentsSeen = [];
+  (state.enemyHand || []).forEach(k => {
+    if (k && !state.enemyIntentsSeen.includes(k)) state.enemyIntentsSeen.push(k);
+  });
+}
+
 function dealEnemyHand() {
   const foe = state.enemyKanji;
   const prof = FOE_INTENT_PROFILES[foe];
@@ -94,6 +101,7 @@ function dealEnemyHand() {
     const escPool = DEPTH_ESCAPE_INTENTS[did] || ["出", "足"];
     state.enemyHand = [...escPool];
     state.enemyState = t("enemyFleeIntentState");
+    recordSeenEnemyHands();
     return;
   }
 
@@ -108,6 +116,7 @@ function dealEnemyHand() {
       .filter(k => k !== primary && getKanjiDepthNum(k) <= maxD);
     const secondary = subCandidates.length ? subCandidates[Math.floor(Math.random() * subCandidates.length)] : null;
     state.enemyHand = secondary ? [primary, secondary] : [primary];
+    recordSeenEnemyHands();
     return;
   }
 
@@ -119,10 +128,12 @@ function dealEnemyHand() {
     const secondPool = [...new Set([...validNormal, ...gradePool])].filter(k => k !== first);
     const second = secondPool.length ? secondPool[Math.floor(Math.random() * secondPool.length)] : null;
     state.enemyHand = second ? [first, second] : [first];
+    recordSeenEnemyHands();
     return;
   }
 
   state.enemyHand = sample(gradePool, 2);
+  recordSeenEnemyHands();
 }
 
 function addCardToDeck(k) {
@@ -143,14 +154,49 @@ function cardChoices(n) {
   return sample(fresh.length >= n ? fresh : pool, n);
 }
 
-/* Up to 5 cards offered after clearing a stage/fight (enemy kanji + stage cards + depth grade pool, no auto-compounds). */
-function scavengeChoices(maxCount = 5) {
+/* Enemy-defeat harvest: strictly offers the slain enemy's kanji + its telegraphed/profile intent kanji! */
+function foeScavengeChoices(maxCount = 5) {
+  const foe = (state.lastKill && state.lastKill.kanji) || state.enemyKanji;
+  const did = state.depthId || "depth_1";
+  const maxD = depthNumber(did);
   const candidates = [];
-  if (state.enemyKanji && !state.deck.includes(state.enemyKanji) && !candidates.includes(state.enemyKanji)) {
-    candidates.push(state.enemyKanji);
+
+  if (foe && !candidates.includes(foe)) {
+    candidates.push(foe);
   }
-  const stagePool = [...new Set([...(state.stageCards || []), ...sample(depthPool(), 5)])]
-    .filter(k => !candidates.includes(k));
-  const pickedStage = sample(stagePool, Math.max(0, maxCount - candidates.length));
-  return [...candidates, ...pickedStage].slice(0, maxCount);
+
+  // 1. Exact intents the enemy telegraphed during this battle
+  const seenIntents = Array.isArray(state.enemyIntentsSeen) ? state.enemyIntentsSeen : (state.enemyHand || []);
+  seenIntents.forEach(k => {
+    if (k && !candidates.includes(k)) candidates.push(k);
+  });
+
+  // 2. Signature intent kanji from this enemy's profile (FOE_INTENT_PROFILES)
+  const prof = foe ? FOE_INTENT_PROFILES[foe] : null;
+  if (prof) {
+    const profCards = [...(prof.normal || []), ...(prof.countdown || [])]
+      .filter(k => k && getKanjiDepthNum(k) <= maxD && !candidates.includes(k));
+    sample(profCards, Math.max(0, maxCount - candidates.length)).forEach(k => candidates.push(k));
+  }
+
+  // 3. Fallback: depth intent pool if still under maxCount
+  if (candidates.length < maxCount) {
+    const intentPool = (DEPTH_INTENT_POOLS[did] || ["口", "足", "手", "目"])
+      .filter(k => k && getKanjiDepthNum(k) <= maxD && !candidates.includes(k));
+    sample(intentPool, maxCount - candidates.length).forEach(k => candidates.push(k));
+  }
+
+  return candidates.slice(0, maxCount);
+}
+
+/* Stage exploration scavenge: strictly offers current stage environment cards (for peaceful stages, caches, or extra exploration). */
+function scavengeChoices(maxCount = 5) {
+  if (!state.stageCards || !state.stageCards.length) {
+    state.stageCards = buildStageCards(state.depthId, state.sign);
+  }
+  const signDef = STAGE_SIGNS[state.sign] || STAGE_SIGNS.田;
+  const maxD = depthNumber(state.depthId);
+  const themed = (signDef.cards || []).filter(k => getKanjiDepthNum(k) <= maxD);
+  const stagePool = [...new Set([...(state.stageCards || []), ...themed, ...sample(depthPool(), 4)])];
+  return sample(stagePool, maxCount);
 }

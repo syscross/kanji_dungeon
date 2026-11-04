@@ -386,10 +386,10 @@ function onEnemyDefeated() {
   updateBattleHUD(false);
   saveRunToStorage();
 
-  // Immediately show victory beat in the log and open the inline 5-card scavenge in the bottom dock!
+  // Immediately show victory beat in the log and open the inline enemy/intent harvest in the bottom dock!
   showVictoryBeat();
   runEffects([
-    { scavenge: 5 },
+    { foeScavenge: 5 },
     { offerSpoils: rank === "elite" ? "elite" : "normal" }
   ]);
 }

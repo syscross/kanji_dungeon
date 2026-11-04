@@ -32,6 +32,9 @@ function runEffects(list) {
     } else if (fx.reveal) {
       state.revealNext = true;
       logMd(t("fxReveal"), "fx-log");
+    } else if (fx.foeScavenge) {
+      const count = typeof fx.foeScavenge === "number" ? fx.foeScavenge : 5;
+      return beginPick("foeScavenge", foeScavengeChoices(count), queue);
     } else if (fx.scavenge) {
       const count = typeof fx.scavenge === "number" ? fx.scavenge : 5;
       return beginPick("scavenge", scavengeChoices(count), queue);
@@ -100,11 +103,12 @@ const PICK_PROMPTS = {
   burn: "pickBurnPrompt",
   dup: "pickDupPrompt",
   fuse: "pickFusePrompt",
-  scavenge: "pickScavengePrompt"
+  scavenge: "pickScavengePrompt",
+  foeScavenge: "pickFoeScavengePrompt"
 };
 
 function beginPick(mode, choices, rest, thenEffects = []) {
-  if (mode === "scavenge" && (state.phase === "battle" || state.phase === "path")) {
+  if ((mode === "scavenge" || mode === "foeScavenge") && (state.phase === "battle" || state.phase === "path")) {
     state.phase = "reward";
   }
   state.pending = { mode, choices, selected: [], rest, thenEffects };
@@ -127,7 +131,10 @@ function renderInlineScavenge(p) {
 
   const head = document.createElement("div");
   head.className = "scavenge-dock-head";
-  head.textContent = `🎴 ${t("pickScavengePrompt")} — ${t("pickScavengeDesc")}`;
+  const isFoe = p.mode === "foeScavenge";
+  head.textContent = isFoe
+    ? `🩸 ${t("pickFoeScavengePrompt")} — ${t("pickFoeScavengeDesc")}`
+    : `🎴 ${t("pickScavengePrompt")} — ${t("pickScavengeDesc")}`;
   wrap.appendChild(head);
 
   const grid = document.createElement("div");
@@ -140,6 +147,7 @@ function renderInlineScavenge(p) {
     const isSel = sel.includes(idx);
     const charLen = [...String(k)].length;
     tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}${charLen > 1 ? " multi" : ""}${charLen >= 3 ? " multi-long" : ""}`;
+    tile.dataset.len = String(Math.min(5, Math.max(1, charLen)));
     tile.textContent = k;
     tile.onclick = () => {
       playClickSfx();
@@ -271,7 +279,7 @@ function openPendingPick() {
   const p = state.pending;
   if (!p) return;
 
-  if (p.mode === "scavenge") {
+  if (p.mode === "scavenge" || p.mode === "foeScavenge") {
     renderInlineScavenge(p);
     return;
   }

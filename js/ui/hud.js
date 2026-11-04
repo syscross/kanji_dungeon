@@ -24,6 +24,9 @@ function setHpBar(barId, numId, hp, max) {
 
 /* What the big card on the enemy stage shows, by phase. */
 function stageCardContent() {
+  if (state.phase === "dead") {
+    return { kanji: state.enemyKanji || "死", neutral: false, dead: true };
+  }
   if (state.phase === "battle" || (state.phase === "reward" && state.enemyKanji)) {
     return { kanji: state.enemyKanji, neutral: false };
   }
@@ -46,7 +49,7 @@ function renderRunRosterBar() {
     const killed = (state.defeatedEnemies || []).includes(k);
     const seen = (state.encounteredEnemies || []).includes(k);
     if (killed) {
-      return `<span class="rr-chip killed" title="${escapeHtml(k)} (斬)">${escapeHtml(k)}</span>`;
+      return `<span class="rr-chip killed" title="${escapeHtml(k)} (殺)">${escapeHtml(k)}</span>`;
     }
     if (seen) {
       const wHp = state.woundedEnemies && state.woundedEnemies[k];
@@ -60,7 +63,7 @@ function renderRunRosterBar() {
   const bossSeen = Boolean(state.bossEncountered || (state.encounteredEnemies || []).includes(runBoss));
   let bossHtml = `<span class="rr-chip boss unknown" title="Boss: ?">主 ？</span>`;
   if (bossKilled) {
-    bossHtml = `<span class="rr-chip boss killed" title="Boss: ${escapeHtml(runBoss)} (斬)">主 ${escapeHtml(runBoss)}</span>`;
+    bossHtml = `<span class="rr-chip boss killed" title="Boss: ${escapeHtml(runBoss)} (殺)">主 ${escapeHtml(runBoss)}</span>`;
   } else if (bossSeen) {
     const bHp = state.woundedEnemies && state.woundedEnemies[runBoss];
     const tip = bHp ? `Boss: ${runBoss} (HP ${bHp})` : `Boss: ${runBoss}`;
@@ -86,13 +89,17 @@ function updateBattleHUD(animateCards = false) {
   const card = stageCardContent();
   const bossKanjiEl = $("b-boss-kanji");
   bossKanjiEl.textContent = card.kanji;
-  bossKanjiEl.classList.toggle("multi", [...card.kanji].length > 1);
+  const bossLen = [...String(card.kanji || "")].length;
+  bossKanjiEl.classList.toggle("multi", bossLen > 1);
+  bossKanjiEl.dataset.len = String(Math.min(5, Math.max(1, bossLen)));
   const bossTier = typeof getKanjiTier === "function" ? getKanjiTier(card.kanji) : "edu";
   bossKanjiEl.dataset.tier = bossTier;
-  $("b-boss-card").classList.toggle("neutral", card.neutral);
-  $("enemy-stage").classList.toggle("no-foe", card.neutral);
+  const bossCardEl = $("b-boss-card");
+  bossCardEl.classList.toggle("neutral", Boolean(card.neutral));
+  bossCardEl.classList.toggle("player-dead", Boolean(card.dead));
+  $("enemy-stage").classList.toggle("no-foe", Boolean(card.neutral) || Boolean(card.dead));
   $("b-rank").textContent = RANK_MARK[state.enemyRank] || "";
-  $("b-rank").style.display = !card.neutral && RANK_MARK[state.enemyRank] ? "" : "none";
+  $("b-rank").style.display = !card.neutral && !card.dead && RANK_MARK[state.enemyRank] ? "" : "none";
   $("b-enemy-state").textContent = state.enemyState || "";
   $("b-field-state").textContent = state.fieldState || "";
   setHpBar("b-enemy-bar", "b-enemy-hp", state.enemyHp, state.enemyMaxHp || 1);
@@ -129,6 +136,7 @@ function makeCardEl(k, isEnemy = false, idx = 0, animate = true, source = null) 
   const charLen = [...String(k)].length;
   const multiCls = charLen > 1 ? ` multi${charLen >= 3 ? " multi-long" : ""}` : "";
   el.className = `kanji-card tier-${tier}${isEnemy ? " enemy-sm" : ""}${srcCls}${multiCls}`;
+  el.dataset.len = String(Math.min(5, Math.max(1, charLen)));
   if (animate) el.style.animationDelay = `${idx * 65}ms`;
   else el.style.animation = "none";
 

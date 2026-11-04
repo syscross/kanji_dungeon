@@ -39,11 +39,14 @@ const REWARDS = {
     }
   },
   card: {
-    kanji: "札",
+    kanji: "探",
     params: { normal: { choices: 5 }, elite: { choices: 5 } },
     label: {
-      EN: p => `Scavenge — pick any kanji (up to ${p.choices})`, KO: p => `수색 — 글자 추가 수확 (최대 ${p.choices}장)`, JA: p => `探索 — 字を追加回収 (最大${p.choices}枚)`,
-      ZH_CN: p => `搜刮 — 额外拾取汉字 (最多 ${p.choices})`, ZH_TW: p => `搜刮 — 額外拾取漢字 (最多 ${p.choices})`
+      EN: p => `Explore Stage — scavenge stage kanji (up to ${p.choices})`,
+      KO: p => `주변 추가 탐사 — 스테이지 한자 갈무리 (최대 ${p.choices}장)`,
+      JA: p => `周辺探索 — ステージ漢字を追加回収 (最大${p.choices}枚)`,
+      ZH_CN: p => `探索四周 — 拾取场地汉字 (最多 ${p.choices})`,
+      ZH_TW: p => `探索四周 — 拾取場地漢字 (最多 ${p.choices})`
     }
   },
   burn: {

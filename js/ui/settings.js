@@ -95,3 +95,107 @@ async function testApiKey() {
     showToast(t("toastErr")(err.message.slice(0, 90)));
   }
 }
+
+/* ---- Save Data Export & Import (excludes API keys for safety) ---- */
+
+function exportSaveData() {
+  playClickSfx();
+  const payload = {
+    app: "KANJI_DUNGEON",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    achievements: config.achievements || {},
+    seenFoes: config.seenFoes || {},
+    stats: config.stats || { kills: 0, flawless: 0, maxStreak: 0, summons: 0 },
+    records: config.records || {},
+    instMode: config.instMode || "Default",
+    customInst: config.customInst || "",
+    lang: config.lang || "KO",
+    savedRun: readJson(STORAGE.savedRun, null)
+  };
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  a.href = url;
+  a.download = `kanji-dungeon-save-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 200);
+  showToast(t("toastExported"));
+}
+
+function triggerImportSave() {
+  playClickSfx();
+  const inp = $("save-file-input");
+  if (!inp) return;
+  inp.value = "";
+  inp.click();
+}
+
+function handleImportSaveFile(event) {
+  const file = event && event.target && event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(String(reader.result || ""));
+      if (!data || typeof data !== "object" || (data.app && data.app !== "KANJI_DUNGEON" && !data.achievements && !data.records && !data.savedRun)) {
+        throw new Error("Invalid format");
+      }
+      if (data.achievements && typeof data.achievements === "object") {
+        config.achievements = data.achievements;
+      }
+      if (data.seenFoes && typeof data.seenFoes === "object") {
+        config.seenFoes = data.seenFoes;
+      }
+      if (data.stats && typeof data.stats === "object") {
+        config.stats = {
+          kills: Number(data.stats.kills) || 0,
+          flawless: Number(data.stats.flawless) || 0,
+          maxStreak: Number(data.stats.maxStreak) || 0,
+          summons: Number(data.stats.summons) || 0
+        };
+      }
+      if (data.records && typeof data.records === "object") {
+        config.records = data.records;
+      }
+      if (typeof data.instMode === "string") config.instMode = data.instMode;
+      if (typeof data.customInst === "string") config.customInst = data.customInst;
+      if (typeof data.lang === "string" && I18N[data.lang]) config.lang = data.lang;
+
+      persistConfig();
+      persistProgress();
+
+      if (data.savedRun && typeof data.savedRun === "object" && data.savedRun.active && KANKEN_DATA[data.savedRun.depthId]) {
+        Object.assign(state, newRunState(), data.savedRun);
+        if (typeof isPureKanjiCard === "function" && Array.isArray(state.deck)) {
+          state.deck = state.deck.filter(k => isPureKanjiCard(k));
+        }
+        saveRunToStorage();
+      } else if ("savedRun" in data && !data.savedRun) {
+        state.active = false;
+        clearSavedRun();
+      }
+
+      syncSettingsUI();
+      applyLocalization();
+      updateSavedRunBanner();
+      renderDepthSpine();
+      if (currentView === "battle") {
+        if (state.active) updateBattleHUD(false);
+        else transitionToView("title");
+      }
+      if (typeof playHealSfx === "function") playHealSfx();
+      showToast(t("toastImported"));
+    } catch (_e) {
+      showToast(t("toastImportErr"));
+    }
+  };
+  reader.readAsText(file);
+}
+

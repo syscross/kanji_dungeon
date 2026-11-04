@@ -124,6 +124,15 @@
         <button class="btn" id="sound-toggle-btn" onclick="toggleSound()">🔊 ON</button>
       </div>
 
+      <div class="setting-row">
+        <span data-i18n="lblSaveData">Save Data</span>
+        <div class="save-data-btns">
+          <button class="btn" data-i18n="exportSaveBtn" onclick="exportSaveData()">📤 Export</button>
+          <button class="btn" data-i18n="importSaveBtn" onclick="triggerImportSave()">📥 Import</button>
+          <input type="file" id="save-file-input" accept=".json,application/json" style="display:none" onchange="handleImportSaveFile(event)" />
+        </div>
+      </div>
+
       <p class="setting-note">
         <span data-i18n="keyNotice"></span>
         <a id="s-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">[Get Key ↗]</a>

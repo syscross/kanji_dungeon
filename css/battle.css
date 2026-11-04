@@ -93,8 +93,13 @@
   color: var(--crimson);
   line-height: 1;
   text-shadow: 0 0 16px rgba(215, 58, 73, 0.6);
+  white-space: nowrap;
 }
-.boss-kanji.multi { font-size: 1.85rem; white-space: nowrap; letter-spacing: -1px; }
+.boss-kanji.multi,
+.boss-kanji[data-len="2"] { font-size: 1.85rem; letter-spacing: -1px; }
+.boss-kanji[data-len="3"] { font-size: 1.25rem; letter-spacing: -1.5px; }
+.boss-kanji[data-len="4"],
+.boss-kanji[data-len="5"] { font-size: 0.96rem; letter-spacing: -1.5px; }
 .boss-info { display: flex; flex-direction: column; gap: 7px; min-width: 0; font-size: 0.8rem; }
 .boss-tags { display: flex; gap: 6px; min-width: 0; }
 .hp-line { display: flex; align-items: center; gap: 8px; }
@@ -355,10 +360,18 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .enemy-stage { gap: 10px; padding: 8px 10px; }
   .boss-card { width: 64px; height: 76px; }
   .boss-kanji { font-size: 2.4rem; }
-  .boss-kanji.multi { font-size: 1.28rem; white-space: nowrap; }
+  .boss-kanji.multi,
+  .boss-kanji[data-len="2"] { font-size: 1.28rem; white-space: nowrap; }
+  .boss-kanji[data-len="3"] { font-size: 0.88rem; }
+  .boss-kanji[data-len="4"],
+  .boss-kanji[data-len="5"] { font-size: 0.68rem; }
   .enemy-hand-wrap .mini-label { display: none; }
   .kanji-card.enemy-sm { width: 34px; height: 42px; }
   .kanji-card.enemy-sm .char { font-size: 1.15rem; }
+  .kanji-card.enemy-sm[data-len="2"] .char { font-size: 0.72rem; }
+  .kanji-card.enemy-sm[data-len="3"] .char,
+  .kanji-card.enemy-sm[data-len="4"] .char,
+  .kanji-card.enemy-sm[data-len="5"] .char { font-size: 0.56rem; }
   .gm-box { padding: 8px; font-size: 0.8rem; }
   .log-entry { padding: 6px 8px; }
   .player-dock { padding: 7px 8px; gap: 7px; }
@@ -366,8 +379,12 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .card-row { gap: 7px; }
   .kanji-card { width: 58px; height: 74px; }
   .kanji-card .char { font-size: 2rem; }
-  .kanji-card.multi .char { font-size: 1.18rem; }
-  .kanji-card.multi.multi-long .char { font-size: 0.84rem; }
+  .kanji-card.multi .char,
+  .kanji-card[data-len="2"] .char { font-size: 1.16rem; letter-spacing: -1px; }
+  .kanji-card.multi.multi-long .char,
+  .kanji-card[data-len="3"] .char { font-size: 0.82rem; letter-spacing: -1.5px; }
+  .kanji-card[data-len="4"] .char { font-size: 0.64rem; letter-spacing: -1.5px; }
+  .kanji-card[data-len="5"] .char { font-size: 0.54rem; letter-spacing: -1.5px; }
   .cmd-chips { gap: 5px; }
   .chip { flex: 1; padding: 7px 4px; font-size: 0.72rem; text-align: center; }
   #b-send-btn { padding: 0 12px; }
@@ -382,12 +399,20 @@ body.kb-open #b-player-state { display: none; }
 body.kb-open .enemy-stage { padding: 6px 10px; }
 body.kb-open .boss-card { width: 46px; height: 52px; }
 body.kb-open .boss-kanji { font-size: 1.8rem; }
-body.kb-open .boss-kanji.multi { font-size: 1.02rem; }
+body.kb-open .boss-kanji.multi,
+body.kb-open .boss-kanji[data-len="2"] { font-size: 1.02rem; }
+body.kb-open .boss-kanji[data-len="3"] { font-size: 0.72rem; }
+body.kb-open .boss-kanji[data-len="4"],
+body.kb-open .boss-kanji[data-len="5"] { font-size: 0.56rem; }
 body.kb-open .boss-info { gap: 5px; }
 body.kb-open #b-player-hand .kanji-card { width: 50px; height: 58px; }
 body.kb-open #b-player-hand .kanji-card .char { font-size: 1.65rem; }
-body.kb-open #b-player-hand .kanji-card.multi .char { font-size: 1rem; }
-body.kb-open #b-player-hand .kanji-card.multi.multi-long .char { font-size: 0.74rem; }
+body.kb-open #b-player-hand .kanji-card.multi .char,
+body.kb-open #b-player-hand .kanji-card[data-len="2"] .char { font-size: 0.98rem; letter-spacing: -1px; }
+body.kb-open #b-player-hand .kanji-card.multi.multi-long .char,
+body.kb-open #b-player-hand .kanji-card[data-len="3"] .char { font-size: 0.72rem; letter-spacing: -1.5px; }
+body.kb-open #b-player-hand .kanji-card[data-len="4"] .char,
+body.kb-open #b-player-hand .kanji-card[data-len="5"] .char { font-size: 0.56rem; letter-spacing: -1.5px; }
 body.kb-open #b-player-hand .kanji-card .dict-link { display: none; }
 body.kb-open .kanji-card.enemy-sm { width: 30px; height: 36px; }
 body.kb-open .kanji-card.enemy-sm .char { font-size: 1rem; }
@@ -471,6 +496,7 @@ body.kb-open .gm-box { min-height: 48px; }
   flex: 1;
   padding: 9px 10px;
   font-size: 0.82rem;
+  white-space: nowrap;
 }
 
 /* Battle bar right side: current stage sign */
@@ -574,10 +600,18 @@ body.kb-open .gm-box { min-height: 48px; }
 .kanji-card.tier-edu .char { color: #8ce0a8; }
 .kanji-card.tier-common .char { color: #f5b066; }
 .kanji-card.tier-abyss .char { color: #ff5c6c; text-shadow: 0 0 12px rgba(255, 77, 94, 0.5); }
-.kanji-card.multi .char { font-size: 1.58rem; white-space: nowrap; letter-spacing: -1px; }
-.kanji-card.multi.multi-long .char { font-size: 1.08rem; white-space: nowrap; letter-spacing: -1px; }
-.pick-grid.scavenge-inline .pick-tile.multi { font-size: 1.15rem; white-space: nowrap; letter-spacing: -1px; }
-.pick-grid.scavenge-inline .pick-tile.multi.multi-long { font-size: 0.85rem; white-space: nowrap; letter-spacing: -1px; }
+.kanji-card.multi .char,
+.kanji-card[data-len="2"] .char { font-size: 1.56rem; white-space: nowrap; letter-spacing: -1px; }
+.kanji-card.multi.multi-long .char,
+.kanji-card[data-len="3"] .char { font-size: 1.08rem; white-space: nowrap; letter-spacing: -1.5px; }
+.kanji-card[data-len="4"] .char { font-size: 0.84rem; white-space: nowrap; letter-spacing: -1.5px; }
+.kanji-card[data-len="5"] .char { font-size: 0.68rem; white-space: nowrap; letter-spacing: -1.5px; }
+.pick-grid.scavenge-inline .pick-tile.multi,
+.pick-grid.scavenge-inline .pick-tile[data-len="2"] { font-size: 1.12rem; white-space: nowrap; letter-spacing: -1px; }
+.pick-grid.scavenge-inline .pick-tile.multi.multi-long,
+.pick-grid.scavenge-inline .pick-tile[data-len="3"] { font-size: 0.8rem; white-space: nowrap; letter-spacing: -1.5px; }
+.pick-grid.scavenge-inline .pick-tile[data-len="4"],
+.pick-grid.scavenge-inline .pick-tile[data-len="5"] { font-size: 0.64rem; white-space: nowrap; letter-spacing: -1.5px; }
 
 /* Stage card in neutral (non-combat) mode, rank mark */
 .boss-card.neutral { border-color: #6e5931; box-shadow: 0 0 18px rgba(229,192,123,0.18); cursor: default; }
@@ -632,21 +666,29 @@ body.kb-open .gm-box { min-height: 48px; }
 .log-entry.choice-log { background: none; border-left-color: #6e5931; color: var(--gold); padding: 3px 10px; font-size: 0.8rem; }
 .log-entry.fx-log { background: none; border-left-color: #3a4a5e; color: #b8c7dc; padding: 3px 10px; font-size: 0.8rem; }
 
-/* Defeated boss: drained, stamped with 斬 (Sekiro Deathblow seal) */
-.boss-card.defeated {
-  border-color: #4a3036;
-  box-shadow: 0 0 32px rgba(215, 58, 73, 0.35);
+/* Defeated boss (殺) & Player death (死) mirror seals */
+.boss-card.defeated,
+.boss-card.player-dead {
+  border-color: #6b1d28;
+  box-shadow: 0 0 34px rgba(215, 58, 73, 0.42), inset 0 0 18px rgba(215, 58, 73, 0.22);
   animation: deathblowTremor 0.48s cubic-bezier(0.18, 0.88, 0.3, 1);
 }
 @keyframes deathblowTremor {
   0% { transform: scale(1.14); filter: brightness(2.5) contrast(1.4); }
-  35% { transform: scale(0.92) rotate(-3deg); }
-  70% { transform: scale(1.03) rotate(1deg); }
+  35% { transform: scale(0.92); }
+  70% { transform: scale(1.03); }
   100% { transform: scale(1); filter: none; }
 }
-.boss-card.defeated .boss-kanji { color: #47363a; text-shadow: none; transition: color 0.35s ease; }
-.boss-card.defeated::after {
-  content: "斬";
+.boss-card.defeated .boss-kanji,
+.boss-card.player-dead .boss-kanji {
+  color: #3a2025;
+  opacity: 0.2;
+  text-shadow: none;
+  transition: color 0.35s ease, opacity 0.35s ease;
+}
+.boss-card.defeated::after,
+.boss-card.player-dead::after {
+  content: "殺";
   position: absolute;
   inset: 0;
   display: flex;
@@ -654,16 +696,27 @@ body.kb-open .gm-box { min-height: 48px; }
   justify-content: center;
   font-family: 'Noto Serif JP', serif;
   font-weight: 900;
-  font-size: 2.75rem;
-  color: #ff3b4e;
-  transform: rotate(-14deg);
-  text-shadow: 0 0 14px rgba(0,0,0,0.95), 0 0 26px rgba(255,59,78,0.85);
+  font-size: 3.1rem;
+  color: #ff243b;
+  transform: scale(1);
+  text-shadow: 0 0 16px rgba(0,0,0,0.98), 0 0 28px rgba(255,36,59,0.92), 0 0 46px rgba(215,58,73,0.65);
   animation: stampIn 0.38s cubic-bezier(0.16, 1.35, 0.35, 1) both;
 }
+.boss-card.player-dead::after {
+  content: "死";
+  color: #ff1e38;
+  text-shadow: 0 0 18px rgba(0,0,0,0.98), 0 0 32px rgba(255,30,56,0.95), 0 0 54px rgba(215,30,56,0.75);
+}
+@media (max-width: 680px) {
+  .boss-card.defeated::after,
+  .boss-card.player-dead::after {
+    font-size: 2.35rem;
+  }
+}
 @keyframes stampIn {
-  0% { opacity: 0; transform: rotate(-24deg) scale(2.8); filter: blur(3px) brightness(2.5); }
-  65% { opacity: 1; transform: rotate(-12deg) scale(0.92); filter: none; }
-  100% { opacity: 1; transform: rotate(-14deg) scale(1); filter: none; }
+  0% { opacity: 0; transform: scale(2.9); filter: blur(4px) brightness(2.8); }
+  65% { opacity: 1; transform: scale(0.92); filter: none; }
+  100% { opacity: 1; transform: scale(1); filter: none; }
 }
 .boss-card.enter { animation: bossEnter 0.6s cubic-bezier(0.2, 0.9, 0.3, 1); }
 @keyframes bossEnter {

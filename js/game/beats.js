@@ -5,7 +5,7 @@
 
 function resetBattleChrome() {
   $("view-battle").classList.remove("run-over");
-  $("b-boss-card").classList.remove("defeated");
+  $("b-boss-card").classList.remove("defeated", "player-dead");
 }
 
 function showVictoryBeat() {
@@ -14,7 +14,7 @@ function showVictoryBeat() {
   $("b-boss-card").classList.add("defeated");
   if (typeof playSealStampSfx === "function") playSealStampSfx();
   else playGongSfx();
-  logBeat("victory-log", `【${k.kanji}】 斬`, [t("victoryStats")(k.turns, k.dmgTaken)]);
+  logBeat("victory-log", `【${k.kanji}】 殺`, [t("victoryStats")(k.turns, k.dmgTaken)]);
 }
 
 /* "gemini-2.5-flash", plus markers when the record is not a clean AI-judged Default run. */
@@ -83,6 +83,9 @@ function showRunEnd(wasAbandoned = false) {
   const rec = runSummary();
   state.phase = "dead";
   clearSavedRun();
+  $("b-boss-card").classList.remove("hit", "defeated");
+  $("b-boss-card").classList.add("player-dead");
+  if (typeof playSealStampSfx === "function") playSealStampSfx();
   if (!wasAbandoned) playGongSfx();
   renderPhase();
 

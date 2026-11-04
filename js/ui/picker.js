@@ -27,6 +27,7 @@ function openPicker({ title, desc = "", cards, onCard = null, multiSelect = fals
     const isSel = orderIdx >= 0;
     const charLen = [...String(k)].length;
     tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}${charLen > 1 ? " multi" : ""}${charLen >= 3 ? " multi-long" : ""}`;
+    tile.dataset.len = String(Math.min(5, Math.max(1, charLen)));
     if (isSel && showOrderBadge) {
       tile.dataset.order = String(orderIdx + 1);
     }

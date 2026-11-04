@@ -210,6 +210,7 @@ const EVENTS = {
             "冷えた祭壇。香はとうに燃え尽きたが、静けさだけが残っている。"),
     options: [
       { label: EVT_L("Rest — recover 30% of max HP", "쉰다 — 최대 HP의 30% 회복", "休む — 最大HPの30%回復"), effects: [{ healPct: 30 }] },
+      { label: EVT_L("Search the temple grounds — scavenge stage kanji", "경내를 탐사한다 — 주변 스테이지 한자 갈무리", "境内を探索する — 周囲のステージ漢字を回収"), effects: [{ scavenge: 4 }] },
       { label: EVT_L("Inscribe a compound — combine 2 kanji in your bag", "제단에 합자(合字)를 새긴다 — 챙긴 두 글자를 하나로 합체", "祭壇に合字を刻む — 袋の二字を一つに合成"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
       { label: EVT_L("Feed the brazier — burn a kanji from your bag", "화로에 넣는다 — 챙긴 글자 하나를 태운다", "火鉢にくべる — 袋の字を一つ焼く"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 },
       { label: EVT_L("Pray — summon cost back to 10, 1 free reroll", "기도한다 — 소환 비용 10, 무료 리롤 1", "祈る — 召喚コスト10、無料引き直し1"), effects: [{ summonReset: true }, { tokens: 1 }] }
@@ -251,6 +252,7 @@ const EVENTS = {
       { label: EVT_L("Drink", "마신다", "飲む"),
         effects: [{ chance: 0.6, win: [{ hp: 20 }], lose: [{ say: EVT_L("The water is foul.", "썩은 물이었다.", "腐った水だった。") }, { hp: -10 }] }] },
       { label: EVT_L("Throw a kanji in — Max HP +6", "챙긴 글자 하나를 던진다 — 최대 HP +6", "字を一つ投げ込む — 最大HP +6"), effects: [{ burn: "pick", then: [{ maxHp: 6 }] }], when: s => s.deck.length > 0 },
+      { label: EVT_L("Search around the well — scavenge stage kanji", "우물가를 수색한다 — 주변 스테이지 한자 갈무리", "井戸の周りを探る — 周囲のステージ漢字を回収"), effects: [{ scavenge: 4 }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
@@ -325,6 +327,7 @@ const EVENTS = {
             "紙の提灯。中の油は血の匂いがする。"),
     options: [
       { label: EVT_L("Light it with blood (−6 HP) — see the next fork", "피로 불을 켠다 (−6 HP) — 다음 갈림길을 본다", "血で灯す (−6 HP) — 次の分かれ道を見る"), effects: [{ hp: -6 }, { reveal: true }] },
+      { label: EVT_L("Illuminate surroundings — scavenge stage kanji", "불빛으로 주변을 탐사한다 — 스테이지 한자 갈무리", "灯りで周囲を照らす — ステージ漢字を回収"), effects: [{ scavenge: 4 }] },
       { label: EVT_L("Take the lantern — add 灯 & 1 free reroll", "등롱을 챙긴다 — 灯 획득 + 무료 리롤 1", "提灯を持ち去る — 灯を獲得 + 無料引き直し1"), effects: [{ addCard: "灯" }, { tokens: 1 }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]

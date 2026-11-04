@@ -63,6 +63,7 @@ function renderPhase() {
   view.classList.toggle("intermission", !over && state.phase !== "battle");
   view.classList.toggle("run-over", over);
   if (!["reward", "cleared"].includes(state.phase)) $("b-boss-card").classList.remove("defeated");
+  if (state.phase !== "dead") $("b-boss-card").classList.remove("player-dead");
   updateBattleHUD(false);
   if (!state.pending) closePicker();
 
@@ -275,6 +276,7 @@ function startBattle(rank, forcedKanji = null) {
     enemyState: prevWoundedHp ? t("woundedState") : "",
     enemyEscapeIntent: false,
     enemyEscapeTried: false,
+    enemyIntentsSeen: [],
     lastComboKanji: null,
     turn: 1,
     dmgTakenThisEnemy: 0,

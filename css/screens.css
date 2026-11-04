@@ -244,6 +244,16 @@
   border: 1px solid var(--border);
   font-size: 0.8rem;
   color: var(--gold);
+  gap: 8px;
+}
+.save-data-btns {
+  display: flex;
+  gap: 6px;
+}
+.save-data-btns .btn {
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  white-space: nowrap;
 }
 .setting-note { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
 .setting-note a { color: var(--gold); margin-left: 6px; }
@@ -376,8 +386,12 @@
 .pick-tile.tier-edu { color: #8ce0a8; border-color: #386b4c; }
 .pick-tile.tier-common { color: #f5b066; border-color: #7a5228; }
 .pick-tile.tier-abyss { color: #ff5c6c; border-color: #8c2633; text-shadow: 0 0 10px rgba(255, 77, 94, 0.4); }
-.pick-tile.multi { font-size: 1.25rem; white-space: nowrap; letter-spacing: -1px; }
-.pick-tile.multi.multi-long { font-size: 0.92rem; white-space: nowrap; letter-spacing: -1px; }
+.pick-tile.multi,
+.pick-tile[data-len="2"] { font-size: 1.24rem; white-space: nowrap; letter-spacing: -1px; }
+.pick-tile.multi.multi-long,
+.pick-tile[data-len="3"] { font-size: 0.88rem; white-space: nowrap; letter-spacing: -1.5px; }
+.pick-tile[data-len="4"] { font-size: 0.68rem; white-space: nowrap; letter-spacing: -1.5px; }
+.pick-tile[data-len="5"] { font-size: 0.56rem; white-space: nowrap; letter-spacing: -1.5px; }
 .pick-tile:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--gold); }
 .pick-tile.selected {
   border-color: var(--gold);
