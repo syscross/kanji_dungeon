@@ -1,18 +1,50 @@
-# KANJI DUNGEON 【漢字地獄】 — AI Handover Spec (v1.0 Static Web)
+# KANJI DUNGEON 【漢字地獄】 — Handover Spec (Static Web)
 
-## 1. Project Architecture
-- **Live Domain Target:** `https://kanji.syscross.dev` (Hosted on Vercel via GitHub `syscross/kanji_dungeon`, DNS via Cloudflare).
-- **100% Static BYOK Architecture:** Zero backend server. Pure `index.html` + `kanken_data.json` + `manifest.json` + `vercel.json`.
-- **DO NOT read or paste `kanken_data.json` into LLM context:** It contains all 12 Kanken levels (`depth_1` = Level 10 through `depth_12` = Level 1, 6,355 Kanji total). Schema per key: `{ title, count, enemies: [...], kanji: [...] }`.
+## 1. Architecture
+- **Live:** `https://kanjidungeon.vercel.app` (Vercel, GitHub `syscross/kanji_dungeon`).
+- **100% static, BYOK, no build step.** `index.html` + plain `<script>` files sharing globals (load order in `index.html` matters).
+- **Do NOT read or paste `kanken_data.json` into LLM context.** 12 Kanken levels (`depth_1` = Level 10 … `depth_12` = Level 1, 6,355 Kanji). Schema per key: `{ title, count, enemies: [...], kanji: [...] }`.
 
-## 2. Implemented Core Mechanics in `index.html`
-1. **4 Slash Commands (`parseInputCommand`):**
-   - `/hint` (No-arg; ignores trailing text, free briefing without ending turn)
-   - `/reroll` (No-arg; ignores trailing text, costs 5 HP to redraw 5 cards without ending turn)
-   - `/prompt <arg>` (Requires arg; asks GM about specific Kanji/strategy without ending turn)
-   - `/summon [optional arg]` (Escalating HP cost within a battle round: `10 -> 20 -> 30...`, resets to `10` when advancing to the next enemy in the streak)
-2. **3 Instruction Modes & Separate Leaderboards (`localStorage`):**
-   - `Default` (Read-only official rules), `Custom` (Official + user patch), `Sandbox` (Full custom rules).
-   - Endless Survival Streak: Defeating an enemy carries over remaining HP & `playerState` to the next enemy and records mode-specific high scores per Depth.
-3. **Multi-Provider Direct Browser Calls (`callLLM`):**
-   - Supports `gemini`, `anthropic` (with `anthropic-dangerous-direct-browser-access: true`), and `openrouter`, plus custom model ID input (`claude-haiku-5-5`, `gemini-flash-lite-latest`, etc.).
+## 2. File map
+```
+css/base.css          tokens, app shell, buttons, dropdowns, modals, toasts, forms
+css/screens.css       top bar, title, depth select, settings / guide / achievements
+css/battle.css        battle screen (+ phone and `body.kb-open` keyboard layouts)
+js/data/i18n.js       I18N strings (EN/KO/JA/ZH_CN/ZH_TW), t(), pickLang(), applyLocalization()
+js/data/guide.js      guide pages (KO/EN/JA, others fall back to EN)
+js/data/achievements.js  common achievement defs, depth templates, legacy id map
+js/core/state.js      config (settings), run state, localStorage persistence, depth helpers
+js/ai/providers.js    PROVIDERS list + callLLM(prompt, expectJson, {temperature})
+js/ai/gm.js           GM rules, prompt builders, verdict bands, normalizeJudgment()
+js/ai/local-engine.js offline fallback GM (used when the free endpoint fails)
+js/fx/audio.js, js/fx/embers.js   procedural SFX, background particles
+js/ui/dom.js          toasts, markdown-lite, modals, view switching, dropdowns
+js/ui/hud.js          battle HUD, cards, GM log, combat FX, judging spinner
+js/ui/viewport.js     visible-viewport sizing for on-screen keyboards (--app-h, kb-open)
+js/ui/keyboard.js     desktop keyboard navigation
+js/ui/settings.js     settings modal
+js/ui/screens.js      title, guide, depth select, game over
+js/game/achievements.js  catalog build, unlock + event hooks, achievements modal
+js/game/run.js        start / spawn / deal / pause / resume / abandon
+js/game/battle.js     slash commands, judged turns, applying results, log export
+js/main.js            bootstrap
+```
+
+## 3. Judging contract (`js/ai/gm.js`)
+- The GM reads intent generously: a card counts as used if written **or** clearly invoked by meaning.
+- The GM returns a **verdict** (`FIZZLE | WEAK | SOLID | CLEVER | MASTERFUL`) plus numbers inside that verdict's band.
+- `normalizeJudgment()` enforces per-verdict damage/heal caps (`VERDICT_DAMAGE_HINT[].cap`, `VERDICT_HEAL_CAP`), filters `used_kanji` to the hand, and fills defaults. FIZZLE always deals 0.
+- Enemy counter baseline scales with depth (`enemyCounterBaseline`).
+- Player input is wrapped in `<action>` tags; meta / rule-changing requests are FIZZLE.
+- Rule modes: `Default` (official), `Custom` (official + user patch), `Sandbox` (user rules only). Output format is outside the rule body, so all modes keep the JSON contract.
+
+## 4. Slash commands
+`/hint` (free briefing), `/reroll` (−5 HP redraw), `/prompt <q>` (free question), `/summon [dir]` (HP cost 10 → 20 → 30…, resets per enemy; refunded if the API call fails).
+
+## 5. Achievements
+- **Common** (`COMMON_ACHIEVEMENTS`), **per depth** (`d<n>_kill|streak|flawless|purge`), **boss bestiary** (`boss_<kanji>`, generated from `enemies`).
+- Stored as `{ id: timestamp }` in `kd_achievements`; total kills in `kd_stats`.
+- Old ids `dog_slayer` / `heaven_defier` migrate to `boss_犬` / `boss_天`.
+
+## 6. Known limits
+- Free Keyless endpoint (pollinations) allows ~1 reply / 45 s per IP. Excess turns fall back to the offline engine, marked `🔌 offline GM` in the log.

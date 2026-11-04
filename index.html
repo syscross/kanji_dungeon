@@ -2,13 +2,16 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="theme-color" content="#090a0f" />
   <title>KANJI DUNGEON 【漢字地獄】</title>
   <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/screens.css" />
+  <link rel="stylesheet" href="/css/battle.css" />
 </head>
 <body>
   <canvas id="ember-canvas"></canvas>
@@ -18,13 +21,14 @@
     <div class="curtain-sub" id="curtain-sub">DESCENDING INTO THE ABYSS...</div>
   </div>
   <div id="damage-vignette"></div>
-  <div id="ach-toast">🏆 업적 달성!</div>
+  <div id="ach-toast"></div>
+  <div id="global-toast"></div>
 
-  <!-- MODAL 1: Confirm (Exit / Abandon) -->
+  <!-- Confirm (exit / abandon) -->
   <div class="modal-backdrop" id="confirm-modal">
     <div class="modal-card">
       <div class="modal-title" id="modal-title">【閉門】</div>
-      <div class="modal-desc" id="modal-desc">Are you sure?</div>
+      <div class="modal-desc" id="modal-desc"></div>
       <div class="modal-actions">
         <button class="btn btn-gold" data-i18n="confirm" onclick="closeConfirmModal(true)">Confirm</button>
         <button class="btn" data-i18n="cancel" onclick="closeConfirmModal(false)">Cancel</button>
@@ -32,22 +36,22 @@
     </div>
   </div>
 
-  <!-- MODAL 2: Settings Popup (Works anytime, even mid-battle!) -->
+  <!-- Settings (usable mid-battle) -->
   <div class="modal-backdrop" id="settings-modal">
     <div class="modal-card wide">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="modal-head">
         <div class="modal-title" data-i18n="settingsTitle">【SETTINGS】</div>
-        <button class="btn" data-i18n="closeBtn" onclick="closeSettingsModal()">✕ Close</button>
+        <button class="btn icon-btn" data-i18n="closeBtn" onclick="closeSettingsModal()">✕</button>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#0b0d14; padding:8px 12px; border:1px solid var(--border);">
-        <span style="font-size:0.8rem; color:var(--gold);" data-i18n="lblSound">Sound Effects (SFX)</span>
+      <div class="setting-row">
+        <span data-i18n="lblSound">Sound Effects (SFX)</span>
         <button class="btn" id="sound-toggle-btn" onclick="toggleSound()">🔊 ON</button>
       </div>
 
-      <p style="font-size:0.75rem; color:var(--muted);">
-        <span data-i18n="keyNotice">🔒 Instant Free Keyless mode works out-of-the-box!</span>
-        <a id="s-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold); margin-left:6px;">[Get Key ↗]</a>
+      <p class="setting-note">
+        <span data-i18n="keyNotice"></span>
+        <a id="s-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">[Get Key ↗]</a>
       </p>
 
       <div class="field-group">
@@ -56,33 +60,33 @@
       </div>
 
       <div class="field-group" id="s-endpoint-group" style="display:none;">
-        <label data-i18n="lblEndpoint">Custom OpenAI-Compatible Base URL</label>
+        <label data-i18n="lblEndpoint">Custom OpenAI-Compatible URL</label>
         <input type="text" id="s-endpoint" class="input-ctrl" placeholder="http://localhost:11434/v1/chat/completions" />
       </div>
 
       <div class="field-group" id="s-apikey-group">
         <label data-i18n="lblApiKey">2. API Key</label>
-        <input type="password" id="s-apikey" class="input-ctrl" placeholder="Paste API Key here..." />
+        <input type="password" id="s-apikey" class="input-ctrl" placeholder="Paste API Key here..." autocomplete="off" />
       </div>
 
       <div class="field-group">
-        <label data-i18n="lblModel">3. Model Preset or Custom ID</label>
+        <label data-i18n="lblModel">3. Model</label>
         <select id="s-model-preset" onchange="document.getElementById('s-model-custom').value = this.value"></select>
         <input type="text" id="s-model-custom" class="input-ctrl" placeholder="Or type any model ID..." />
       </div>
 
       <div class="field-group">
-        <label data-i18n="lblInstMode">4. Instruction Mode</label>
+        <label data-i18n="lblInstMode">4. GM Rule Mode</label>
         <select id="s-inst-mode" onchange="onInstModeChange()">
-          <option value="Default">🏆 Default (Official Rules — Read-Only)</option>
-          <option value="Custom">🛠 Custom (Official Rules + Your Addon Patch)</option>
+          <option value="Default">🏆 Default (Official Rules)</option>
+          <option value="Custom">🛠 Custom (Official + Your Patch)</option>
           <option value="Sandbox">🧪 Sandbox (Full Custom Ruleset)</option>
         </select>
       </div>
 
       <div class="field-group">
         <label data-i18n="lblDefaultInst">Official GM Rules (Read-Only)</label>
-        <textarea id="s-default-inst" readonly style="opacity:0.65;"></textarea>
+        <textarea id="s-default-inst" readonly class="readonly-rules"></textarea>
       </div>
 
       <div class="field-group" id="s-custom-group">
@@ -90,86 +94,75 @@
         <textarea id="s-custom-inst" placeholder="Add extra GM persona rules..."></textarea>
       </div>
 
-      <div class="modal-actions" style="justify-content:flex-end;">
+      <div class="modal-actions end">
         <button class="btn" data-i18n="testKey" onclick="testApiKey()">🧪 Test Key</button>
         <button class="btn btn-gold" data-i18n="saveBtn" onclick="saveSettings()">💾 Save & Close</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 3: Paginated Guide (Bottom-Left) -->
+  <!-- Guide -->
   <div class="modal-backdrop" id="guide-modal">
     <div class="modal-card wide">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="modal-head">
         <div class="modal-title" id="guide-page-title">📖 1/5</div>
-        <button class="btn" onclick="document.getElementById('guide-modal').classList.remove('active')">✕</button>
+        <button class="btn icon-btn" onclick="closeModal('guide-modal')">✕</button>
       </div>
-      <div class="modal-desc" id="guide-page-body" style="white-space:pre-wrap; min-height:130px;"></div>
-      <div class="modal-actions" style="justify-content:space-between;">
-        <button class="btn" onclick="stepGuidePage(-1)">◀ Prev</button>
-        <button class="btn btn-gold" onclick="stepGuidePage(1)">Next ▶</button>
+      <div class="modal-desc guide-body" id="guide-page-body"></div>
+      <div class="modal-actions between">
+        <button class="btn" data-i18n="prevBtn" onclick="stepGuidePage(-1)">◀ Prev</button>
+        <button class="btn btn-gold" data-i18n="nextBtn" onclick="stepGuidePage(1)">Next ▶</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 4: Achievements (Bottom-Right) -->
+  <!-- Achievements -->
   <div class="modal-backdrop" id="ach-modal">
-    <div class="modal-card wide">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div class="modal-title">🏆 【 業 蹟 — ACHIEVEMENTS 】</div>
-        <button class="btn" onclick="document.getElementById('ach-modal').classList.remove('active')">✕</button>
+    <div class="modal-card wide ach-card">
+      <div class="modal-head">
+        <div class="modal-title" data-i18n="achTitle">🏆 ACHIEVEMENTS</div>
+        <button class="btn icon-btn" onclick="closeModal('ach-modal')">✕</button>
       </div>
-      <div class="ach-grid" id="ach-grid"></div>
+      <div class="tab-row" id="ach-tabs"></div>
+      <div class="ach-body" id="ach-body"></div>
     </div>
   </div>
 
-  <!-- MODAL 5: Slay the Spire Style Game Over Screen -->
+  <!-- Game over -->
   <div class="modal-backdrop" id="gameover-modal">
     <div class="modal-card">
-      <div class="modal-title" id="go-title">【死 — GAME OVER】</div>
-      <div class="modal-desc" id="go-stats" style="text-align:left; white-space:pre-wrap; background:#0b0d14; padding:12px; border:1px solid var(--border);"></div>
+      <div class="modal-title" id="go-title">【死】</div>
+      <div class="modal-desc go-stats" id="go-stats"></div>
       <div class="modal-actions">
-        <button class="btn btn-gold" id="go-retry-btn">🔄 Retry Floor</button>
-        <button class="btn" onclick="exportBattleLog()">📋 Copy Log</button>
-        <button class="btn" onclick="closeGameOverToTitle()">⛩ Title</button>
+        <button class="btn btn-gold" id="go-retry-btn" data-i18n="retryBtn">🔄 Retry</button>
+        <button class="btn" data-i18n="copyLogBtn" onclick="exportBattleLog()">📋 Copy Log</button>
+        <button class="btn" data-i18n="titleBtn" onclick="closeGameOverToTitle()">⛩ Title</button>
       </div>
     </div>
   </div>
 
   <div class="app-container" id="app-root">
-    <!-- Top Bar: Left Logo Fixed, Right Controls with Volume on the Far Right -->
     <div class="topbar">
-      <div class="brand" onclick="handleBrandClick()">
-        <span>⛩</span> KANJI DUNGEON
-      </div>
+      <div class="brand" onclick="handleBrandClick()"><span>⛩</span><span class="brand-text">KANJI DUNGEON</span></div>
 
       <div class="top-controls">
-        <div class="lang-dropdown" id="lang-dropdown">
-          <button class="btn" id="lang-current-label" onclick="toggleLangMenu(event)">🌐 KO ▾</button>
-          <div class="lang-menu">
-            <div class="lang-item" onclick="selectLanguage('EN', event)"><span>EN</span><small>English</small></div>
-            <div class="lang-item" onclick="selectLanguage('JA', event)"><span>JA</span><small>日本語</small></div>
-            <div class="lang-item" onclick="selectLanguage('KO', event)"><span>KO</span><small>한국어</small></div>
-            <div class="lang-item lang-has-sub">
-              <span>ZH</span><span>▸</span>
-              <div class="lang-submenu">
-                <div class="lang-item" onclick="selectLanguage('ZH_CN', event)"><span>ZH_CN</span><small>简体</small></div>
-                <div class="lang-item" onclick="selectLanguage('ZH_TW', event)"><span>ZH_TW</span><small>繁體</small></div>
-              </div>
-            </div>
+        <div class="dropdown" id="lang-dropdown">
+          <button class="btn" id="lang-current-label" onclick="toggleDropdown('lang-dropdown', event)">🌐 KO</button>
+          <div class="dropdown-menu">
+            <button class="menu-item" onclick="selectLanguage('KO', event)"><span>KO</span><small>한국어</small></button>
+            <button class="menu-item" onclick="selectLanguage('EN', event)"><span>EN</span><small>English</small></button>
+            <button class="menu-item" onclick="selectLanguage('JA', event)"><span>JA</span><small>日本語</small></button>
+            <button class="menu-item" onclick="selectLanguage('ZH_CN', event)"><span>ZH-CN</span><small>简体中文</small></button>
+            <button class="menu-item" onclick="selectLanguage('ZH_TW', event)"><span>ZH-TW</span><small>繁體中文</small></button>
           </div>
         </div>
-
-        <button class="btn btn-gold" id="mode-badge" onclick="openSettingsModal()">⚙ Mode: Default</button>
-        <button class="btn" data-i18n="testKey" onclick="testApiKey()">🧪 Test Key</button>
-        <button class="btn" data-i18n="settings" onclick="openSettingsModal()">🔑 Settings</button>
-        <button class="btn" id="sound-btn" onclick="toggleSound()" title="Sound ON/OFF">🔊</button>
+        <button class="btn btn-gold mode-badge" id="mode-badge" onclick="openSettingsModal()">⚙ Mode: Default</button>
+        <button class="btn icon-btn" data-i18n-title="settings" onclick="openSettingsModal()">⚙</button>
+        <button class="btn icon-btn" id="sound-btn" onclick="toggleSound()" title="Sound">🔊</button>
       </div>
     </div>
 
-    <div id="global-toast"></div>
-
-    <!-- VIEW 1: TITLE SCREEN (4 Uniform Buttons + Bottom-Left Guide & Bottom-Right Achievements) -->
+    <!-- VIEW: TITLE -->
     <div id="view-title" class="view active">
       <div class="title-seal">
         <div class="title-kanji">漢字地獄</div>
@@ -177,28 +170,22 @@
         <div class="title-sub" data-i18n="titleSub">6,355 Kanji Dark-Fantasy AI TRPG Roguelike</div>
       </div>
 
-      <div class="saved-run-banner" id="saved-run-banner" onclick="handlePlayGameClick()" style="cursor:pointer;"></div>
+      <div class="saved-run-banner" id="saved-run-banner" onclick="handlePlayGameClick()"></div>
 
       <div class="title-menu">
-        <button class="menu-btn" data-i18n="playGame" onclick="handlePlayGameClick()">⚔ PLAY GAME</button>
-        <button class="menu-btn" data-i18n="testKey" onclick="testApiKey()">🧪 TEST KEY</button>
-        <button class="menu-btn" data-i18n="settings" onclick="openSettingsModal()">🔑 SETTINGS</button>
+        <button class="menu-btn" id="play-btn" onclick="handlePlayGameClick()">⚔ PLAY GAME</button>
+        <button class="menu-btn" onclick="openSettingsModal()">⚙ <span data-i18n="settings">Settings</span></button>
         <button class="menu-btn" data-i18n="exit" onclick="promptExitGame()">🚪 EXIT</button>
       </div>
 
-      <!-- Bottom-Left Guide & Bottom-Right Achievements -->
-      <div class="title-corner left">
-        <button class="corner-btn" data-i18n="guideBtn" onclick="openGuideModal()">📖 가이드</button>
-      </div>
-      <div class="title-corner right">
-        <button class="corner-btn" id="ach-corner-btn" onclick="openAchievementsModal()">🏆 업적 (0/10)</button>
-      </div>
+      <button class="corner-btn left" data-i18n-title="guideBtn" onclick="openGuideModal()">📖</button>
+      <button class="corner-btn right" data-i18n-title="achBtn" onclick="openAchievementsModal()">🏆<span class="count-badge" id="ach-count">0</span></button>
     </div>
 
-    <!-- VIEW 2: ABYSSAL DESCENT (01 -> 12) -->
+    <!-- VIEW: DEPTH SELECT -->
     <div id="view-select" class="view">
       <div class="select-header">
-        <span style="color:var(--crimson); font-weight:700; font-size:0.9rem;" data-i18n="selectDepth">【SELECT ABYSSAL DEPTH : 01 → 12】</span>
+        <span class="select-title" data-i18n="selectDepth">【SELECT ABYSSAL DEPTH : 01 → 12】</span>
         <button class="btn" data-i18n="toTitle" onclick="transitionToView('title')">↩ Title</button>
       </div>
       <div class="abyss-scroll">
@@ -206,60 +193,58 @@
       </div>
     </div>
 
-    <!-- VIEW 3: BATTLE ARENA -->
+    <!-- VIEW: BATTLE -->
     <div id="view-battle" class="view">
-      <div class="status-banner">
-        <div>
-          <strong id="b-depth-title" style="color:var(--crimson)">01 — 拾ノ獄</strong>
-          <span id="b-turn" style="margin-left:6px; color:var(--muted)">Turn 1</span>
-          <span class="badge" id="b-timer" style="margin-left:6px;">⏱ 00:00</span>
+      <div class="battle-bar">
+        <div class="bb-info">
+          <strong class="bb-depth" id="b-depth-title">01 拾ノ獄</strong>
+          <span class="badge" id="b-turn">T1</span>
+          <span class="badge" id="b-streak">🔥 0</span>
+          <span class="badge" id="b-timer">⏱ 00:00</span>
         </div>
-        <div><span data-i18n="field">Field</span>: <span class="badge" id="b-field-state">Pitch-Black Dungeon</span></div>
-        <div style="display:flex; gap:4px; align-items:center;">
-          <span class="badge" id="b-streak">🔥 0 Kills</span>
-          <button class="btn" style="padding:2px 7px;" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy</button>
-          <button class="btn" style="padding:2px 7px;" data-i18n="logClear" onclick="clearGmLog(true)">🧹 Clear</button>
-          <button class="btn" style="padding:2px 7px;" data-i18n="pauseTitle" onclick="pauseRunToTitle()">⏸ Title</button>
-          <button class="btn" style="padding:2px 7px; border-color:var(--crimson); color:var(--crimson);" data-i18n="abandon" onclick="promptAbandonRun()">🏳️ Abandon</button>
+        <div class="dropdown align-right" id="battle-menu">
+          <button class="btn icon-btn" data-i18n-title="menuBtn" onclick="toggleDropdown('battle-menu', event)">⋮</button>
+          <div class="dropdown-menu">
+            <button class="menu-item" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy log</button>
+            <button class="menu-item" data-i18n="logClear" onclick="closeDropdowns(); clearGmLog(true)">🧹 Clear log</button>
+            <button class="menu-item" data-i18n="pauseTitle" onclick="pauseRunToTitle()">⏸ Save & title</button>
+            <button class="menu-item danger" data-i18n="abandon" onclick="promptAbandonRun()">🏳️ Abandon run</button>
+          </div>
         </div>
       </div>
 
       <div class="enemy-stage">
-        <div class="boss-left">
-          <div class="boss-card" id="b-boss-card" onclick="insertKanji(state.enemyKanji)" title="Click to insert Boss Kanji">
-            <div class="boss-kanji" id="b-boss-kanji">犬</div>
-          </div>
-          <div class="boss-info">
-            <div>ENEMY 【<strong id="b-boss-name" style="color:var(--crimson)">犬</strong>】 <span class="badge" id="b-enemy-state">Hostile</span></div>
-            <div>HP: <strong id="b-enemy-hp">100</strong>/100</div>
-            <div class="hp-bar-wrap"><div class="hp-bar-fill" id="b-enemy-bar" style="width:100%"></div></div>
-            <div class="prev-hand-row" id="b-enemy-prev">Prev: (None)</div>
-          </div>
+        <div class="boss-card" id="b-boss-card" onclick="insertKanji(state.enemyKanji)">
+          <div class="boss-kanji" id="b-boss-kanji">犬</div>
         </div>
-
-        <div class="enemy-hand-wrap">
-          <div style="font-size:0.72rem; color:var(--muted);" data-i18n="enemyHand">Enemy Hand (Click to reference):</div>
-          <div class="card-row" id="b-enemy-hand"></div>
+        <div class="boss-info">
+          <div class="boss-tags">
+            <span class="badge danger" id="b-enemy-state">Hostile</span>
+            <span class="badge muted" data-i18n-title="field" id="b-field-state">Pitch-Black Dungeon</span>
+          </div>
+          <div class="hp-line">
+            <div class="hp-bar-wrap"><div class="hp-bar-fill" id="b-enemy-bar"></div></div>
+            <span class="hp-num"><strong id="b-enemy-hp">100</strong>/100</span>
+          </div>
+          <div class="enemy-hand-wrap">
+            <span class="mini-label" data-i18n="enemyHand">Enemy hand</span>
+            <div class="card-row" id="b-enemy-hand"></div>
+          </div>
         </div>
       </div>
 
       <div class="gm-box" id="b-gm-log"></div>
 
       <div class="player-dock">
-        <div class="player-stat-row">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span><span data-i18n="yourHp">YOUR HP</span>: <strong id="b-player-hp" style="color:var(--green)">100</strong>/100</span>
-            <div class="hp-bar-wrap" style="width:120px;"><div class="hp-bar-fill player" id="b-player-bar" style="width:100%"></div></div>
-            <span class="badge" id="b-player-state">Normal</span>
-          </div>
-          <div>
-            <span class="prev-hand-row" id="b-player-prev" style="margin-right:8px;">Prev: (None)</span>
-            <span><code>/summon</code>: <span class="badge" id="b-summon-cost">10 HP</span></span>
-          </div>
+        <div class="player-stat-row" id="b-player-stat">
+          <span class="hp-label" data-i18n="yourHp">HP</span>
+          <div class="hp-bar-wrap"><div class="hp-bar-fill player" id="b-player-bar"></div></div>
+          <span class="hp-num"><strong id="b-player-hp">100</strong>/100</span>
+          <span class="badge" id="b-player-state">Normal</span>
         </div>
 
         <div class="hand-table">
-          <div class="deck-pile" onclick="triggerSlash('/reroll')" title="Click Deck to /reroll (-5 HP)">
+          <div class="deck-pile" onclick="triggerSlash('/reroll')" title="/reroll (-5 HP)">
             <span>山札</span>
             <small data-i18n="deck">DRAW</small>
           </div>
@@ -267,23 +252,39 @@
         </div>
 
         <div class="cmd-chips">
-          <span class="chip" data-i18n="hintChip" onclick="triggerSlash('/hint')">💡 /hint (Brief)</span>
-          <span class="chip" data-i18n="rerollChip" onclick="triggerSlash('/reroll')">🎲 /reroll (-5 HP)</span>
-          <span class="chip" data-i18n="promptChip" onclick="prefillSlash('/prompt ')">❓ /prompt [Ask]</span>
-          <span class="chip" data-i18n="summonChip" onclick="prefillSlash('/summon ')">🐉 /summon</span>
+          <button class="chip" title="/hint" onclick="triggerSlash('/hint')"><span data-i18n="hintChip">💡 Hint</span></button>
+          <button class="chip" title="/reroll" onclick="triggerSlash('/reroll')"><span data-i18n="rerollChip">🎲 Reroll</span></button>
+          <button class="chip" title="/prompt" onclick="prefillSlash('/prompt ')"><span data-i18n="promptChip">❓ Ask</span></button>
+          <button class="chip" title="/summon" onclick="prefillSlash('/summon ')"><span data-i18n="summonChip">🐉 Summon</span> <span class="chip-cost">−<span id="b-summon-cost">10</span></span></button>
         </div>
 
         <form class="prompt-row" onsubmit="handleBattleSubmit(event)">
-          <input type="text" id="b-input" class="prompt-input" placeholder="Click Kanji cards or type spell..." autocomplete="off" />
-          <button type="submit" class="btn btn-gold" id="b-send-btn" data-i18n="castBtn">⚔️ Cast</button>
+          <input type="text" id="b-input" class="prompt-input" autocomplete="off" enterkeyhint="send" />
+          <button type="submit" class="btn btn-gold" id="b-send-btn" data-i18n="castBtn">⚔ Cast</button>
         </form>
       </div>
     </div>
   </div>
 
-  <script src="/js/i18n.js"></script>
-  <script src="/js/providers.js"></script>
-  <script src="/js/fx.js"></script>
-  <script src="/js/app.js"></script>
+  <!-- Load order matters: data → core → ai → fx → ui → game → main -->
+  <script src="/js/data/i18n.js"></script>
+  <script src="/js/data/guide.js"></script>
+  <script src="/js/data/achievements.js"></script>
+  <script src="/js/core/state.js"></script>
+  <script src="/js/ai/providers.js"></script>
+  <script src="/js/ai/gm.js"></script>
+  <script src="/js/ai/local-engine.js"></script>
+  <script src="/js/fx/audio.js"></script>
+  <script src="/js/fx/embers.js"></script>
+  <script src="/js/ui/dom.js"></script>
+  <script src="/js/ui/hud.js"></script>
+  <script src="/js/ui/viewport.js"></script>
+  <script src="/js/ui/keyboard.js"></script>
+  <script src="/js/ui/settings.js"></script>
+  <script src="/js/ui/screens.js"></script>
+  <script src="/js/game/achievements.js"></script>
+  <script src="/js/game/run.js"></script>
+  <script src="/js/game/battle.js"></script>
+  <script src="/js/main.js"></script>
 </body>
 </html>

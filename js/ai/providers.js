@@ -91,47 +91,16 @@ const PROVIDERS = {
   }
 };
 
-/* Built-in Fallback Kanji TRPG Engine (Guarantees 100% Uptime in Free Keyless Mode) */
-function localKanjiEngine(systemPrompt, expectJson) {
-  if (!expectJson) {
-    return `• 내 손패 한자: [ ${state.playerHand.join(" · ")} ] — 각 한자를 클릭하거나 우상단 🔍를 눌러 사전을 확인하세요!\n• 적 손패 한자: [ ${state.enemyHand.join(" · ")} ]\n• 추천 전술 1: 손패의 한자 3~5개를 모두 문장에 포함시켜 보스 【${state.enemyKanji}】의 약점을 타격하세요.\n• 추천 전술 2: 적의 손패(${state.enemyHand.slice(0,2).join(", ")}) 공격을 미리 방어하거나 상쇄하는 묘사를 넣으세요.`;
-  }
-  const usedCards = state.playerHand.filter(k => state._lastRawInput && state._lastRawInput.includes(k));
-  const ePick = state.enemyHand[Math.floor(Math.random() * state.enemyHand.length)] || state.enemyKanji;
-  const healChars = ["休","水","生","草","林","森","気","雨","薬","医","癒","茶","食"];
-  const hasHeal = usedCards.some(k => healChars.includes(k));
-
-  if (usedCards.length === 0) {
-    return {
-      gm_judgment: `손패에 있는 한자(${state.playerHand.join(", ")})를 하나도 사용하지 않고 허공에 주문을 외웠습니다! 카드를 클릭해 문장에 포함시키세요.`,
-      enemy_damage_taken: 0,
-      player_heal: 0,
-      enemy_action: `보스 【${state.enemyKanji}】이(가) 빈틈을 노려 적패 【${ePick}】의 힘으로 반격합니다!`,
-      player_damage_taken: 18,
-      new_field_state: state.fieldState,
-      new_player_state: "Off-Balance",
-      new_enemy_state: "Aggressive"
-    };
-  }
-
-  const dmg = Math.min(55, 14 + usedCards.length * 8 + Math.floor(Math.random() * 8));
-  const heal = hasHeal ? 15 : 0;
-  const eDmg = Math.max(8, 22 - usedCards.length * 2);
-
-  return {
-    gm_judgment: `손패의 【${usedCards.join(" · ")}】(${usedCards.length}장 연계)의 기운을 형상화하여 보스 【${state.enemyKanji}】에게 적중시켰습니다!`,
-    enemy_damage_taken: dmg,
-    player_heal: heal,
-    enemy_action: `【${state.enemyKanji}】이(가) 고통스럽게 포효하며 적패 【${ePick}】을(를) 휘둘러 반격합니다!`,
-    player_damage_taken: eDmg,
-    new_field_state: ` Clash of ${usedCards[0]} & ${ePick}`,
-    new_player_state: usedCards.length >= 4 ? "Empowered" : "Focused",
-    new_enemy_state: dmg >= 35 ? "Staggered" : "Hostile"
-  };
-}
-
-async function callLLM(systemPrompt, expectJson = true) {
+/*
+ * Single entry point for every AI call.
+ *  prompt      — full prompt text (sent as one user message)
+ *  expectJson  — parse the reply as JSON (judge turns) or return raw text (hints)
+ *  opts.temperature — sampling temperature (judge turns use a lower value for consistency)
+ */
+async function callLLM(prompt, expectJson = true, opts = {}) {
   const { provider, apiKey, model, customEndpoint } = config;
+  const temperature = opts.temperature ?? (expectJson ? 0.6 : 0.7);
+  const systemPrompt = prompt;
 
   // 1. Free Keyless Mode (Tries Pollinations Free OpenAI Endpoint -> Seamless Fallback to Built-in Engine)
   if (provider === "free_keyless") {
@@ -145,7 +114,7 @@ async function callLLM(systemPrompt, expectJson = true) {
         body: JSON.stringify({
           model: "openai",
           messages: [{ role: "user", content: systemPrompt }],
-          temperature: 0.75
+          temperature
         })
       });
       clearTimeout(timer);
@@ -157,7 +126,7 @@ async function callLLM(systemPrompt, expectJson = true) {
     } catch (_) {
       // Fallback to instant local Kanji engine if free public endpoint is busy
     }
-    return localKanjiEngine(systemPrompt, expectJson);
+    return localKanjiEngine(expectJson);
   }
 
   if (!apiKey && provider !== "custom") {
@@ -168,7 +137,7 @@ async function callLLM(systemPrompt, expectJson = true) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const body = {
       contents: [{ parts: [{ text: systemPrompt }] }],
-      generationConfig: expectJson ? { responseMimeType: "application/json", temperature: 0.8 } : { temperature: 0.7 }
+      generationConfig: expectJson ? { responseMimeType: "application/json", temperature } : { temperature }
     };
     const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!r.ok) throw new Error(`Gemini HTTP ${r.status}: ${await r.text()}`);
@@ -189,6 +158,7 @@ async function callLLM(systemPrompt, expectJson = true) {
       body: JSON.stringify({
         model,
         max_tokens: 1024,
+        temperature,
         messages: [{ role: "user", content: systemPrompt }]
       })
     });
@@ -209,7 +179,7 @@ async function callLLM(systemPrompt, expectJson = true) {
     body: JSON.stringify({
       model,
       messages: [{ role: "user", content: systemPrompt }],
-      temperature: 0.75
+      temperature
     })
   });
   if (!r.ok) throw new Error(`${provider.toUpperCase()} HTTP ${r.status}: ${await r.text()}`);
