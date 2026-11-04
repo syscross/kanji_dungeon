@@ -126,7 +126,8 @@ function makeCardEl(k, isEnemy = false, idx = 0, animate = true, source = null) 
   const el = document.createElement("div");
   const tier = typeof getKanjiTier === "function" ? getKanjiTier(k) : "edu";
   const srcCls = !isEnemy ? (source === "bag" ? " src-bag" : " src-stage") : "";
-  const multiCls = [...String(k)].length > 1 ? " multi" : "";
+  const charLen = [...String(k)].length;
+  const multiCls = charLen > 1 ? ` multi${charLen >= 3 ? " multi-long" : ""}` : "";
   el.className = `kanji-card tier-${tier}${isEnemy ? " enemy-sm" : ""}${srcCls}${multiCls}`;
   if (animate) el.style.animationDelay = `${idx * 65}ms`;
   else el.style.animation = "none";
@@ -252,8 +253,9 @@ function popNumber(anchor, text, cls) {
   setTimeout(() => pop.remove(), 950);
 }
 
-function triggerCombatFX(enemyDmg, playerDmg, playerHeal = 0) {
-  if (enemyDmg > 0) {
+function triggerCombatFX(enemyDmg, playerDmg, playerHeal = 0, defense = "none") {
+  const hasSlash = enemyDmg > 0;
+  if (hasSlash) {
     playSlashSfx();
     const bossCard = $("b-boss-card");
     bossCard.classList.remove("hit");
@@ -267,17 +269,27 @@ function triggerCombatFX(enemyDmg, playerDmg, playerHeal = 0) {
 
     popNumber(bossCard, `-${enemyDmg}`, "dmg");
   }
-  if (playerHeal > 0) popNumber($("b-player-stat"), `+${playerHeal}`, "heal");
+  if (playerHeal > 0) {
+    popNumber($("b-player-stat"), `+${playerHeal}`, "heal");
+    if (typeof playHealSfx === "function") {
+      setTimeout(() => playHealSfx(), hasSlash ? 110 : 0);
+    }
+  }
   if (playerDmg > 0) {
-    playDamageSfx();
-    popNumber($("b-player-stat"), `-${playerDmg}`, "dmg");
-    const appRoot = $("app-root");
-    const vig = $("damage-vignette");
-    appRoot.classList.remove("shake");
-    void appRoot.offsetWidth;
-    appRoot.classList.add("shake");
-    vig.classList.add("flash");
-    setTimeout(() => vig.classList.remove("flash"), 380);
+    const delay = hasSlash ? 195 : 0;
+    setTimeout(() => {
+      playDamageSfx();
+      popNumber($("b-player-stat"), `-${playerDmg}`, "dmg");
+      const appRoot = $("app-root");
+      const vig = $("damage-vignette");
+      appRoot.classList.remove("shake");
+      void appRoot.offsetWidth;
+      appRoot.classList.add("shake");
+      vig.classList.add("flash");
+      setTimeout(() => vig.classList.remove("flash"), 380);
+    }, delay);
+  } else if (defense === "full" && typeof playParrySfx === "function") {
+    setTimeout(() => playParrySfx(), hasSlash ? 165 : 0);
   }
 }
 

@@ -200,5 +200,12 @@ I18N.EN = {
   dmStagesLabel: "⛩ Sealed Stages in this Gaol",
   enterGaolBtn: "⛩ UNSEAL & ENTER",
   unsealAbyssBtn: "🩸 BREAK THE SEAL",
-  stepBackBtn: "↩ Step back"
+  stepBackBtn: "↩ Step back",
+  pickFusePrompt: "🔨 Fuse Kanji — Select 2 cards in order",
+  fuseDescEmpty: "Select two kanji from your bag in the order you want to combine them.",
+  fuseDescOne: (k1) => `1st Kanji: 【${k1}】 — now select the 2nd kanji to attach.`,
+  fuseDescTwo: (k1, k2, fused) => `Preview: 【${k1}】 + 【${k2}】 ➔ 【${fused}】`,
+  fuseConfirmBtn: (fused) => `🔨 Forge 【${fused}】`,
+  fuseCancelBtn: "Cancel",
+  fxCardFuse: (k1, k2, fused) => `🔨 Fused 【${k1}】 + 【${k2}】 ➔ 【${fused}】 added to bag!`
 };

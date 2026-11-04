@@ -96,6 +96,7 @@ async function handleBattleSubmit(e) {
 
   // Free briefings (no turn spent)
   if (parsed.type === "HINT" || parsed.type === "PROMPT") {
+    if (typeof playWhisperSfx === "function") playWhisperSfx();
     achOnCommand(parsed.type);
     setInputBusy(true);
     const stopJudging = startJudgingIndicator(parsed.type);
@@ -127,6 +128,7 @@ async function handleBattleSubmit(e) {
       logMd(t("summonNoHp")(state.summonCost), "hint-log", false);
       return;
     }
+    if (typeof playSummonGodSfx === "function") playSummonGodSfx();
     achOnCommand("SUMMON");
     summonPaid = state.summonCost;
     state.playerHp -= summonPaid;
@@ -134,7 +136,10 @@ async function handleBattleSubmit(e) {
     summonDirective = buildSummonDirective(summonPaid, parsed.arg);
     updateBattleHUD(false);
   } else if (flee) {
+    if (typeof playFootstepSfx === "function") playFootstepSfx();
     fleeDirective = buildFleeDirective(parsed.arg);
+  } else {
+    if (typeof playCastIncantationSfx === "function") playCastIncantationSfx();
   }
 
   const moveText = summon
@@ -201,14 +206,6 @@ function applySpecialEvent(j) {
       state.enemyHp = Math.max(1, Math.floor(state.enemyHp * 0.5));
       return `\n🧬 **${t("spMutateEnemy")(oldK, nextK)}**`;
     }
-    case "FORGE_CARD": {
-      const forged = j.forgedKanji || (j.used.length >= 2 ? j.used.slice(0, 2).join("") : null);
-      if (forged) {
-        addCardToDeck(forged);
-        return `\n⚗️ **${t("spForgeCard")(forged)}**`;
-      }
-      return "";
-    }
     case "INSTANT_PACIFY": {
       state.enemyHp = 0;
       return `\n🕯 **${t("spInstantPacify")(state.enemyKanji)}**`;
@@ -228,14 +225,6 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
 
   const n = resolveTurnNumbers(j);
   const specialNote = applySpecialEvent(j);
-
-  // Record a 2-kanji combo on MASTERFUL or CLEVER (with 2+ used single-char kanji) so it can appear in post-battle scavenge!
-  if ((j.verdict === "MASTERFUL" || j.verdict === "CLEVER") && j.used.length >= 2) {
-    const singleUsed = j.used.filter(k => [...k].length === 1);
-    if (singleUsed.length >= 2) {
-      state.lastComboKanji = j.forgedKanji || singleUsed.slice(0, 2).join("");
-    }
-  }
 
   // Reward countering enemy intent with full defense or MASTERFUL play with +1 free reroll token
   let bonusNote = "";
@@ -345,7 +334,7 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
 
   state.playerHp = Math.max(0, state.playerHp - n.playerDamage);
   state.dmgTakenThisEnemy += n.playerDamage;
-  triggerCombatFX(n.enemyDamage, n.playerDamage, healed);
+  triggerCombatFX(n.enemyDamage, n.playerDamage, healed, n.defense);
 
   const enemyUsedTxt = j.enemyUsed.length ? `${t("enemyIntentUsed")}: 【${j.enemyUsed.join("·")}】 → ` : "";
   const enemyLine = `👹 **【${state.enemyKanji}】** *(${t("enemyHandLog")}: ${state.enemyHand.join(" ")})* ${j.enemyAction}\n   ${enemyUsedTxt}**${t("dmgYou")(n.playerDamage)}**${DEFENSE_MARK[n.defense]}${escapeFailNote}`;

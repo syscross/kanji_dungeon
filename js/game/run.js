@@ -186,7 +186,8 @@ function renderFork() {
 }
 
 function choosePath(i) {
-  playClickSfx();
+  if (typeof playFootstepSfx === "function") playFootstepSfx();
+  else playClickSfx();
   const node = state.fork[i];
   if (!node) return;
   const def = STAGE_SIGNS[node.sign];
@@ -308,6 +309,15 @@ function startBattle(rank, forcedKanji = null) {
 /* ---- Leaving / resuming ---- */
 
 function resumeSavedRun() {
+  if (Array.isArray(state.deck)) {
+    state.deck = state.deck
+      .map(k => String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, ""))
+      .filter(Boolean);
+  }
+  if (Array.isArray(state.playerHand)) {
+    state.playerHand = state.playerHand
+      .map(k => String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "") || "火");
+  }
   resetBattleChrome();
   if (!$("b-gm-log").children.length) replayHistory();
   transitionToView("battle", depthName(state.depthId), depthGloss(state.depthId));

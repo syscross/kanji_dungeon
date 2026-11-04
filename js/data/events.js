@@ -210,8 +210,21 @@ const EVENTS = {
             "冷えた祭壇。香はとうに燃え尽きたが、静けさだけが残っている。"),
     options: [
       { label: EVT_L("Rest — recover 30% of max HP", "쉰다 — 최대 HP의 30% 회복", "休む — 最大HPの30%回復"), effects: [{ healPct: 30 }] },
+      { label: EVT_L("Inscribe a compound — combine 2 kanji in your bag", "제단에 합자(合字)를 새긴다 — 챙긴 두 글자를 하나로 합체", "祭壇に合字を刻む — 袋の二字を一つに合成"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
       { label: EVT_L("Feed the brazier — burn a kanji from your bag", "화로에 넣는다 — 챙긴 글자 하나를 태운다", "火鉢にくべる — 袋の字を一つ焼く"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 },
       { label: EVT_L("Pray — summon cost back to 10, 1 free reroll", "기도한다 — 소환 비용 10, 무료 리롤 1", "祈る — 召喚コスト10、無料引き直し1"), effects: [{ summonReset: true }, { tokens: 1 }] }
+    ]
+  },
+  forge: {
+    kanji: "炉",
+    title: EVT_L("The Oni's Brazier", "도깨비 화로", "鬼の火炉"),
+    text: EVT_L("Blue flames lick at an iron anvil. Two talismans tempered together here can be fused into a single compound kanji.",
+            "푸른 불길이 쇠모루를 핥고 있다. 가방에 있는 두 장의 한자 패를 함께 달구면 하나의 합체 한자로 직접 벼려낼 수 있다.",
+            "青い炎が鉄床を舐めている。袋にある二つの札を共に鍛えれば、一つの合字札へと自ら打ち直せそうだ。"),
+    options: [
+      { label: EVT_L("Forge a compound — combine 2 kanji from your bag", "합체 연성 — 가방의 두 글자를 직접 골라 하나로 합친다", "熟語錬成 — 袋の二字を選んで一つに合わせる"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
+      { label: EVT_L("Draw from the embers — pick a kanji & 1 free reroll", "불씨에서 글자를 건진다 — 글자 선택 + 무료 리롤 1", "火種から字を拾う — 字を選択 + 無料引き直し1"), effects: [{ addCard: "pick", choices: 4 }, { tokens: 1 }] },
+      { label: EVT_L("Warm your hands — recover 15 HP", "손을 녹인다 — HP +15 회복", "手を温める — HP +15回復"), effects: [{ hp: 15 }] }
     ]
   },
   shrine: {
@@ -222,6 +235,7 @@ const EVENTS = {
             "小さな祠。石の顔が笑っている。口元が濡れている。"),
     options: [
       { label: EVT_L("Offer blood (−10 HP) — receive a kanji", "피를 바친다 (−10 HP) — 글자를 받는다", "血を捧げる (−10 HP) — 字を授かる"), effects: [{ hp: -10 }, { addCard: "pick", choices: 4 }] },
+      { label: EVT_L("Fuse on theoffering stone — combine 2 bag kanji", "공양석에 글자를 겹친다 — 가방의 두 글자를 하나로 합체", "供養石に字を重ねる — 袋の二字を一つに合成"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
       { label: EVT_L("Pray — it may bless you, or bite", "기도한다 — 축복일 수도, 저주일 수도", "祈る — 祝福か、祟りか"),
         effects: [{ chance: 0.5, win: [{ maxHp: 6 }], lose: [{ hp: -8 }] }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }

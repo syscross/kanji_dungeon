@@ -200,5 +200,12 @@ I18N.KO = {
   dmStagesLabel: "⛩ 봉인된 지역 (스테이지)",
   enterGaolBtn: "⛩ 옥문 개방 (入獄)",
   unsealAbyssBtn: "🩸 봉인 해제 (入獄)",
-  stepBackBtn: "↩ 물러서기"
+  stepBackBtn: "↩ 물러서기",
+  pickFusePrompt: "🔨 합자(合字) 연성 — 합칠 두 글자 선택",
+  fuseDescEmpty: "가방에서 합칠 두 글자를 순서대로 선택하세요.",
+  fuseDescOne: (k1) => `첫 글자: 【${k1}】 — 이어서 붙일 두 번째 글자를 선택하세요.`,
+  fuseDescTwo: (k1, k2, fused) => `합체 미리보기: 【${k1}】 + 【${k2}】 ➔ 【${fused}】`,
+  fuseConfirmBtn: (fused) => `🔨 【${fused}】 합체하기`,
+  fuseCancelBtn: "그만두기",
+  fxCardFuse: (k1, k2, fused) => `🔨 【${k1}】 + 【${k2}】 ➔ 합체 한자 【${fused}】 가방에 각인!`
 };

@@ -91,6 +91,7 @@ function startEvent(id) {
   }
 
   const ev = getActiveEventDef();
+  if (typeof playWhisperSfx === "function") playWhisperSfx();
   logBeat("event-log", `【${ev.kanji}】 ${pickLang(ev.title)}`, [pickLang(ev.text)]);
   saveRunToStorage();
   renderPhase();

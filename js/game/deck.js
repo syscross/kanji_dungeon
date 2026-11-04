@@ -126,7 +126,9 @@ function dealEnemyHand() {
 }
 
 function addCardToDeck(k) {
-  if (k) state.deck.push(k);
+  if (!k) return;
+  const clean = String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "");
+  if (clean) state.deck.push(clean);
 }
 
 function removeCardFromDeck(k) {
@@ -141,12 +143,9 @@ function cardChoices(n) {
   return sample(fresh.length >= n ? fresh : pool, n);
 }
 
-/* Up to 5 cards offered after clearing a stage/fight (combo/enemy kanji + stage cards + depth grade pool). */
+/* Up to 5 cards offered after clearing a stage/fight (enemy kanji + stage cards + depth grade pool, no auto-compounds). */
 function scavengeChoices(maxCount = 5) {
   const candidates = [];
-  if (state.lastComboKanji && !state.deck.includes(state.lastComboKanji)) {
-    candidates.push(state.lastComboKanji);
-  }
   if (state.enemyKanji && !state.deck.includes(state.enemyKanji) && !candidates.includes(state.enemyKanji)) {
     candidates.push(state.enemyKanji);
   }

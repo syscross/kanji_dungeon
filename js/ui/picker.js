@@ -7,7 +7,7 @@
 
 let pickerOnClose = null;
 
-function openPicker({ title, desc = "", cards, onCard = null, multiSelect = false, selectedIndices = [], actions = [], locked = false, onClose = null }) {
+function openPicker({ title, desc = "", cards, onCard = null, multiSelect = false, selectedIndices = [], showOrderBadge = false, actions = [], locked = false, onClose = null }) {
   const modal = $("pick-modal");
   pickerOnClose = onClose;
   modal.dataset.locked = locked ? "1" : "";
@@ -23,10 +23,14 @@ function openPicker({ title, desc = "", cards, onCard = null, multiSelect = fals
   cards.forEach((k, i) => {
     const tile = document.createElement("button");
     const tier = typeof getKanjiTier === "function" ? getKanjiTier(k) : "edu";
-    const isSel = selectedIndices.includes(i);
-    tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}`;
+    const orderIdx = selectedIndices.indexOf(i);
+    const isSel = orderIdx >= 0;
+    const charLen = [...String(k)].length;
+    tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}${charLen > 1 ? " multi" : ""}${charLen >= 3 ? " multi-long" : ""}`;
+    if (isSel && showOrderBadge) {
+      tile.dataset.order = String(orderIdx + 1);
+    }
     tile.textContent = k;
-    tile.classList.toggle("multi", [...k].length > 1);
     if (onCard) {
       tile.onclick = () => { playClickSfx(); onCard(k, i, tile); };
     } else {

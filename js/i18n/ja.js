@@ -181,5 +181,12 @@ I18N.JA = {
   dmStagesLabel: "⛩ 封じられた地域 (ステージ)",
   enterGaolBtn: "⛩ 獄門開放 (入獄)",
   unsealAbyssBtn: "🩸 封印解除 (入獄)",
-  stepBackBtn: "↩ 引き返す"
+  stepBackBtn: "↩ 引き返す",
+  pickFusePrompt: "🔨 合字錬成 — 合わせる二字を順に選択",
+  fuseDescEmpty: "袋から組み合わせる二つの字を順番に選んでください。",
+  fuseDescOne: (k1) => `一字目: 【${k1}】 — 続けて繋げる二字目を選んでください。`,
+  fuseDescTwo: (k1, k2, fused) => `合成プレビュー: 【${k1}】 + 【${k2}】 ➔ 【${fused}】`,
+  fuseConfirmBtn: (fused) => `🔨 【${fused}】を合成する`,
+  fuseCancelBtn: "やめる",
+  fxCardFuse: (k1, k2, fused) => `🔨 【${k1}】+【${k2}】➔ 合字【${fused}】を袋に刻んだ！`
 };

@@ -54,6 +54,15 @@ const REWARDS = {
       EN: () => "Burn — remove a kanji from your bag", KO: () => "소각 — 챙긴 글자 하나 버리기", JA: () => "焚書 — 袋から字を一つ捨てる",
       ZH_CN: () => "焚字 — 从行囊移除一个字", ZH_TW: () => "焚字 — 從行囊移除一個字"
     }
+  },
+  fuse: {
+    kanji: "合",
+    params: { normal: {}, elite: {} },
+    when: s => s.deck.length >= 2,
+    label: {
+      EN: () => "Fuse — combine 2 kanji in your bag into 1", KO: () => "합자(合字) — 챙긴 두 글자를 직접 합치기", JA: () => "合字 — 袋の二字を直接一つに合わせる",
+      ZH_CN: () => "合字 — 将行囊中的两个字合二为一", ZH_TW: () => "合字 — 將行囊中的兩個字合二為一"
+    }
   }
 };
 

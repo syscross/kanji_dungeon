@@ -34,6 +34,7 @@ function rewardEffects(o) {
     case "tokens": return [{ tokens: p.n }];
     case "card": return [{ scavenge: p.choices || 5 }];
     case "burn": return [{ burn: "pick" }];
+    case "fuse": return [{ fuse: true }];
     default: return [];
   }
 }

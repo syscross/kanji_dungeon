@@ -68,10 +68,11 @@ function closeConfirmModal(confirmed) {
 
 /* Views */
 function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
-  playClickSfx();
   closeDropdowns();
   const curtain = $("cinematic-curtain");
   if (!curtainKanji) {
+    if (typeof playGateSlideSfx === "function") playGateSlideSfx();
+    else playClickSfx();
     switchDomView(viewName, true);
     return;
   }
@@ -115,7 +116,7 @@ function enterGaolCinematic(depthId, onReady) {
     switchDomView("battle", true);
     if (typeof onReady === "function") onReady();
     setTimeout(() => {
-      curtain.className = "";
+      curtain.classList.remove("active");
     }, 460);
   }, 1150);
 }

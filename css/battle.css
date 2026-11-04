@@ -94,7 +94,7 @@
   line-height: 1;
   text-shadow: 0 0 16px rgba(215, 58, 73, 0.6);
 }
-.boss-kanji.multi { font-size: 2rem; writing-mode: vertical-rl; }
+.boss-kanji.multi { font-size: 1.85rem; white-space: nowrap; letter-spacing: -1px; }
 .boss-info { display: flex; flex-direction: column; gap: 7px; min-width: 0; font-size: 0.8rem; }
 .boss-tags { display: flex; gap: 6px; min-width: 0; }
 .hp-line { display: flex; align-items: center; gap: 8px; }
@@ -355,7 +355,7 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .enemy-stage { gap: 10px; padding: 8px 10px; }
   .boss-card { width: 64px; height: 76px; }
   .boss-kanji { font-size: 2.4rem; }
-  .boss-kanji.multi { font-size: 1.4rem; }
+  .boss-kanji.multi { font-size: 1.28rem; white-space: nowrap; }
   .enemy-hand-wrap .mini-label { display: none; }
   .kanji-card.enemy-sm { width: 34px; height: 42px; }
   .kanji-card.enemy-sm .char { font-size: 1.15rem; }
@@ -366,6 +366,8 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .card-row { gap: 7px; }
   .kanji-card { width: 58px; height: 74px; }
   .kanji-card .char { font-size: 2rem; }
+  .kanji-card.multi .char { font-size: 1.18rem; }
+  .kanji-card.multi.multi-long .char { font-size: 0.84rem; }
   .cmd-chips { gap: 5px; }
   .chip { flex: 1; padding: 7px 4px; font-size: 0.72rem; text-align: center; }
   #b-send-btn { padding: 0 12px; }
@@ -380,9 +382,12 @@ body.kb-open #b-player-state { display: none; }
 body.kb-open .enemy-stage { padding: 6px 10px; }
 body.kb-open .boss-card { width: 46px; height: 52px; }
 body.kb-open .boss-kanji { font-size: 1.8rem; }
+body.kb-open .boss-kanji.multi { font-size: 1.02rem; }
 body.kb-open .boss-info { gap: 5px; }
 body.kb-open #b-player-hand .kanji-card { width: 50px; height: 58px; }
 body.kb-open #b-player-hand .kanji-card .char { font-size: 1.65rem; }
+body.kb-open #b-player-hand .kanji-card.multi .char { font-size: 1rem; }
+body.kb-open #b-player-hand .kanji-card.multi.multi-long .char { font-size: 0.74rem; }
 body.kb-open #b-player-hand .kanji-card .dict-link { display: none; }
 body.kb-open .kanji-card.enemy-sm { width: 30px; height: 36px; }
 body.kb-open .kanji-card.enemy-sm .char { font-size: 1rem; }
@@ -569,7 +574,10 @@ body.kb-open .gm-box { min-height: 48px; }
 .kanji-card.tier-edu .char { color: #8ce0a8; }
 .kanji-card.tier-common .char { color: #f5b066; }
 .kanji-card.tier-abyss .char { color: #ff5c6c; text-shadow: 0 0 12px rgba(255, 77, 94, 0.5); }
-.kanji-card.multi .char { font-size: 1.5rem; writing-mode: vertical-rl; }
+.kanji-card.multi .char { font-size: 1.58rem; white-space: nowrap; letter-spacing: -1px; }
+.kanji-card.multi.multi-long .char { font-size: 1.08rem; white-space: nowrap; letter-spacing: -1px; }
+.pick-grid.scavenge-inline .pick-tile.multi { font-size: 1.15rem; white-space: nowrap; letter-spacing: -1px; }
+.pick-grid.scavenge-inline .pick-tile.multi.multi-long { font-size: 0.85rem; white-space: nowrap; letter-spacing: -1px; }
 
 /* Stage card in neutral (non-combat) mode, rank mark */
 .boss-card.neutral { border-color: #6e5931; box-shadow: 0 0 18px rgba(229,192,123,0.18); cursor: default; }

@@ -52,6 +52,12 @@ function runEffects(list) {
         continue;
       }
       return beginPick("dup", [...new Set(state.deck)], queue);
+    } else if (fx.fuse) {
+      if (state.deck.length < 2) {
+        logMd(t("fxNothing"), "fx-log");
+        continue;
+      }
+      return beginPick("fuse", [...state.deck], queue);
     } else if (fx.offerSpoils) {
       updateBattleHUD(false);
       return offerRewards(fx.offerSpoils);
@@ -93,6 +99,7 @@ const PICK_PROMPTS = {
   add: "pickAddPrompt",
   burn: "pickBurnPrompt",
   dup: "pickDupPrompt",
+  fuse: "pickFusePrompt",
   scavenge: "pickScavengePrompt"
 };
 
@@ -131,7 +138,8 @@ function renderInlineScavenge(p) {
     const tile = document.createElement("button");
     const tier = typeof getKanjiTier === "function" ? getKanjiTier(k) : "edu";
     const isSel = sel.includes(idx);
-    tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}${[...k].length > 1 ? " multi" : ""}`;
+    const charLen = [...String(k)].length;
+    tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}${charLen > 1 ? " multi" : ""}${charLen >= 3 ? " multi-long" : ""}`;
     tile.textContent = k;
     tile.onclick = () => {
       playClickSfx();
@@ -182,12 +190,93 @@ function renderInlineScavenge(p) {
   scrollLogToBottom();
 }
 
+/* Interactive 2-card fusion picker: player selects 1st and 2nd card from their bag to combine into 1 horizontal compound card. */
+function renderFusePicker(p) {
+  const sel = p.selected || [];
+  let desc = t("fuseDescEmpty");
+  if (sel.length === 1) {
+    desc = t("fuseDescOne")(p.choices[sel[0]]);
+  } else if (sel.length === 2) {
+    const k1 = p.choices[sel[0]];
+    const k2 = p.choices[sel[1]];
+    desc = t("fuseDescTwo")(k1, k2, k1 + k2);
+  }
+
+  const actions = [];
+  if (sel.length === 2) {
+    const fused = p.choices[sel[0]] + p.choices[sel[1]];
+    actions.push({
+      label: t("fuseConfirmBtn")(fused),
+      gold: true,
+      onClick: () => resolveFusePick(sel)
+    });
+  }
+  actions.push({
+    label: t("fuseCancelBtn"),
+    onClick: () => resolveFusePick(null)
+  });
+
+  openPicker({
+    title: t("pickFusePrompt"),
+    desc,
+    cards: p.choices,
+    locked: true,
+    selectedIndices: sel,
+    showOrderBadge: true,
+    onCard: (_k, idx) => {
+      const cur = p.selected || [];
+      if (cur.includes(idx)) {
+        p.selected = cur.filter(x => x !== idx);
+      } else if (cur.length < 2) {
+        p.selected = [...cur, idx];
+      } else {
+        p.selected = [cur[0], idx];
+      }
+      saveRunToStorage();
+      renderFusePicker(p);
+    },
+    actions
+  });
+}
+
+function resolveFusePick(selectedIndices) {
+  const { choices, rest } = state.pending;
+  state.pending = null;
+  closePicker();
+
+  if (Array.isArray(selectedIndices) && selectedIndices.length === 2) {
+    const [i1, i2] = selectedIndices;
+    const k1 = choices[i1];
+    const k2 = choices[i2];
+    if (k1 && k2 && i1 !== i2) {
+      const fused = k1 + k2;
+      // Remove the two chosen cards from state.deck (higher index first so indices don't shift)
+      const [hi, lo] = i1 > i2 ? [i1, i2] : [i2, i1];
+      if (hi >= 0 && hi < state.deck.length) state.deck.splice(hi, 1);
+      if (lo >= 0 && lo < state.deck.length) state.deck.splice(lo, 1);
+      addCardToDeck(fused);
+      if (typeof playCardDealSfx === "function") playCardDealSfx(0);
+      logMd(t("fxCardFuse")(k1, k2, fused), "fx-log");
+    } else {
+      logMd(t("fxNothing"), "fx-log");
+    }
+  } else {
+    logMd(t("fxNothing"), "fx-log");
+  }
+  updateBattleHUD(false);
+  runEffects(rest);
+}
+
 function openPendingPick() {
   const p = state.pending;
   if (!p) return;
 
   if (p.mode === "scavenge") {
     renderInlineScavenge(p);
+    return;
+  }
+  if (p.mode === "fuse") {
+    renderFusePicker(p);
     return;
   }
 
@@ -208,7 +297,6 @@ function openPendingPick() {
 function resolveScavengePick(pickedList) {
   const { rest } = state.pending;
   state.pending = null;
-  state.lastComboKanji = null;
   setDockActions([]);
   if (pickedList && pickedList.length) {
     pickedList.forEach(k => addCardToDeck(k));
@@ -241,3 +329,4 @@ function resolvePick(k) {
   updateBattleHUD(false);
   runEffects(rest);
 }
+

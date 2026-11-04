@@ -40,8 +40,7 @@ const DEFAULT_GM_RULES = `[READING THE MOVE]
   - "TIME_REWIND": combines time/reversal/memory/dream kanji (時, 逆, 戻, 昔, 夢, 輪) to rewind fate/turn.
   - "INSTANT_PACIFY": conceptually resolves the foe without brute force (e.g. ringing recess 休/鐘 for teacher 先, feeding 肉/酒 to a hungry beast, laying a ghost 霊/亡 to rest with 寺/仏).
   - "STEAL_KANJI": uses 奪, 盗, 鏡, 吸, 食 to snatch or devour the foe's kanji into the player's bag.
-  - "MUTATE_ENEMY": alters the foe's character/radical (e.g. dousing 熊's fire 灬 with 水 to turn it into 能, melting 氷 into 水) — set "mutated_kanji" to the resulting single kanji.
-  - "FORGE_CARD": fuses 2+ used hand cards into an iconic 2-4 kanji compound weapon/spell (e.g. 火炎, 火山, 雷撃) — set "forged_kanji" to that compound.
+  - "MUTATE_ENEMY": alters the foe's character/radical (e.g. dousing 熊's fire 灬 with 水 to turn it into 能, melting 氷 into 水) — set "mutated_kanji" to the resulting single CJK kanji character (never Hangul/English).
 
 [STYLE]
 - Terse, visceral dark-fantasy narration. No cheering, no exclamation spam.
@@ -127,7 +126,6 @@ Write every text field in ${langName()}. Reply with ONLY this JSON object, keys 
   "defense": "none | partial | full",
   "escape": "none | success | costly | failed",
   "special_event": null,
-  "forged_kanji": null,
   "mutated_kanji": null,
   "gm_judgment": "1-3 sentences",
   "enemy_used_kanji": ["kanji from ENEMY TELEGRAPHED INTENT"],
@@ -191,7 +189,7 @@ function inferVerdict(res) {
 
 const isNullish = v => !v || /^(null|none|n\/a|-)?$/i.test(String(v).trim());
 
-const ALLOWED_SPECIAL_EVENTS = ["TIME_REWIND", "INSTANT_PACIFY", "STEAL_KANJI", "MUTATE_ENEMY", "FORGE_CARD"];
+const ALLOWED_SPECIAL_EVENTS = ["TIME_REWIND", "INSTANT_PACIFY", "STEAL_KANJI", "MUTATE_ENEMY"];
 
 /* Coerce any model reply into a safe judgment the rules engine can use. */
 function normalizeJudgment(res) {
@@ -221,6 +219,10 @@ function normalizeJudgment(res) {
   const rawSpecial = res.special_event ? String(res.special_event).toUpperCase().trim() : "";
   const specialEvent = (verdict !== "FIZZLE" && ALLOWED_SPECIAL_EVENTS.includes(rawSpecial)) ? rawSpecial : null;
 
+  const rawMutated = res.mutated_kanji && !isNullish(res.mutated_kanji)
+    ? String(res.mutated_kanji).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "").slice(0, 1)
+    : "";
+
   return {
     offline: Boolean(res._offline),
     verdict,
@@ -232,8 +234,7 @@ function normalizeJudgment(res) {
     defense: pick(res.defense, ["none", "partial", "full"], "none"),
     escape: verdict === "FIZZLE" && escape !== "none" ? "failed" : escape,
     specialEvent,
-    forgedKanji: res.forged_kanji && !isNullish(res.forged_kanji) ? String(res.forged_kanji).trim().slice(0, 4) : null,
-    mutatedKanji: res.mutated_kanji && !isNullish(res.mutated_kanji) ? String(res.mutated_kanji).trim().slice(0, 2) : null,
+    mutatedKanji: rawMutated || null,
     judgment: str(res.gm_judgment, "…", 700),
     enemyAction: str(res.enemy_action, "…", 400),
     fieldState: str(res.new_field_state, state.fieldState, 36),

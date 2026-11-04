@@ -727,8 +727,8 @@ const EVADE_DEFEND_INTENTS = new Set(["目", "見", "固", "守", "避", "潜", 
 const CURSE_DEBUFF_INTENTS = new Set(["毒", "呪", "祟", "詛", "縛", "絞", "惑", "病", "迷", "怨", "糸", "封", "縄"]);
 const ESCAPE_INTENTS = new Set(["出", "走", "帰", "去", "速", "飛", "散", "往", "退", "裏", "逃", "避", "潜", "匿", "逸", "奔", "隙", "踪", "遁", "馳", "逍"]);
 
-/* Events that "event:*" can roll (rest is reserved for 寺/shrines, quiz is added!). */
-const RANDOM_EVENT_POOL = ["quiz", "swarm", "dice", "mirror", "lantern", "shrine", "well", "corpse", "flower"];
+/* Events that "event:*" can roll (rest is reserved for 寺/shrines, quiz and forge are included!). */
+const RANDOM_EVENT_POOL = ["quiz", "forge", "swarm", "dice", "mirror", "lantern", "shrine", "well", "corpse", "flower"];
 
 /* Run shape: 9 steps. */
 const PATH_STEPS = 9;

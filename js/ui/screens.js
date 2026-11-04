@@ -93,7 +93,8 @@ function renderDepthSpine() {
 
 /* Pre-Entry Gate Lore & Stage Briefing Modal (with double-confirmation for Red Zone Depths 11 & 12) */
 function openDepthEnterModal(did) {
-  playClickSfx();
+  if (typeof playGateSlideSfx === "function") playGateSlideSfx();
+  else playClickSfx();
   const d = KANKEN_DATA[did];
   const dNum = depthNumber(did);
   const tier = typeof depthTier === "function" ? depthTier(did) : (dNum >= 11 ? "abyss" : dNum >= 7 ? "common" : "edu");
