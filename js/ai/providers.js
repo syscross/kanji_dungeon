@@ -1,108 +1,120 @@
+/*
+ * GM engines. Order here is the order in the settings dropdown.
+ * Model lists are presets only — any model ID can be typed in.
+ */
 const PROVIDERS = {
   gemini: {
-    name: "★ Google Gemini API (Recommended — free tier)",
+    name: "Google · Gemini  — recommended, free tier",
     keyUrl: "https://aistudio.google.com/app/apikey",
-    keyLabel: "Get Free Gemini API Key ↗",
+    keyLabel: "aistudio.google.com ↗",
     models: [
-      { id: "gemini-flash-lite-latest", label: "gemini-flash-lite-latest (Fast & Free Default)" },
-      { id: "gemini-2.5-flash-lite", label: "gemini-2.5-flash-lite" },
-      { id: "gemini-2.5-flash", label: "gemini-2.5-flash (Balanced)" },
-      { id: "gemini-2.5-pro", label: "gemini-2.5-pro (High Reasoning)" }
+      { id: "gemini-flash-lite-latest", label: "gemini-flash-lite-latest · fast" },
+      { id: "gemini-2.5-flash", label: "gemini-2.5-flash · balanced" },
+      { id: "gemini-2.5-pro", label: "gemini-2.5-pro · strict" }
     ]
   },
   anthropic: {
-    name: "Anthropic Claude API (Direct CORS)",
+    name: "Anthropic · Claude",
     keyUrl: "https://console.anthropic.com/settings/keys",
-    keyLabel: "Get Anthropic API Key ↗",
+    keyLabel: "console.anthropic.com ↗",
     models: [
-      { id: "claude-haiku-4-5", label: "claude-haiku-4-5 (Ultra Fast & Cheap)" },
-      { id: "claude-sonnet-4-5", label: "claude-sonnet-4-5 (Flagship TRPG GM)" }
+      { id: "claude-haiku-5-5", label: "claude-haiku-5-5 · fast" },
+      { id: "claude-sonnet-5-5", label: "claude-sonnet-5-5 · balanced" },
+      { id: "claude-opus-5-5", label: "claude-opus-5-5 · strict" }
     ]
   },
   openai: {
-    name: "OpenAI API (ChatGPT Direct)",
+    name: "OpenAI",
     keyUrl: "https://platform.openai.com/api-keys",
-    keyLabel: "Get OpenAI API Key ↗",
+    keyLabel: "platform.openai.com ↗",
     endpoint: "https://api.openai.com/v1/chat/completions",
     models: [
-      { id: "gpt-4o-mini", label: "gpt-4o-mini (Fast & Affordable)" },
-      { id: "gpt-4.1-mini", label: "gpt-4.1-mini" },
-      { id: "gpt-4.1", label: "gpt-4.1" }
+      { id: "gpt-4.1-mini", label: "gpt-4.1-mini · fast" },
+      { id: "gpt-4.1", label: "gpt-4.1 · balanced" }
     ]
   },
   deepseek: {
-    name: "DeepSeek API (Elite Kanji/CJK & Ultra-Low Cost)",
+    name: "DeepSeek",
     keyUrl: "https://platform.deepseek.com/api_keys",
-    keyLabel: "Get DeepSeek API Key ↗",
+    keyLabel: "platform.deepseek.com ↗",
     endpoint: "https://api.deepseek.com/chat/completions",
     models: [
-      { id: "deepseek-chat", label: "deepseek-chat (DeepSeek V3 — Best Value for Kanji)" },
-      { id: "deepseek-reasoner", label: "deepseek-reasoner (DeepSeek R1)" }
+      { id: "deepseek-chat", label: "deepseek-chat · fast" },
+      { id: "deepseek-reasoner", label: "deepseek-reasoner · strict" }
     ]
   },
   groq: {
-    name: "Groq Cloud LPU (0.2s Instant Speed)",
+    name: "Groq",
     keyUrl: "https://console.groq.com/keys",
-    keyLabel: "Get Free Groq API Key ↗",
+    keyLabel: "console.groq.com ↗",
     endpoint: "https://api.groq.com/openai/v1/chat/completions",
     models: [
-      { id: "llama-3.3-70b-versatile", label: "llama-3.3-70b-versatile (Instant LPU)" },
-      { id: "qwen-qwq-32b", label: "qwen-qwq-32b (Strong CJK & Kanji)" }
+      { id: "llama-3.3-70b-versatile", label: "llama-3.3-70b-versatile · fast" }
     ]
   },
   xai: {
-    name: "xAI Grok API",
+    name: "xAI · Grok",
     keyUrl: "https://console.x.ai/",
-    keyLabel: "Get xAI Grok Key ↗",
+    keyLabel: "console.x.ai ↗",
     endpoint: "https://api.x.ai/v1/chat/completions",
     models: [
-      { id: "grok-3-mini", label: "grok-3-mini (Fast)" },
-      { id: "grok-3", label: "grok-3" }
+      { id: "grok-3-mini", label: "grok-3-mini · fast" },
+      { id: "grok-3", label: "grok-3 · balanced" }
     ]
   },
   openrouter: {
-    name: "OpenRouter API (200+ Models)",
+    name: "OpenRouter",
     keyUrl: "https://openrouter.ai/keys",
-    keyLabel: "Get OpenRouter Key ↗",
+    keyLabel: "openrouter.ai ↗",
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
     models: [
-      { id: "google/gemini-2.5-flash-lite", label: "google/gemini-2.5-flash-lite" },
-      { id: "anthropic/claude-haiku-4.5", label: "anthropic/claude-haiku-4.5" },
-      { id: "deepseek/deepseek-chat-v3-0324:free", label: "deepseek/deepseek-chat-v3 (Free)" }
+      { id: "google/gemini-2.5-flash", label: "google/gemini-2.5-flash" },
+      { id: "anthropic/claude-haiku-5.5", label: "anthropic/claude-haiku-5.5" },
+      { id: "deepseek/deepseek-chat", label: "deepseek/deepseek-chat" }
     ]
   },
   custom: {
-    name: "Custom OpenAI-Compatible (Ollama / LM Studio / vLLM)",
+    name: "Local · OpenAI-compatible (Ollama, LM Studio…)",
     keyUrl: "https://ollama.com/",
-    keyLabel: "Local / Custom Endpoint Info ↗",
+    keyLabel: "ollama.com ↗",
     endpoint: "http://localhost:11434/v1/chat/completions",
     models: [
-      { id: "qwen2.5:14b", label: "qwen2.5:14b (Ollama Local)" },
-      { id: "llama3.2", label: "llama3.2 (Ollama Local)" }
+      { id: "qwen2.5:14b", label: "qwen2.5:14b" },
+      { id: "llama3.2", label: "llama3.2" }
     ]
   },
   free_keyless: {
-    name: "🔌 Trial — no key (shared free server, ~1 reply / 45 s)",
+    name: "Trial · no key  — shared server, ~1 reply / 45 s",
     keyUrl: "https://aistudio.google.com/app/apikey",
-    keyLabel: "Optional: Get Personal Gemini Key ↗",
-    models: [
-      { id: "openai", label: "Shared public model (offline GM when busy)" }
-    ]
+    keyLabel: "aistudio.google.com ↗",
+    models: [{ id: "openai", label: "shared model · offline judge when busy" }]
+  },
+  offline: {
+    name: "No AI · offline judge  — counts kanji only",
+    keyUrl: "https://aistudio.google.com/app/apikey",
+    keyLabel: "aistudio.google.com ↗",
+    models: [{ id: "offline", label: "offline judge" }]
   }
 };
+
+/* Providers that need no key. */
+const KEYLESS_PROVIDERS = ["free_keyless", "offline", "custom"];
 
 /*
  * Single entry point for every AI call.
  *  prompt      — full prompt text (sent as one user message)
  *  expectJson  — parse the reply as JSON (judge turns) or return raw text (hints)
- *  opts.temperature — sampling temperature (judge turns use a lower value for consistency)
+ *  opts.temperature — sampling temperature where the provider accepts one
+ *  opts.summon      — passed to the offline judge (the god plays the whole hand)
  */
 async function callLLM(prompt, expectJson = true, opts = {}) {
   const { provider, apiKey, model, customEndpoint } = config;
   const temperature = opts.temperature ?? (expectJson ? 0.6 : 0.7);
   const systemPrompt = prompt;
 
-  // 1. Free Keyless Mode (Tries Pollinations Free OpenAI Endpoint -> Seamless Fallback to Built-in Engine)
+  if (provider === "offline") return localKanjiEngine(expectJson, opts);
+
+  // Trial: shared public endpoint, falling back to the offline judge when it is busy.
   if (provider === "free_keyless") {
     try {
       const ctrl = new AbortController();
@@ -126,13 +138,13 @@ async function callLLM(prompt, expectJson = true, opts = {}) {
         return expectJson ? parseJsonSafe(txt) : txt;
       }
     } catch (_) {
-      // Fallback to instant local Kanji engine if free public endpoint is busy
+      // busy / rate-limited — fall through to the offline judge
     }
-    return localKanjiEngine(expectJson);
+    return localKanjiEngine(expectJson, opts);
   }
 
   if (!apiKey && provider !== "custom") {
-    throw new Error("API Key is missing. Open Settings or switch to '⚡ Free Keyless' mode!");
+    throw new Error("No API key for this provider. Open Settings, or switch to Trial / No AI.");
   }
 
   if (provider === "gemini") {
@@ -157,16 +169,20 @@ async function callLLM(prompt, expectJson = true, opts = {}) {
         "anthropic-version": "2023-06-01",
         "anthropic-dangerous-direct-browser-access": "true"
       },
+      // Current Claude models reject sampling params; thinking is adaptive, so keep effort low
+      // for snappy turns and leave max_tokens headroom for it.
       body: JSON.stringify({
         model,
-        max_tokens: 1024,
-        temperature,
+        max_tokens: 4096,
+        output_config: { effort: "low" },
         messages: [{ role: "user", content: systemPrompt }]
       })
     });
     if (!r.ok) throw new Error(`Anthropic HTTP ${r.status}: ${await r.text()}`);
     const data = await r.json();
-    const txt = data.content[0].text.trim();
+    if (data.stop_reason === "refusal") throw new Error("Claude declined this turn (refusal).");
+    const textBlock = (data.content || []).find(b => b.type === "text");
+    const txt = (textBlock ? textBlock.text : "").trim();
     return expectJson ? parseJsonSafe(txt) : txt;
   }
 

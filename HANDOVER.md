@@ -1,59 +1,77 @@
 # KANJI DUNGEON 【漢字地獄】 — Handover Spec (Static Web)
 
 ## 1. Architecture
-- **Live:** `https://kanjidungeon.vercel.app` (Vercel, GitHub `syscross/kanji_dungeon`).
-- **100% static, BYOK, no build step.** `index.html` + plain `<script>` files sharing globals (load order in `index.html` matters).
-- **Do NOT read or paste `kanken_data.json` into LLM context.** 12 Kanken levels (`depth_1` = Level 10 … `depth_12` = Level 1, 6,355 Kanji). Schema per key: `{ title, count, enemies: [...], kanji: [...] }`.
+- **Live:** `https://kanjidungeon.vercel.app` (Vercel, GitHub `syscross/kanji_dungeon`). Installable PWA.
+- **100% static, BYOK, no build step.** `index.html` + classic `<script>` files sharing globals. Load order is listed (and commented) at the bottom of `index.html`.
+- **Do NOT read or paste `kanken_data.json` into LLM context.** 12 Kanken levels (`depth_1` = Level 10 … `depth_12` = Level 1, 6,355 kanji). Only the `kanji` pools are used; names and enemies come from `js/data/depths.js`.
 
 ## 2. File map
 ```
-css/base.css          tokens, app shell, buttons, dropdowns, modals, toasts, forms
-css/screens.css       top bar, title, depth select, settings / guide / achievements
-css/battle.css        battle screen (+ phone and `body.kb-open` keyboard layouts)
-js/data/i18n.js       I18N strings (EN/KO/JA/ZH_CN/ZH_TW), t(), pickLang(), applyLocalization()
-js/data/guide.js      guide pages (KO/EN/JA, others fall back to EN)
-js/data/achievements.js  common achievement defs, depth templates, legacy id map
-js/core/state.js      config (settings), run state, localStorage persistence, depth helpers
-js/ai/providers.js    PROVIDERS list + callLLM(prompt, expectJson, {temperature})
-js/ai/gm.js           GM rules, prompt builders, verdict bands, normalizeJudgment()
-js/ai/local-engine.js offline fallback GM (used when the free endpoint fails)
-js/fx/audio.js, js/fx/embers.js   procedural SFX, background particles
-js/ui/dom.js          toasts, markdown-lite, modals, view switching, dropdowns
-js/ui/hud.js          battle HUD, cards, GM log, combat FX, judging spinner
-js/ui/viewport.js     visible-viewport sizing for on-screen keyboards (--app-h, kb-open)
-js/ui/keyboard.js     desktop keyboard navigation
-js/ui/settings.js     settings modal
-js/ui/connect.js      trial mode detection, quick Gemini connect modal, run-start gate
-js/ui/install.js      PWA install button (beforeinstallprompt / iOS instructions), SW registration
-sw.js, manifest.json, icons/   PWA shell (network-first cache; cross-origin untouched)
-js/ui/screens.js      title, guide, depth select, game over
-js/game/achievements.js  catalog build, unlock + event hooks, achievements modal
-js/game/run.js        start / spawn / deal / pause / resume / abandon
-js/game/battle.js     slash commands, judged turns, applying results, log export
-js/game/beats.js      in-log beats: victory intermission (player advances) and run end (death / abandon)
-js/main.js            bootstrap
+index.html, sw.js, manifest.json, icons/
+css/base.css            tokens, app shell, buttons, dropdowns, modals, toasts, forms
+css/screens.css         top bar, title, gaol select, settings / guide / achievements / picker
+css/battle.css          battle screen, phases (intermission / run-over), fork & option buttons, log cards
+
+js/i18n/index.js        I18N registry, t(), pickLang(), applyLocalization()
+js/i18n/{en,ko,ja,zh-cn,zh-tw}.js   UI strings, one file per language (EN is the fallback)
+
+js/data/depths.js       the 12 gaols: name, gloss, roster {normal, elite, boss}; kankenLabel()
+js/data/stages.js       fork signs (道 山 門 花 寺 井 墓 蔵 闇 謎) → weighted outcomes; PATH_STEPS
+js/data/rewards.js      spoils (回 壮 召 替 札 焚) with per-tier params
+js/data/events.js       path events (寺 祠 井 花 屍 蟲 賽 鏡 灯) as pure effect specs
+js/data/guide.js        guide pages (KO/EN/JA)
+js/data/achievements.js common achievements, per-gaol templates, legacy id map
+
+js/core/state.js        config, run state shape (createRunState), persistence, records, helpers
+
+js/ai/providers.js      PROVIDERS + callLLM(); "offline" and "free_keyless" never need a key
+js/ai/gm.js             GM contract (DEFAULT_GM_RULES), prompt builders, normalizeJudgment()
+js/ai/local-engine.js   offline judge (counts written hand kanji, says so honestly)
+
+js/game/rules.js        ALL combat numbers: verdict → damage, heal, defense, enemy HP, counters
+js/game/deck.js         deck / draw pile / discard, draft offers, card choices
+js/game/run.js          run lifecycle, renderPhase(), forks, startBattle(), resume / pause / abandon
+js/game/battle.js       slash commands, judged turns, applyTurnResult(), kill handling, log export
+js/game/effects.js      effect interpreter for spoils and events (incl. persisted card picks)
+js/game/rewards.js      spoils offer / choose
+js/game/events.js       event start / options
+js/game/beats.js        kill stamp, clear card (+ record), death card
+js/game/achievements.js catalog build, unlock + hooks, achievements modal
+
+js/ui/dom.js            toasts, markdown-lite, modals (locked modals ignore ESC), views, dropdowns
+js/ui/hud.js            HUD, cards, the run log (logMd / logBeat / replay), dock actions, FX
+js/ui/picker.js         one modal for draft, card picks, deck viewer
+js/ui/viewport.js       visible-viewport sizing for on-screen keyboards
+js/ui/keyboard.js, settings.js, connect.js, install.js, screens.js
+js/main.js              bootstrap + #battle / #select restore on refresh
 ```
 
-## 3. Judging contract (`js/ai/gm.js`)
-- The GM judges only what the player wrote — it must not invent the player's tactics. Bare Kanji input (`bareKanjiDump`) is forced to FIZZLE.
-- A card counts as used if written **or** invoked by meaning (native words count). The GM fills `card_roles` for every hand card (role or null) — this per-card check helps weak models.
-- The enemy wields only enemy-hand Kanji (`enemy_used_kanji`, filtered in code) or attacks plainly with its own nature. Both hand and used cards are shown in the log.
-- The GM returns a **verdict** (`FIZZLE | WEAK | SOLID | CLEVER | MASTERFUL`) plus numbers inside that verdict's band.
-- `normalizeJudgment()` enforces per-verdict damage/heal caps (`VERDICT_DAMAGE_HINT[].cap`, `VERDICT_HEAL_CAP`), filters `used_kanji` to the hand, and fills defaults. FIZZLE always deals 0.
-- Enemy counter baseline scales with depth (`enemyCounterBaseline`).
-- Player input is wrapped in `<action>` tags; meta / rule-changing requests are FIZZLE.
-- Rule modes: `Default` (official), `Custom` (official + user patch), `Sandbox` (user rules only). Output format is outside the rule body, so all modes keep the JSON contract.
+## 3. A descent (run)
+- Choose a gaol → **draft** 8 kanji (tap one to redraw it, or redraw all; unlimited) → step 1 is a fight.
+- Steps 2–8: a **fork** of three sign kanji. Outcomes are rolled when the fork is generated and stay hidden unless revealed (灯 event). A 寺 is guaranteed before the boss.
+- Step 9: the gaol's **boss**. Winning records a clear (time, turns, HP, kills, deck size, **provider/model**, mode, offline-turn share).
+- After a normal/elite win: choose one of 3 **spoils** or leave it. Treasure rooms use the elite tier.
+- `state.phase` ∈ draft | path | battle | reward | event | cleared | dead. `renderPhase()` rebuilds the screen from state, so any moment survives a reload (card picks persist in `state.pending`).
+- The log is never wiped between runs; each run's entries are kept in `state.history` and replayed after a reload.
 
-## 4. Slash commands
-`/hint` (free briefing), `/reroll` (−5 HP redraw), `/prompt <q>` (free question), `/summon [dir]` (HP cost 10 → 20 → 30…, resets per enemy; refunded if the API call fails).
+## 4. Judging contract
+- The GM **classifies, never counts**: `card_roles` (role or null per hand card), `verdict`, `attack`, `heal` (none/minor/major), `defense` (none/partial/full), `enemy_used_kanji`, narration.
+- `js/game/rules.js` turns that into numbers (verdict damage bands, heal ranges, defense multipliers, rank multipliers, depth-scaled counterattacks). Change balance there.
+- Kanji-only input is a legitimate **incantation**: real compounds / fused images are full moves; random strings fizzle.
+- Ancient god (`/summon [direction]`): the GM composes the move from the player's hand; cost escalates for the whole run (10, 20, 30…), reset by 召 / 寺 / 鏡.
+- The prompt has a strict contract (for weak models) plus a latitude paragraph (for strong ones).
+- Player input is wrapped in `<move>` tags; rule-changing requests are FIZZLE.
 
 ## 5. Achievements
-- **Common** (`COMMON_ACHIEVEMENTS`), **per depth** (`d<n>_kill|streak|flawless|purge`), **boss bestiary** (`boss_<kanji>`, generated from `enemies`).
-- Stored as `{ id: timestamp }` in `kd_achievements`; total kills in `kd_stats`.
-- Old ids `dog_slayer` / `heaven_defier` migrate to `boss_犬` / `boss_天`.
+- **Common** (`COMMON_ACHIEVEMENTS`), **per gaol** (`d<n>_kill|clear|flawless|purge`), **bestiary** (`boss_<kanji>` for every roster kanji).
+- Stored as `{ id: timestamp }` in `kd_achievements`; ids not in the catalog are ignored.
 
-## 6. Trial mode vs. keys
-- `free_keyless` = trial. Starting a run in trial mode opens the quick-connect modal once per session; the battle bar shows `🔌 Trial`; the first offline verdict in a run shows a connect CTA.
+## 6. Providers
+- Dropdown order: Gemini (recommended) → Claude → OpenAI → DeepSeek → Groq → xAI → OpenRouter → Local → Trial → No AI.
+- Claude: no sampling params (current models reject them), `output_config.effort: "low"`, the text block is picked out of `content` (thinking blocks may come first).
+- Trial (`free_keyless`): pollinations, ~1 reply / 45 s per IP, falls back to the offline judge (`🔌` in the log, and in records when >50% of turns were offline).
 
 ## 7. Known limits
-- Trial endpoint (pollinations `openai`) allows ~1 reply / 45 s per IP and is a weak reasoning model (needs `max_tokens` headroom; often misses native-word meanings and ignores the output language). Excess turns fall back to the offline engine, marked `🔌 offline GM`.
+- The trial model is weak: it often misses native-word meanings and ignores the output language.
+- Non-Anthropic model presets may go stale; any model ID can be typed in.
+- Event and guide text: KO / EN / JA (Chinese falls back to EN).

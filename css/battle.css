@@ -215,6 +215,8 @@
   transition: transform 0.15s ease;
 }
 .deck-pile:hover { transform: translateY(-3px); border-color: var(--crimson); }
+button.deck-pile { font-family: 'Noto Serif JP', serif; }
+.deck-pile small { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
 .deck-pile span { font-size: 1.25rem; font-weight: 900; }
 
 .card-row {
@@ -362,21 +364,82 @@ body.kb-open .kanji-card.enemy-sm .char { font-size: 1rem; }
 body.kb-open .player-dock { gap: 6px; padding: 6px 8px; }
 body.kb-open .gm-box { min-height: 48px; }
 
-/* ---- Beats: victory intermission & run end (js/game/beats.js) ---- */
-.dock-action { display: none; gap: 8px; width: 100%; justify-content: center; flex-wrap: wrap; }
-.dock-action .btn { flex: 1; min-width: 110px; padding: 12px 10px; font-size: 0.86rem; }
+/* ---- Phases (js/game/run.js renderPhase) ----
+ * intermission: path / spoils / event / draft — the dock shows choices instead of the hand.
+ * run-over: the clear or death card is in the log; the dock shows retry / next / title. */
+.dock-action { display: none; gap: 8px; width: 100%; flex-wrap: wrap; justify-content: center; }
+.dock-action .btn { flex: 1 1 140px; padding: 12px 10px; font-size: 0.86rem; white-space: normal; }
 #view-battle.intermission .dock-action,
 #view-battle.run-over .dock-action { display: flex; }
 #view-battle.intermission .prompt-row,
 #view-battle.intermission .cmd-chips,
-#view-battle.run-over .prompt-row,
-#view-battle.run-over .cmd-chips { display: none; }
 #view-battle.intermission .hand-table,
-#view-battle.run-over .hand-table,
-#view-battle.intermission .enemy-hand-wrap,
-#view-battle.run-over .enemy-hand-wrap { opacity: 0.3; pointer-events: none; }
+#view-battle.run-over .prompt-row,
+#view-battle.run-over .cmd-chips,
+#view-battle.run-over .hand-table { display: none; }
 #view-battle.run-over .player-stat-row { opacity: 0.6; }
 
+/* Fork tiles: a big sign kanji with its omen */
+.dock-action .fork-tile {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  position: relative;
+}
+.fork-kanji { font-family: 'Noto Serif JP', serif; font-size: 2.2rem; font-weight: 900; color: var(--gold); line-height: 1.1; }
+.fork-omen { font-size: 0.7rem; color: var(--muted); }
+.fork-reveal { position: absolute; top: 4px; right: 6px; font-size: 0.9rem; }
+.dock-action .boss-door { flex-basis: 100%; padding: 16px; font-family: 'Noto Serif JP', serif; font-size: 1rem; border-color: var(--crimson); color: #ff8a95; }
+
+/* Spoil / event option buttons */
+.dock-action .opt-btn { flex: 1 1 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 14px; }
+.opt-kanji { font-family: 'Noto Serif JP', serif; font-size: 1.5rem; font-weight: 900; color: var(--gold); flex-shrink: 0; }
+.opt-text { font-size: 0.84rem; }
+.dock-action .opt-skip { flex: 1 1 100%; padding: 8px; color: var(--muted); }
+
+/* Battle bar right side: current stage sign */
+.bb-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.sign-badge {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--gold);
+  border: 1px solid #6e5931;
+  background: rgba(229,192,123,0.08);
+  width: 34px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stage card in neutral (non-combat) mode, rank mark */
+.boss-card.neutral { border-color: #6e5931; box-shadow: 0 0 18px rgba(229,192,123,0.18); cursor: default; }
+.boss-card.neutral .boss-kanji { color: var(--gold); text-shadow: 0 0 14px rgba(229,192,123,0.4); }
+.rank-mark {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: var(--crimson);
+  color: #fff;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 900;
+  font-size: 0.78rem;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.enemy-stage.no-foe .boss-tags,
+.enemy-stage.no-foe .hp-line,
+.enemy-stage.no-foe .enemy-hand-wrap { visibility: hidden; }
+
+/* Log beat cards */
 .beat-log { text-align: center; border-left: none; padding: 12px 10px; }
 .beat-title { font-family: 'Noto Serif JP', serif; font-size: 1.15rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 6px; }
 .beat-line { font-size: 0.8rem; }
@@ -385,14 +448,27 @@ body.kb-open .gm-box { min-height: 48px; }
   background: linear-gradient(90deg, rgba(229,192,123,0.04), rgba(229,192,123,0.14), rgba(229,192,123,0.04));
 }
 .victory-log .beat-title { color: var(--gold); text-shadow: 0 0 14px rgba(229,192,123,0.5); }
+.event-log { border: 1px solid #3a4a5e; background: linear-gradient(180deg, rgba(40, 52, 70, 0.4), rgba(14, 16, 24, 0.8)); }
+.event-log .beat-title { color: #b8c7dc; }
+.event-log .beat-line { color: #cfd6e2; font-style: italic; }
+.clear-log {
+  border: 1px solid var(--gold);
+  background: radial-gradient(circle at 50% 0%, rgba(229,192,123,0.22), rgba(14,16,24,0.92) 70%);
+}
+.clear-log .beat-title { color: var(--gold); font-size: 1.5rem; text-shadow: 0 0 20px rgba(229,192,123,0.6); }
+.clear-log .beat-line { padding: 2px 0; }
+.clear-log .beat-line:last-child, .death-log .beat-line:last-child { margin-top: 6px; color: var(--muted); }
 .death-log {
   border: 1px solid var(--crimson);
   background: linear-gradient(180deg, rgba(90, 10, 22, 0.55), rgba(22, 10, 14, 0.85));
   text-align: left;
 }
-.death-log .beat-title { color: var(--crimson); text-align: center; text-shadow: 0 0 16px rgba(215,58,73,0.7); }
+.death-log .beat-title { color: var(--crimson); text-align: center; text-shadow: 0 0 16px rgba(215,58,73,0.7); font-size: 1.4rem; }
 .death-log .beat-line { padding: 2px 0; }
-.death-log .beat-line:last-child { margin-top: 6px; color: var(--muted); text-align: center; }
+.death-log .beat-line:last-child { text-align: center; }
+.log-entry.sep-log { background: none; border: none; text-align: center; color: var(--muted); font-size: 0.74rem; letter-spacing: 2px; padding: 4px; }
+.log-entry.choice-log { background: none; border-left-color: #6e5931; color: var(--gold); padding: 3px 10px; font-size: 0.8rem; }
+.log-entry.fx-log { background: none; border-left-color: #3a4a5e; color: #b8c7dc; padding: 3px 10px; font-size: 0.8rem; }
 
 /* Defeated boss: drained, stamped with 斬 */
 .boss-card.defeated { border-color: #4a3036; box-shadow: none; }
@@ -418,3 +494,5 @@ body.kb-open .gm-box { min-height: 48px; }
   0% { opacity: 0; transform: scale(1.5); filter: blur(6px) brightness(3); }
   100% { opacity: 1; transform: scale(1); filter: none; }
 }
+
+.badge:empty { display: none; }

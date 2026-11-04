@@ -17,17 +17,17 @@ function buildAchievementCatalog() {
     DEPTH_ACHIEVEMENT_TEMPLATES.forEach(tpl => {
       list.push({
         id: `d${n}_${tpl.key}`, cat: "depth", depthId: did, icon: tpl.icon,
-        name: `${depthNumStr(did)} ${depthShortName(did)} · ${tpl.name}`,
-        desc: () => t(tpl.descKey)(`${depthNumStr(did)} ${depthShortName(did)}`)
+        name: `${depthNumStr(did)} ${depthName(did)} · ${tpl.name}`,
+        desc: () => t(tpl.descKey)(depthName(did))
       });
     });
   });
 
   Object.keys(KANKEN_DATA).forEach(did => {
-    KANKEN_DATA[did].enemies.forEach(k => {
+    allRosterKanji(did).forEach(k => {
       list.push({
         id: `boss_${k}`, cat: "boss", depthId: did, kanji: k, icon: "📕",
-        name: `【${k}】`, desc: () => KANKEN_DATA[did].title
+        name: `【${k}】`, desc: () => depthName(did)
       });
     });
   });
@@ -118,7 +118,8 @@ function achOnCommand(type) {
   if (type === "SUMMON") unlockAchievement("summoner");
 }
 
-function achOnTurnJudged(j) {
+function achOnTurnJudged(j, { summon = false } = {}) {
+  if (summon && j.verdict === "FIZZLE") unlockAchievement("god_scorn");
   if (j.verdict === "FIZZLE") unlockAchievement("fizzle");
   if (j.verdict === "CLEVER" || j.verdict === "MASTERFUL") unlockAchievement("clever");
   if (j.verdict === "MASTERFUL") unlockAchievement("masterful");
@@ -129,7 +130,7 @@ function achOnTurnJudged(j) {
   if (j.playerHeal >= 30) unlockAchievement("healer");
 }
 
-function achOnEnemyDefeated({ kanji, depthId, turn, dmgTaken, playerHp, streak }) {
+function achOnEnemyDefeated({ kanji, depthId, turn, dmgTaken, playerHp, kills }) {
   const n = depthNumber(depthId);
   config.stats.kills = (config.stats.kills || 0) + 1;
   persistStats();
@@ -144,21 +145,23 @@ function achOnEnemyDefeated({ kanji, depthId, turn, dmgTaken, playerHp, streak }
   }
   if (turn === 1) unlockAchievement("one_turn");
   if (playerHp <= 15) unlockAchievement("comeback");
-  if (streak >= 5) {
-    unlockAchievement("streak_5");
-    unlockAchievement(`d${n}_streak`);
-  }
-  if (streak >= 10) unlockAchievement("streak_10");
-  if (streak >= 20) unlockAchievement("streak_20");
+  if (kills >= 5) unlockAchievement("streak_5");
   if (config.stats.kills >= 100) unlockAchievement("kills_100");
   if (countUnlocked("boss") >= 50) unlockAchievement("bestiary_50");
 
-  if (KANKEN_DATA[depthId].enemies.every(k => config.achievements[`boss_${k}`])) {
+  if (allRosterKanji(depthId).every(k => config.achievements[`boss_${k}`])) {
     unlockAchievement(`d${n}_purge`);
   }
   if (Object.keys(KANKEN_DATA).every(did => config.achievements[`d${depthNumber(did)}_kill`])) {
     unlockAchievement("all_depths");
   }
+}
+
+function achOnRunCleared({ depthId, fights }) {
+  unlockAchievement(`d${depthNumber(depthId)}_clear`);
+  unlockAchievement("clear_any");
+  if (depthNumber(depthId) >= 7) unlockAchievement("clear_deep");
+  if (fights <= 4) unlockAchievement("pacifist_path");
 }
 
 /* ---- Modal ---- */
@@ -203,7 +206,7 @@ function renderAchievementsModal() {
   } else if (achTab === "depth") {
     body.innerHTML = Object.keys(KANKEN_DATA).map(did => `
       <div class="ach-group">
-        <div class="ach-group-title">${escapeHtml(KANKEN_DATA[did].title)}</div>
+        <div class="ach-group-title">${depthNumStr(did)} ${escapeHtml(depthName(did))} <small>${escapeHtml(depthGloss(did))}</small></div>
         <div class="ach-grid compact">${items.filter(a => a.depthId === did).map(achItemHtml).join("")}</div>
       </div>`).join("");
   } else {
@@ -217,7 +220,7 @@ function renderAchievementsModal() {
         const seen = items.filter(a => a.depthId === did && config.achievements[a.id]).length;
         const total = items.filter(a => a.depthId === did).length;
         return `<div class="ach-group">
-          <div class="ach-group-title">${escapeHtml(KANKEN_DATA[did].title)} <small>${seen}/${total}</small></div>
+          <div class="ach-group-title">${depthNumStr(did)} ${escapeHtml(depthName(did))} <small>${seen}/${total}</small></div>
           <div class="boss-grid">${tiles}</div>
         </div>`;
       }).join("");

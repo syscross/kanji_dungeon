@@ -80,6 +80,19 @@
     </div>
   </div>
 
+  <!-- Kanji picker: draft, spoils / event picks, deck viewer (js/ui/picker.js) -->
+  <div class="modal-backdrop" id="pick-modal">
+    <div class="modal-card wide">
+      <div class="modal-head">
+        <div class="modal-title" id="pick-title"></div>
+        <button class="btn icon-btn" id="pick-close" onclick="closePicker()">✕</button>
+      </div>
+      <p class="modal-desc" id="pick-desc"></p>
+      <div class="pick-grid" id="pick-grid"></div>
+      <div class="modal-actions" id="pick-actions"></div>
+    </div>
+  </div>
+
   <!-- Settings (usable mid-battle) -->
   <div class="modal-backdrop" id="settings-modal">
     <div class="modal-card wide">
@@ -122,9 +135,9 @@
       <div class="field-group">
         <label data-i18n="lblInstMode">4. GM Rule Mode</label>
         <select id="s-inst-mode" onchange="onInstModeChange()">
-          <option value="Default">🏆 Default (Official Rules)</option>
-          <option value="Custom">🛠 Custom (Official + Your Patch)</option>
-          <option value="Sandbox">🧪 Sandbox (Full Custom Ruleset)</option>
+          <option value="Default">Default — official rules</option>
+          <option value="Custom">Custom — official + your patch</option>
+          <option value="Sandbox">Sandbox — your rules only</option>
         </select>
       </div>
 
@@ -230,35 +243,40 @@
     <div id="view-battle" class="view">
       <div class="battle-bar">
         <div class="bb-info">
-          <strong class="bb-depth" id="b-depth-title">01 拾ノ獄</strong>
-          <span class="badge" id="b-turn">T1</span>
-          <span class="badge" id="b-streak">🔥 0</span>
+          <strong class="bb-depth" id="b-depth-title">獄門</strong>
+          <span class="badge" id="b-step">1/9</span>
+          <span class="badge" id="b-kills">⚔ 0</span>
           <span class="badge" id="b-timer">⏱ 00:00</span>
           <button class="badge trial-badge" id="b-trial" data-i18n="trialBadge" onclick="openConnectModal()">🔌 Trial</button>
         </div>
-        <div class="dropdown align-right" id="battle-menu">
-          <button class="btn icon-btn" data-i18n-title="menuBtn" onclick="toggleDropdown('battle-menu', event)">⋮</button>
-          <div class="dropdown-menu">
-            <button class="menu-item" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy log</button>
-            <button class="menu-item" data-i18n="logClear" onclick="closeDropdowns(); clearGmLog(true)">🧹 Clear log</button>
-            <button class="menu-item" data-i18n="pauseTitle" onclick="pauseRunToTitle()">⏸ Save & title</button>
-            <button class="menu-item danger" data-i18n="abandon" onclick="promptAbandonRun()">🏳️ Abandon run</button>
+        <div class="bb-right">
+          <span class="sign-badge" id="b-sign" title="">道</span>
+          <div class="dropdown align-right" id="battle-menu">
+            <button class="btn icon-btn" data-i18n-title="menuBtn" onclick="toggleDropdown('battle-menu', event)">⋮</button>
+            <div class="dropdown-menu">
+              <button class="menu-item" onclick="openDeckViewer()">🀄 <span data-i18n="deckBtn">Deck</span></button>
+              <button class="menu-item" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy log</button>
+              <button class="menu-item" data-i18n="logClear" onclick="closeDropdowns(); clearGmLog(true)">🧹 Clear log</button>
+              <button class="menu-item" data-i18n="pauseTitle" onclick="pauseRunToTitle()">⏸ Save & title</button>
+              <button class="menu-item danger" data-i18n="abandon" onclick="promptAbandonRun()">🏳️ Abandon run</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="enemy-stage">
+      <div class="enemy-stage" id="enemy-stage">
         <div class="boss-card" id="b-boss-card" onclick="insertKanji(state.enemyKanji)">
-          <div class="boss-kanji" id="b-boss-kanji">犬</div>
+          <div class="boss-kanji" id="b-boss-kanji">道</div>
+          <span class="rank-mark" id="b-rank"></span>
         </div>
         <div class="boss-info">
           <div class="boss-tags">
-            <span class="badge danger" id="b-enemy-state">Hostile</span>
-            <span class="badge muted" data-i18n-title="field" id="b-field-state">Pitch-Black Dungeon</span>
+            <span class="badge danger" id="b-enemy-state">—</span>
+            <span class="badge muted" data-i18n-title="field" id="b-field-state">—</span>
           </div>
           <div class="hp-line">
             <div class="hp-bar-wrap"><div class="hp-bar-fill" id="b-enemy-bar"></div></div>
-            <span class="hp-num"><strong id="b-enemy-hp">100</strong>/100</span>
+            <span class="hp-num" id="b-enemy-hp">0/0</span>
           </div>
           <div class="enemy-hand-wrap">
             <span class="mini-label" data-i18n="enemyHand">Enemy hand</span>
@@ -273,21 +291,21 @@
         <div class="player-stat-row" id="b-player-stat">
           <span class="hp-label" data-i18n="yourHp">HP</span>
           <div class="hp-bar-wrap"><div class="hp-bar-fill player" id="b-player-bar"></div></div>
-          <span class="hp-num"><strong id="b-player-hp">100</strong>/100</span>
-          <span class="badge" id="b-player-state">Normal</span>
+          <span class="hp-num" id="b-player-hp">100/100</span>
+          <span class="badge" id="b-player-state">—</span>
         </div>
 
         <div class="hand-table">
-          <div class="deck-pile" onclick="triggerSlash('/reroll')" title="/reroll (-5 HP)">
+          <button class="deck-pile" onclick="openDeckViewer()" data-i18n-title="deckBtn">
             <span>山札</span>
-            <small data-i18n="deck">DRAW</small>
-          </div>
+            <small id="b-deck-count">8</small>
+          </button>
           <div class="card-row" id="b-player-hand"></div>
         </div>
 
         <div class="cmd-chips">
           <button class="chip" title="/hint" onclick="triggerSlash('/hint')"><span data-i18n="hintChip">💡 Hint</span></button>
-          <button class="chip" title="/reroll" onclick="triggerSlash('/reroll')"><span data-i18n="rerollChip">🎲 Reroll</span></button>
+          <button class="chip" title="/reroll" onclick="triggerSlash('/reroll')"><span id="b-reroll-label">🎲 Reroll</span></button>
           <button class="chip" title="/prompt" onclick="prefillSlash('/prompt ')"><span data-i18n="promptChip">❓ Ask</span></button>
           <button class="chip" title="/summon" onclick="prefillSlash('/summon ')"><span data-i18n="summonChip">🐉 Summon</span> <span class="chip-cost">−<span id="b-summon-cost">10</span></span></button>
         </div>
@@ -302,8 +320,17 @@
     </div>
   </div>
 
-  <!-- Load order matters: data → core → ai → fx → ui → game → main -->
-  <script src="/js/data/i18n.js"></script>
+  <!-- Classic scripts sharing globals. Load order: i18n → data → core → ai → fx → ui → game → main -->
+  <script src="/js/i18n/index.js"></script>
+  <script src="/js/i18n/en.js"></script>
+  <script src="/js/i18n/ko.js"></script>
+  <script src="/js/i18n/ja.js"></script>
+  <script src="/js/i18n/zh-cn.js"></script>
+  <script src="/js/i18n/zh-tw.js"></script>
+  <script src="/js/data/depths.js"></script>
+  <script src="/js/data/stages.js"></script>
+  <script src="/js/data/rewards.js"></script>
+  <script src="/js/data/events.js"></script>
   <script src="/js/data/guide.js"></script>
   <script src="/js/data/achievements.js"></script>
   <script src="/js/core/state.js"></script>
@@ -314,13 +341,19 @@
   <script src="/js/fx/embers.js"></script>
   <script src="/js/ui/dom.js"></script>
   <script src="/js/ui/hud.js"></script>
+  <script src="/js/ui/picker.js"></script>
   <script src="/js/ui/viewport.js"></script>
   <script src="/js/ui/keyboard.js"></script>
   <script src="/js/ui/settings.js"></script>
   <script src="/js/ui/connect.js"></script>
   <script src="/js/ui/install.js"></script>
   <script src="/js/ui/screens.js"></script>
+  <script src="/js/game/rules.js"></script>
+  <script src="/js/game/deck.js"></script>
   <script src="/js/game/achievements.js"></script>
+  <script src="/js/game/effects.js"></script>
+  <script src="/js/game/rewards.js"></script>
+  <script src="/js/game/events.js"></script>
   <script src="/js/game/run.js"></script>
   <script src="/js/game/battle.js"></script>
   <script src="/js/game/beats.js"></script>

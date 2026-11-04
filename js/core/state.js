@@ -9,11 +9,13 @@ const STORAGE = {
   instMode: "kd_inst_mode",
   customInst: "kd_custom_inst",
   lang: "kd_lang",
-  scores: "kd_scores",
   achievements: "kd_achievements",
   stats: "kd_stats",
+  records: "kd_records",
   savedRun: "kd_saved_run"
 };
+
+const RUN_VERSION = 2; // bump when the saved-run shape changes; older saves are discarded
 
 function readJson(key, fallback) {
   try {
@@ -42,38 +44,67 @@ let config = {
   provider: initialProvider,
   apiKey: savedKeys[initialProvider] || "",
   customEndpoint: localStorage.getItem(STORAGE.endpoint) || "http://localhost:11434/v1/chat/completions",
-  model: localStorage.getItem(STORAGE.model) || (initialProvider === "free_keyless" ? "openai" : "gemini-flash-lite-latest"),
+  model: localStorage.getItem(STORAGE.model) || "openai",
   instMode: localStorage.getItem(STORAGE.instMode) || "Default",
   customInst: localStorage.getItem(STORAGE.customInst) || "",
   lang: localStorage.getItem(STORAGE.lang) || "KO",
-  scores: readJson(STORAGE.scores, {}),
   achievements: readJson(STORAGE.achievements, {}),
-  stats: readJson(STORAGE.stats, { kills: 0 })
+  stats: readJson(STORAGE.stats, { kills: 0, runs: 0 }),
+  records: readJson(STORAGE.records, {})
 };
 
+/*
+ * One descent. `phase` drives what the screen shows:
+ *   draft → (path ↔ battle → reward | event)* → boss battle → cleared | dead
+ */
 function createRunState() {
   return {
+    v: RUN_VERSION,
     active: false,
     depthId: "depth_1",
-    turn: 1,               // turn counter against the current enemy
-    streak: 0,
-    summonCost: 10,
-    playerHp: 100,
-    enemyHp: 100,
-    enemyKanji: "犬",
-    fieldState: "Pitch-Black Dungeon",
-    playerState: "Normal",
-    enemyState: "Hostile",
+    runNo: 0,
+    phase: "draft",
+    step: 0,                 // 1..PATH_STEPS; the last step is the boss
+    sign: "道",              // sign kanji of the current node
+    fork: [],                // [{ sign, outcome, revealed }]
+    revealNext: false,
+    eventId: null,
+    lastEventId: null,
+    offer: [],               // pending spoils [{ id, params }]
+    pending: null,           // { mode: "add"|"burn"|"dup", choices, rest } — a card pick in progress
+
+    deck: [],
+    drawPile: [],
+    discard: [],
+    draftOffer: [],
     playerHand: [],
     enemyHand: [],
-    elapsedSec: 0,
-    history: [],           // full turn logs (for export / resume)
-    recentActions: [],     // last few player inputs, sent to the GM to discourage repetition
+
+    maxHp: 100,
+    playerHp: 100,
+    rerollTokens: 0,
+    summonCost: 10,          // escalates for the whole descent; spoils / shrines reset it
+
+    enemyKanji: "",
+    enemyRank: "normal",
+    enemyHp: 0,
+    enemyMaxHp: 0,
+    seenEnemies: [],
+    lastKill: null,          // { kanji, turns, dmgTaken } for the kill card
+    turn: 1,                 // turns against the current foe
+    totalTurns: 0,
+    fights: 0,
+    kills: 0,
     dmgTakenThisEnemy: 0,
+    offlineTurns: 0,
+
+    fieldState: "",
+    playerState: "",
+    enemyState: "",
+    elapsedSec: 0,
+    history: [],             // log entries of this run, replayed after a reload
+    recentActions: [],
     trialNudgeShown: false,
-    totalTurns: 0,         // judged turns across the whole run
-    awaitingNext: false,   // victory intermission: waiting for the player to advance
-    lastKill: null,        // { kanji, turns, dmgTaken } for the intermission card
     runAchievements: []
   };
 }
@@ -97,8 +128,8 @@ function persistStats() {
   localStorage.setItem(STORAGE.stats, JSON.stringify(config.stats));
 }
 
-function persistScores() {
-  localStorage.setItem(STORAGE.scores, JSON.stringify(config.scores));
+function persistRecords() {
+  localStorage.setItem(STORAGE.records, JSON.stringify(config.records));
 }
 
 function hasActiveRun() {
@@ -106,18 +137,17 @@ function hasActiveRun() {
 }
 
 function saveRunToStorage() {
-  if (!state.active || state.playerHp <= 0) {
-    localStorage.removeItem(STORAGE.savedRun);
-  } else {
-    localStorage.setItem(STORAGE.savedRun, JSON.stringify(state));
-  }
+  if (!state.active || state.playerHp <= 0) localStorage.removeItem(STORAGE.savedRun);
+  else localStorage.setItem(STORAGE.savedRun, JSON.stringify(state));
   if (typeof updateSavedRunBanner === "function") updateSavedRunBanner();
 }
 
 function loadSavedRunFromStorage() {
   const parsed = readJson(STORAGE.savedRun, null);
-  if (parsed && parsed.active && parsed.playerHp > 0 && KANKEN_DATA[parsed.depthId]) {
+  if (parsed && parsed.v === RUN_VERSION && parsed.active && parsed.playerHp > 0 && KANKEN_DATA[parsed.depthId]) {
     state = { ...createRunState(), ...parsed };
+  } else if (parsed) {
+    localStorage.removeItem(STORAGE.savedRun);
   }
 }
 
@@ -127,17 +157,17 @@ function clearSavedRun() {
   if (typeof updateSavedRunBanner === "function") updateSavedRunBanner();
 }
 
-function getScore(depthId, mode) {
-  return (config.scores[depthId] && config.scores[depthId][mode]) || 0;
+/* Clear records: fastest first, at most 10 per gaol. */
+function addClearRecord(depthId, rec) {
+  const list = config.records[depthId] || [];
+  list.push(rec);
+  list.sort((a, b) => a.timeSec - b.timeSec);
+  config.records[depthId] = list.slice(0, 10);
+  persistRecords();
 }
 
-function recordStreakScore(depthId) {
-  if (!config.scores[depthId]) config.scores[depthId] = {};
-  const cur = config.scores[depthId][config.instMode] || 0;
-  if (state.streak > cur) {
-    config.scores[depthId][config.instMode] = state.streak;
-    persistScores();
-  }
+function bestRecord(depthId) {
+  return (config.records[depthId] || [])[0] || null;
 }
 
 function depthNumber(depthId) {
@@ -148,13 +178,24 @@ function depthNumStr(depthId) {
   return String(depthNumber(depthId)).padStart(2, "0");
 }
 
-/* "01 — 拾ノ獄 (Kanken 10)" -> "拾ノ獄 (Kanken 10)" */
-function depthCleanTitle(depthId) {
-  const d = KANKEN_DATA[depthId];
-  return d ? d.title.replace(/^(Depth\s*)?\d+\s*—\s*/i, "") : depthId;
+function randInt(min, max) {
+  return min + Math.floor(Math.random() * (max - min + 1));
 }
 
-/* "01 — 拾ノ獄 (Kanken 10)" -> "拾ノ獄" */
-function depthShortName(depthId) {
-  return depthCleanTitle(depthId).replace(/\s*\(.*\)\s*$/, "");
+function sample(arr, n) {
+  const copy = [...arr];
+  const out = [];
+  for (let i = 0; i < n && copy.length > 0; i++) {
+    out.push(copy.splice(Math.floor(Math.random() * copy.length), 1)[0]);
+  }
+  return out;
+}
+
+function weightedPick(pairs) {
+  const total = pairs.reduce((s, [, w]) => s + w, 0);
+  let r = Math.random() * total;
+  for (const [v, w] of pairs) {
+    if ((r -= w) < 0) return v;
+  }
+  return pairs[pairs.length - 1][0];
 }

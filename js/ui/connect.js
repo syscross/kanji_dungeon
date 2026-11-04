@@ -8,7 +8,7 @@ const TRIAL_ACK_KEY = "kd_trial_ack"; // sessionStorage: player chose "continue 
 let connectCallback = null;
 
 function isTrialMode() {
-  return config.provider === "free_keyless" || (!config.apiKey && config.provider !== "custom");
+  return ["free_keyless", "offline"].includes(config.provider) || (!config.apiKey && !KEYLESS_PROVIDERS.includes(config.provider));
 }
 
 function updateTrialUI() {
@@ -21,7 +21,7 @@ function updateTrialUI() {
 
 /* Depth select → start run, asking once per session to connect an AI while in trial mode. */
 function requestStartRun(depthId) {
-  if (isTrialMode() && !sessionStorage.getItem(TRIAL_ACK_KEY)) {
+  if (isTrialMode() && config.provider !== "offline" && !sessionStorage.getItem(TRIAL_ACK_KEY)) {
     openConnectModal(() => startRun(depthId));
     return;
   }

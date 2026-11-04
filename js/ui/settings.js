@@ -33,7 +33,7 @@ function onProviderChange() {
   linkEl.textContent = `[${pInfo.keyLabel}]`;
 
   $("s-endpoint-group").style.display = p === "custom" ? "flex" : "none";
-  $("s-apikey-group").style.display = p === "free_keyless" ? "none" : "flex";
+  $("s-apikey-group").style.display = ["free_keyless", "offline"].includes(p) ? "none" : "flex";
 
   const presetSel = $("s-model-preset");
   presetSel.innerHTML = "";

@@ -41,8 +41,11 @@ function anyModalOpen() {
   return document.querySelector(".modal-backdrop.active") !== null;
 }
 
+/* Locked modals (a required choice, e.g. the draft) ignore ESC / back. */
 function closeAllModals() {
-  document.querySelectorAll(".modal-backdrop.active").forEach(m => m.classList.remove("active"));
+  document.querySelectorAll(".modal-backdrop.active").forEach(m => {
+    if (!m.dataset.locked) m.classList.remove("active");
+  });
 }
 
 let modalConfirmCallback = null;

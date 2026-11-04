@@ -32,25 +32,29 @@ const COMMON_ACHIEVEMENTS = [
   { id: "healer", icon: "🌿", name: "回生",
     desc: { EN: "Recover 30 HP or more in a single turn.", KO: "한 턴에 HP를 30 이상 회복했다.", JA: "1ターンでHPを30以上回復した。", ZH_CN: "单回合恢复 30 以上 HP。", ZH_TW: "單回合恢復 30 以上 HP。" } },
   { id: "streak_5", icon: "🔥", name: "五連斬",
-    desc: { EN: "Reach a 5-kill streak in one run.", KO: "한 원정에서 5연속 처치했다.", JA: "一度の探索で5連続撃破した。", ZH_CN: "单次远征达成5连斩。", ZH_TW: "單次遠征達成5連斬。" } },
-  { id: "streak_10", icon: "🔥", name: "十連斬",
-    desc: { EN: "Reach a 10-kill streak in one run.", KO: "한 원정에서 10연속 처치했다.", JA: "一度の探索で10連続撃破した。", ZH_CN: "单次远征达成10连斩。", ZH_TW: "單次遠征達成10連斬。" } },
-  { id: "streak_20", icon: "☠️", name: "二十連斬",
-    desc: { EN: "Reach a 20-kill streak in one run.", KO: "한 원정에서 20연속 처치했다.", JA: "一度の探索で20連続撃破した。", ZH_CN: "单次远征达成20连斩。", ZH_TW: "單次遠征達成20連斬。" } },
+    desc: { EN: "Defeat 5 foes in one descent.", KO: "한 원정에서 적 5체를 처치했다.", JA: "一度の探索で5体を倒した。", ZH_CN: "单次远征击败 5 个敌人。", ZH_TW: "單次遠征擊敗 5 個敵人。" } },
+  { id: "clear_any", icon: "⛩", name: "踏破",
+    desc: { EN: "Walk out of any gaol alive.", KO: "어느 옥이든 살아서 빠져나왔다.", JA: "いずれかの獄を生きて抜けた。", ZH_CN: "活着走出任意一座狱。", ZH_TW: "活著走出任意一座獄。" } },
+  { id: "clear_deep", icon: "🌑", name: "深獄踏破",
+    desc: { EN: "Walk out of gaol 7 or deeper.", KO: "7번째 이후의 옥을 빠져나왔다.", JA: "第七獄以降を抜けた。", ZH_CN: "走出第七狱或更深处。", ZH_TW: "走出第七獄或更深處。" } },
+  { id: "pacifist_path", icon: "🕯", name: "無血行",
+    desc: { EN: "Clear a gaol having fought no more than 4 times.", KO: "전투 4번 이하로 옥을 빠져나왔다.", JA: "戦闘4回以下で獄を抜けた。", ZH_CN: "战斗不超过 4 次走出一座狱。", ZH_TW: "戰鬥不超過 4 次走出一座獄。" } },
+  { id: "god_scorn", icon: "🗿", name: "神罵",
+    desc: { EN: "Summon an ancient god with a hand so poor it fizzles.", KO: "패가 너무 형편없어 고신마저 불발했다.", JA: "手札が酷すぎて古神ですら不発した。", ZH_CN: "手牌太烂，连古神都失手了。", ZH_TW: "手牌太爛，連古神都失手了。" } },
   { id: "kills_100", icon: "⚔️", name: "百人斬り",
     desc: { EN: "Defeat 100 enemies in total.", KO: "누적 100체의 적을 처치했다.", JA: "累計100体の敵を倒した。", ZH_CN: "累计击败 100 个敌人。", ZH_TW: "累計擊敗 100 個敵人。" } },
   { id: "bestiary_50", icon: "📕", name: "百鬼図鑑",
     desc: { EN: "Record 50 different bosses in the bestiary.", KO: "보스 도감에 50종을 기록했다.", JA: "図鑑に50種のボスを記録した。", ZH_CN: "图鉴记录 50 种首领。", ZH_TW: "圖鑑記錄 50 種首領。" } },
-  { id: "abyss_12", icon: "👁️", name: "深淵到達",
-    desc: { EN: "Set foot in the deepest layer, Depth 12.", KO: "최심부 12계층에 발을 들였다.", JA: "最深部・第12階層に足を踏み入れた。", ZH_CN: "踏入最深处第12阶层。", ZH_TW: "踏入最深處第12階層。" } },
-  { id: "all_depths", icon: "🗝️", name: "全階踏破",
-    desc: { EN: "Defeat an enemy in all 12 depths.", KO: "12개 계층 모두에서 적을 처치했다.", JA: "全12階層で敵を倒した。", ZH_CN: "在全部12个阶层击败敌人。", ZH_TW: "在全部12個階層擊敗敵人。" } }
+  { id: "abyss_12", icon: "👁️", name: "奈落到達",
+    desc: { EN: "Set foot in the twelfth gaol, 奈落.", KO: "열두 번째 옥, 奈落에 발을 들였다.", JA: "第十二獄・奈落に足を踏み入れた。", ZH_CN: "踏入第十二狱·奈落。", ZH_TW: "踏入第十二獄·奈落。" } },
+  { id: "all_depths", icon: "🗝️", name: "十二獄巡",
+    desc: { EN: "Defeat a foe in all twelve gaols.", KO: "열두 옥 모두에서 적을 처치했다.", JA: "十二の獄すべてで敵を倒した。", ZH_CN: "在全部十二狱击败敌人。", ZH_TW: "在全部十二獄擊敗敵人。" } }
 ];
 
 /* One entry per depth for each template; desc keys live in I18N (dKillDesc etc.). */
 const DEPTH_ACHIEVEMENT_TEMPLATES = [
   { key: "kill",     icon: "🩸", name: "初討伐", descKey: "dKillDesc" },
-  { key: "streak",   icon: "🔥", name: "五連斬", descKey: "dStreakDesc" },
+  { key: "clear",    icon: "⛩", name: "踏破",   descKey: "dClearDesc" },
   { key: "flawless", icon: "🛡️", name: "無傷",   descKey: "dFlawlessDesc" },
   { key: "purge",    icon: "👑", name: "制覇",   descKey: "dPurgeDesc" }
 ];

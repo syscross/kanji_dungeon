@@ -1,54 +1,40 @@
 /*
- * Offline fallback GM used when the free public endpoint is unavailable.
- * Mirrors the judge JSON contract (see js/ai/gm.js) with simple literal-match heuristics.
+ * Offline GM — used for the "No AI" provider and whenever the trial server is busy.
+ * It cannot read meaning, so it only counts hand kanji written in the move and says so
+ * honestly. Same JSON contract as the real GM (see js/ai/gm.js), so the rules engine
+ * treats both identically.
  */
-function localKanjiEngine(expectJson) {
+function localKanjiEngine(expectJson, opts = {}) {
   const hand = state.playerHand;
   const boss = state.enemyKanji;
-  if (!expectJson) {
-    return t("leHint")(hand.join(" · "), state.enemyHand.join(" · "), boss);
-  }
+  if (!expectJson) return t("leHint")(hand.join(" · "), state.enemyHand.join(" · "), boss);
 
   const raw = state._lastRawInput || "";
-  const used = hand.filter(k => raw.includes(k));
-  const baseline = enemyCounterBaseline(state.depthId);
-  // Whatever is left once hand Kanji, whitespace and punctuation are stripped = the actual "action".
+  const summoning = Boolean(opts.summon);
+  const used = summoning ? [...hand] : hand.filter(k => raw.includes(k));
+  // Whatever remains once hand kanji, whitespace and punctuation are removed is the described action.
   const narrative = hand.reduce((s, k) => s.split(k).join(""), raw).replace(/[\s\p{P}\p{S}]/gu, "");
 
-  if (used.length === 0 || narrative.length < 4) {
-    return {
-      _offline: true,
-      card_roles: {},
-      reason: "no meaningful card use",
-      verdict: "FIZZLE",
-      enemy_damage_taken: 0,
-      player_heal: 0,
-      player_damage_taken: Math.round(baseline.max * 1.3),
-      gm_judgment: used.length === 0 ? t("leNoCard")(hand.join(", ")) : t("leDump"),
-      enemy_action: t("leCounter")(boss),
-      new_field_state: state.fieldState,
-      new_player_state: "Off-Balance",
-      new_enemy_state: "Aggressive"
-    };
-  }
-
-  const verdict = used.length >= 4 ? "CLEVER" : used.length >= 2 ? "SOLID" : "WEAK";
-  const band = VERDICT_DAMAGE_HINT[verdict];
-  const dmg = band.min + Math.floor(Math.random() * (band.max - band.min + 1));
-  const eDmg = Math.max(0, baseline.min + Math.floor(Math.random() * (baseline.max - baseline.min + 1)) - used.length * 2);
+  let verdict;
+  if (used.length === 0) verdict = "FIZZLE";
+  else if (summoning) verdict = "SOLID";
+  else if (narrative.length < 2) verdict = used.length >= 2 ? "WEAK" : "FIZZLE"; // bare incantation: meaning unknown offline
+  else verdict = used.length >= 4 ? "CLEVER" : used.length >= 2 ? "SOLID" : "WEAK";
 
   return {
     _offline: true,
-    card_roles: Object.fromEntries(used.map(k => [k, "written in the spell"])),
-    reason: `${used.length} card(s) used literally`,
+    card_roles: Object.fromEntries(hand.map(k => [k, used.includes(k) ? "written in the move" : null])),
     verdict,
-    enemy_damage_taken: dmg,
-    player_heal: 0,
-    player_damage_taken: eDmg,
-    gm_judgment: t("leHit")(used.join(" · "), used.length),
+    attack: verdict !== "FIZZLE",
+    heal: "none",
+    defense: "none",
+    gm_judgment: verdict === "FIZZLE"
+      ? (used.length === 0 ? t("leNoCard")(hand.join(", ")) : t("leDump"))
+      : t("leHit")(used.join(" · "), used.length),
+    enemy_used_kanji: [],
     enemy_action: t("leCounter")(boss),
     new_field_state: state.fieldState,
-    new_player_state: verdict === "CLEVER" ? "Empowered" : "Focused",
-    new_enemy_state: dmg >= 30 ? "Staggered" : "Hostile"
+    new_player_state: verdict === "FIZZLE" ? "Off-Balance" : "Focused",
+    new_enemy_state: state.enemyState
   };
 }

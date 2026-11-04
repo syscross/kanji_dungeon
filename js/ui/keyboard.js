@@ -9,7 +9,7 @@ function setupKeyboardNavigation() {
         closeDropdowns();
         return;
       }
-      if (anyModalOpen()) {
+      if (document.querySelector(".modal-backdrop.active:not([data-locked='1'])")) {
         closeAllModals();
         return;
       }
@@ -31,11 +31,6 @@ function setupKeyboardNavigation() {
     }
 
     if (anyModalOpen()) return;
-    if (currentView === "battle" && state.awaitingNext && e.key === "Enter") {
-      e.preventDefault();
-      proceedToNextEnemy();
-      return;
-    }
     if (document.activeElement && ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
 
     const selector = currentView === "title"

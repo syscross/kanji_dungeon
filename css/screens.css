@@ -319,3 +319,28 @@
 @media (max-width: 360px) {
   .brand-text { display: none; }
 }
+
+/* Depth select additions */
+.node-gloss { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--muted); font-weight: 400; margin-left: 6px; }
+.unconquered { color: #4a4f5c; }
+.abyss-node.cleared .node-num { background: rgba(229,192,123,0.12); border-color: var(--gold); color: var(--gold); }
+.node-bosses span.boss { margin-left: 6px; font-weight: 900; color: #5a3036; }
+.node-bosses span.boss.seen { color: var(--gold); }
+
+/* Kanji picker (draft / picks / deck viewer) */
+.pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 8px; }
+.pick-tile {
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(165deg, #212538 0%, #0e1018 100%);
+  border: 2px solid #57303a;
+  border-radius: 6px;
+  color: #f7f3e8;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.pick-tile.multi { font-size: 1.2rem; }
+.pick-tile:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--gold); }
+.pick-tile:disabled { cursor: default; opacity: 1; }
+#pick-actions .btn { flex: 1; padding: 10px; }
