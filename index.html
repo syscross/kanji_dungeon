@@ -264,6 +264,8 @@
         </div>
       </div>
 
+      <div class="run-roster-bar" id="b-run-roster"></div>
+
       <div class="enemy-stage" id="enemy-stage">
         <div class="boss-card" id="b-boss-card" onclick="insertKanji(state.enemyKanji)">
           <div class="boss-kanji" id="b-boss-kanji">道</div>
@@ -297,8 +299,8 @@
 
         <div class="hand-table">
           <button class="deck-pile" onclick="openDeckViewer()" data-i18n-title="deckBtn">
-            <span>山札</span>
-            <small id="b-deck-count">8</small>
+            <span>所持</span>
+            <small id="b-deck-count">0</small>
           </button>
           <div class="card-row" id="b-player-hand"></div>
         </div>
@@ -306,6 +308,7 @@
         <div class="cmd-chips">
           <button class="chip" title="/hint" onclick="triggerSlash('/hint')"><span data-i18n="hintChip">💡 Hint</span></button>
           <button class="chip" title="/reroll" onclick="triggerSlash('/reroll')"><span id="b-reroll-label">🎲 Reroll</span></button>
+          <button class="chip" title="/flee" onclick="prefillSlash('/flee ')"><span data-i18n="fleeChip">🏃 Flee</span></button>
           <button class="chip" title="/prompt" onclick="prefillSlash('/prompt ')"><span data-i18n="promptChip">❓ Ask</span></button>
           <button class="chip" title="/summon" onclick="prefillSlash('/summon ')"><span data-i18n="summonChip">🐉 Summon</span> <span class="chip-cost">−<span id="b-summon-cost">10</span></span></button>
         </div>

@@ -1,13 +1,13 @@
 /*
  * Spoils offered after a won fight (choose one or leave it).
- * Each reward: kanji (shown on the button), label(p) per language, params per tier,
- * and an optional `when(state)` filter. Effects are applied in js/game/rewards.js.
+ * Note: Stage card scavenging (up to 5 cards) already happens automatically after a fight;
+ * these spoils provide additional recovery, max HP, extra card picks, or bag pruning.
  */
 
 const REWARDS = {
   heal: {
     kanji: "回",
-    params: { normal: { min: 12, max: 30 }, elite: { min: 25, max: 40 } },
+    params: { normal: { min: 14, max: 30 }, elite: { min: 25, max: 42 } },
     label: {
       EN: p => `Mend — HP +${p.min}~${p.max}`, KO: p => `회복 — HP +${p.min}~${p.max}`, JA: p => `回復 — HP +${p.min}~${p.max}`,
       ZH_CN: p => `回复 — HP +${p.min}~${p.max}`, ZH_TW: p => `回復 — HP +${p.min}~${p.max}`
@@ -40,19 +40,19 @@ const REWARDS = {
   },
   card: {
     kanji: "札",
-    params: { normal: { choices: 3 }, elite: { choices: 4 } },
+    params: { normal: { choices: 5 }, elite: { choices: 5 } },
     label: {
-      EN: p => `Inscribe — add a kanji (1 of ${p.choices})`, KO: p => `새김 — 글자 추가 (${p.choices}개 중 1)`, JA: p => `刻字 — 字を加える (${p.choices}択)`,
-      ZH_CN: p => `刻字 — 加入一个字 (${p.choices} 选 1)`, ZH_TW: p => `刻字 — 加入一個字 (${p.choices} 選 1)`
+      EN: p => `Scavenge — pick any kanji (up to ${p.choices})`, KO: p => `수색 — 글자 추가 수확 (최대 ${p.choices}장)`, JA: p => `探索 — 字を追加回収 (最大${p.choices}枚)`,
+      ZH_CN: p => `搜刮 — 额外拾取汉字 (最多 ${p.choices})`, ZH_TW: p => `搜刮 — 額外拾取漢字 (最多 ${p.choices})`
     }
   },
   burn: {
     kanji: "焚",
     params: { normal: {}, elite: {} },
-    when: s => s.deck.length > 5,
+    when: s => s.deck.length > 0,
     label: {
-      EN: () => "Burn — remove a kanji from your deck", KO: () => "소각 — 덱에서 글자 하나 제거", JA: () => "焚書 — デッキから字を一つ除く",
-      ZH_CN: () => "焚字 — 从牌组移除一个字", ZH_TW: () => "焚字 — 從牌組移除一個字"
+      EN: () => "Burn — remove a kanji from your bag", KO: () => "소각 — 챙긴 글자 하나 버리기", JA: () => "焚書 — 袋から字を一つ捨てる",
+      ZH_CN: () => "焚字 — 从行囊移除一个字", ZH_TW: () => "焚字 — 從行囊移除一個字"
     }
   }
 };

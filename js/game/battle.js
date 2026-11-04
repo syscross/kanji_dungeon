@@ -1,4 +1,4 @@
-/* Battle turn flow: input parsing, slash commands, GM judging, applying results. */
+/* Battle turn flow: input parsing, slash commands, GM judging, escape, and applying results. */
 
 function parseInputCommand(raw) {
   const trimmed = raw.trim();
@@ -10,6 +10,7 @@ function parseInputCommand(raw) {
   if (cmd === "/reroll") return { type: "REROLL", arg: "" };
   if (cmd === "/prompt") return { type: "PROMPT", arg };
   if (cmd === "/summon") return { type: "SUMMON", arg };
+  if (cmd === "/flee" || cmd === "/escape" || cmd === "/도주") return { type: "FLEE", arg };
   return { type: "UNKNOWN_SLASH", cmd, arg };
 }
 
@@ -96,10 +97,13 @@ async function handleBattleSubmit(e) {
     return;
   }
 
-  // Judged turn: the player's move, or an ancient god acting in their place.
+  // Judged turn: normal move, escape attempt (/flee), or ancient god summon (/summon).
   const summon = parsed.type === "SUMMON";
+  const flee = parsed.type === "FLEE";
   let summonDirective = "";
+  let fleeDirective = "";
   let summonPaid = 0;
+
   if (summon) {
     if (state.playerHp <= state.summonCost) {
       logMd(t("summonNoHp")(state.summonCost), "hint-log", false);
@@ -111,19 +115,22 @@ async function handleBattleSubmit(e) {
     state.summonCost += SUMMON_COST_STEP;
     summonDirective = buildSummonDirective(summonPaid, parsed.arg);
     updateBattleHUD(false);
+  } else if (flee) {
+    fleeDirective = buildFleeDirective(parsed.arg);
   }
+
+  const moveText = flee ? (parsed.arg || t("defaultFleeMove")) : raw;
 
   setInputBusy(true);
   const stopJudging = startJudgingIndicator();
   try {
-    const res = await callLLM(buildJudgePrompt(raw, summonDirective), true, { summon });
+    const res = await callLLM(buildJudgePrompt(moveText, summonDirective, fleeDirective), true, { summon, flee });
     const sec = stopJudging();
     inp.value = "";
-    applyTurnResult(raw, normalizeJudgment(res), sec, { summon });
+    applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee });
   } catch (err) {
     stopJudging();
     if (summonPaid) {
-      // The turn never happened — refund the summon.
       state.playerHp += summonPaid;
       state.summonCost -= SUMMON_COST_STEP;
       updateBattleHUD(false);
@@ -152,7 +159,44 @@ function maybeShowTrialNudge(j) {
 
 const DEFENSE_MARK = { none: "", partial: " 🛡½", full: " 🛡0" };
 
-function applyTurnResult(rawInput, j, sec = "0.0", { summon = false } = {}) {
+function applySpecialEvent(j) {
+  if (!j.specialEvent) return "";
+  switch (j.specialEvent) {
+    case "TIME_REWIND": {
+      state.playerHp = state.maxHp;
+      state.turn = 1;
+      return `\n⏪ **${t("spTimeRewind")}**`;
+    }
+    case "STEAL_KANJI": {
+      const stolen = state.enemyKanji;
+      addCardToDeck(stolen);
+      return `\n🧲 **${t("spStealKanji")(stolen)}**`;
+    }
+    case "MUTATE_ENEMY": {
+      const nextK = j.mutatedKanji || "灰";
+      const oldK = state.enemyKanji;
+      state.enemyKanji = nextK;
+      state.enemyHp = Math.max(1, Math.floor(state.enemyHp * 0.5));
+      return `\n🧬 **${t("spMutateEnemy")(oldK, nextK)}**`;
+    }
+    case "FORGE_CARD": {
+      const forged = j.forgedKanji || (j.used.length >= 2 ? j.used.slice(0, 2).join("") : null);
+      if (forged) {
+        addCardToDeck(forged);
+        return `\n⚗️ **${t("spForgeCard")(forged)}**`;
+      }
+      return "";
+    }
+    case "INSTANT_PACIFY": {
+      state.enemyHp = 0;
+      return `\n🕯 **${t("spInstantPacify")(state.enemyKanji)}**`;
+    }
+    default:
+      return "";
+  }
+}
+
+function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = false } = {}) {
   state.fieldState = j.fieldState;
   state.playerState = j.playerState;
   state.enemyState = j.enemyState;
@@ -161,6 +205,8 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false } = {}) {
   if (j.offline) state.offlineTurns += 1;
 
   const n = resolveTurnNumbers(j);
+  const specialNote = applySpecialEvent(j);
+
   state.enemyHp = Math.max(0, state.enemyHp - n.enemyDamage);
   const hpBefore = state.playerHp;
   state.playerHp = Math.min(state.maxHp, state.playerHp + n.heal);
@@ -168,12 +214,14 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false } = {}) {
   achOnTurnJudged({ ...j, playerHeal: healed }, { summon });
 
   const usedTxt = j.used.length ? `${t("usedCards")}: ${j.used.join(" · ")} → ` : "";
-  const gains = [`**${t("dmgEnemy")(n.enemyDamage)}**`];
+  const gains = [];
+  if (n.enemyDamage > 0) gains.push(`**${t("dmgEnemy")(n.enemyDamage)}**`);
   if (healed > 0) gains.push(`**${t("healYou")(healed)}**`);
-  const who = summon ? "🐉" : "🗣";
+  const who = summon ? "🐉" : flee ? "🏃" : "🗣";
   const youLine = `${who} **[T${state.turn} · ${t("logYou")}]** "${rawInput}" *(${state.playerHand.join(" ")})*`;
   const judgeTag = j.offline ? `🔌 ${t("offlineTag")}` : `⏱ ${sec}s`;
-  const gmLine = `⚖ **[${VERDICT_LABELS[j.verdict]} · ${judgeTag}]** ${j.judgment}\n   ${usedTxt}${gains.join(", ")}`;
+  const gainsStr = gains.length ? `${usedTxt}${gains.join(", ")}` : usedTxt;
+  const gmLine = `⚖ **[${VERDICT_LABELS[j.verdict]} · ${judgeTag}]** ${j.judgment}${gainsStr ? `\n   ${gainsStr}` : ""}${specialNote}`;
   const verdictClass = `verdict-${j.verdict.toLowerCase()}`;
 
   if (state.enemyHp <= 0) {
@@ -184,12 +232,45 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false } = {}) {
     return;
   }
 
+  // Handle successful or costly escape!
+  if (j.escape === "success" || j.escape === "costly") {
+    state.playerHp = Math.max(0, state.playerHp - n.playerDamage);
+    state.dmgTakenThisEnemy += n.playerDamage;
+    triggerCombatFX(n.enemyDamage, n.playerDamage, healed);
+
+    const costLine = n.playerDamage > 0
+      ? `\n👹 **【${state.enemyKanji}】** ${j.enemyAction} (**${t("dmgYou")(n.playerDamage)}**)`
+      : "";
+    const escLine = `\n🏃 **${t("escapeSuccessLog")(state.enemyKanji, state.enemyHp, state.enemyMaxHp)}**`;
+    logMd(`${youLine}\n${gmLine}${costLine}${escLine}`, verdictClass);
+    maybeShowTrialNudge(j);
+
+    if (state.playerHp <= 0) {
+      updateBattleHUD(false);
+      setTimeout(() => showRunEnd(false), 650);
+      return;
+    }
+
+    // Foe remains alive in this run with its current wounded HP!
+    state.woundedEnemies = state.woundedEnemies || {};
+    state.woundedEnemies[state.enemyKanji] = state.enemyHp;
+    state.phase = "path";
+    updateBattleHUD(false);
+    saveRunToStorage();
+    setTimeout(() => advance(), 550);
+    return;
+  }
+
+  const escapeFailNote = (j.escape === "failed" || flee)
+    ? `\n🚫 **${t("escapeFailedLog")}**`
+    : "";
+
   state.playerHp = Math.max(0, state.playerHp - n.playerDamage);
   state.dmgTakenThisEnemy += n.playerDamage;
   triggerCombatFX(n.enemyDamage, n.playerDamage, healed);
 
-  const enemyUsedTxt = j.enemyUsed.length ? `${t("usedCards")}: ${j.enemyUsed.join(" · ")} → ` : "";
-  const enemyLine = `👹 **【${state.enemyKanji}】** *(${t("enemyHandLog")}: ${state.enemyHand.join(" ")})* ${j.enemyAction}\n   ${enemyUsedTxt}**${t("dmgYou")(n.playerDamage)}**${DEFENSE_MARK[n.defense]}`;
+  const enemyUsedTxt = j.enemyUsed.length ? `${t("enemyIntentUsed")}: 【${j.enemyUsed.join("·")}】 → ` : "";
+  const enemyLine = `👹 **【${state.enemyKanji}】** *(${t("enemyHandLog")}: ${state.enemyHand.join(" ")})* ${j.enemyAction}\n   ${enemyUsedTxt}**${t("dmgYou")(n.playerDamage)}**${DEFENSE_MARK[n.defense]}${escapeFailNote}`;
   logMd(`${youLine}\n${gmLine}\n${enemyLine}`, verdictClass);
   maybeShowTrialNudge(j);
 
@@ -208,6 +289,10 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false } = {}) {
 
 function onEnemyDefeated() {
   state.kills += 1;
+  if (!state.defeatedEnemies.includes(state.enemyKanji)) state.defeatedEnemies.push(state.enemyKanji);
+  if (!state.seenEnemies.includes(state.enemyKanji)) state.seenEnemies.push(state.enemyKanji);
+  if (state.woundedEnemies) delete state.woundedEnemies[state.enemyKanji];
+
   achOnEnemyDefeated({
     kanji: state.enemyKanji,
     depthId: state.depthId,
@@ -217,10 +302,11 @@ function onEnemyDefeated() {
     kills: state.kills
   });
   const rank = state.enemyRank;
+  const isRunBoss = rank === "boss" || state.enemyKanji === state.runBoss;
   state.lastKill = { kanji: state.enemyKanji, turns: state.turn, dmgTaken: state.dmgTakenThisEnemy };
 
-  if (rank === "boss") {
-    state.phase = "reward"; // locks input until the clear card appears
+  if (isRunBoss) {
+    state.phase = "reward";
     updateBattleHUD(false);
     setTimeout(runCleared, 650);
     return;
@@ -231,7 +317,11 @@ function onEnemyDefeated() {
   saveRunToStorage();
   setTimeout(() => {
     showVictoryBeat();
-    offerRewards(rank === "elite" ? "elite" : "normal");
+    // First offer up to 5 stage/foe cards to scavenge into your bag, then offer spoils!
+    runEffects([
+      { scavenge: 5 },
+      { offerSpoils: rank === "elite" ? "elite" : "normal" }
+    ]);
   }, 450);
 }
 

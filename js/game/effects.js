@@ -32,18 +32,29 @@ function runEffects(list) {
     } else if (fx.reveal) {
       state.revealNext = true;
       logMd(t("fxReveal"), "fx-log");
+    } else if (fx.scavenge) {
+      const count = typeof fx.scavenge === "number" ? fx.scavenge : 5;
+      return beginPick("scavenge", scavengeChoices(count), queue);
     } else if (fx.addCard) {
-      if (fx.addCard === "pick") return beginPick("add", cardChoices(fx.choices || 3), queue);
+      if (fx.addCard === "pick") return beginPick("add", cardChoices(Math.min(5, fx.choices || 4)), queue);
       const k = fx.addCard === "random" ? cardChoices(1)[0] : fx.addCard;
       addCardToDeck(k);
       logMd(t("fxCardAdd")(k), "fx-log");
     } else if (fx.burn) {
-      if (fx.burn === "pick") return beginPick("burn", [...new Set(state.deck)], queue);
-      const k = state.deck[Math.floor(Math.random() * state.deck.length)];
-      removeCardFromDeck(k);
-      logMd(t("fxCardBurn")(k), "fx-log");
+      if (!state.deck.length) {
+        logMd(t("fxNothing"), "fx-log");
+        continue;
+      }
+      return beginPick("burn", [...new Set(state.deck)], queue, fx.then || []);
     } else if (fx.dup) {
+      if (!state.deck.length) {
+        logMd(t("fxNothing"), "fx-log");
+        continue;
+      }
       return beginPick("dup", [...new Set(state.deck)], queue);
+    } else if (fx.offerSpoils) {
+      updateBattleHUD(false);
+      return offerRewards(fx.offerSpoils);
     } else if (fx.battle) {
       const rank = fx.battle === "elite" ? "elite" : "normal";
       const forced = ["normal", "elite"].includes(fx.battle) ? null : fx.battle;
@@ -78,10 +89,15 @@ function changeMaxHp(delta) {
 
 /* ---- Card picks (pause the queue) ---- */
 
-const PICK_PROMPTS = { add: "pickAddPrompt", burn: "pickBurnPrompt", dup: "pickDupPrompt" };
+const PICK_PROMPTS = {
+  add: "pickAddPrompt",
+  burn: "pickBurnPrompt",
+  dup: "pickDupPrompt",
+  scavenge: "pickScavengePrompt"
+};
 
-function beginPick(mode, choices, rest) {
-  state.pending = { mode, choices, rest };
+function beginPick(mode, choices, rest, thenEffects = []) {
+  state.pending = { mode, choices, selected: [], rest, thenEffects };
   saveRunToStorage();
   updateBattleHUD(false);
   openPendingPick();
@@ -90,25 +106,92 @@ function beginPick(mode, choices, rest) {
 function openPendingPick() {
   const p = state.pending;
   if (!p) return;
+
+  if (p.mode === "scavenge") {
+    const sel = p.selected || [];
+    const actions = [];
+    if (sel.length > 0) {
+      actions.push({
+        label: t("scavengeTakeBtn")(sel.length),
+        gold: true,
+        onClick: () => resolveScavengePick(sel.map(idx => p.choices[idx]))
+      });
+    } else {
+      actions.push({
+        label: t("scavengeTakeAllBtn")(p.choices.length),
+        onClick: () => resolveScavengePick([...p.choices])
+      });
+    }
+    actions.push({
+      label: t("scavengeLeaveBtn"),
+      onClick: () => resolveScavengePick([])
+    });
+
+    openPicker({
+      title: t("pickScavengePrompt"),
+      desc: t("pickScavengeDesc"),
+      cards: p.choices,
+      multiSelect: true,
+      selectedIndices: sel,
+      locked: true,
+      onCard: (_k, idx) => {
+        const cur = p.selected || [];
+        if (cur.includes(idx)) p.selected = cur.filter(x => x !== idx);
+        else p.selected = [...cur, idx];
+        saveRunToStorage();
+        openPendingPick();
+      },
+      actions
+    });
+    return;
+  }
+
+  // Note: "burn" and "dup" do NOT show a free Skip button that bypasses the cost!
+  const actions = p.mode === "add"
+    ? [{ label: t("skipBtn"), onClick: () => resolvePick(null) }]
+    : [];
+
   openPicker({
     title: t(PICK_PROMPTS[p.mode]),
     cards: p.choices,
     locked: true,
     onCard: (k) => resolvePick(k),
-    actions: [{ label: t("skipBtn"), onClick: () => resolvePick(null) }]
+    actions
   });
 }
 
+function resolveScavengePick(pickedList) {
+  const { rest } = state.pending;
+  state.pending = null;
+  closePicker();
+  if (pickedList && pickedList.length) {
+    pickedList.forEach(k => addCardToDeck(k));
+    logMd(t("fxCardAdd")(pickedList.join(" · ")), "fx-log");
+  } else {
+    logMd(t("fxNothing"), "fx-log");
+  }
+  updateBattleHUD(false);
+  runEffects(rest);
+}
+
 function resolvePick(k) {
-  const { mode, rest } = state.pending;
+  const { mode, rest, thenEffects } = state.pending;
   state.pending = null;
   closePicker();
   if (k) {
     if (mode === "add") { addCardToDeck(k); logMd(t("fxCardAdd")(k), "fx-log"); }
-    if (mode === "burn") { removeCardFromDeck(k); logMd(t("fxCardBurn")(k), "fx-log"); }
+    if (mode === "burn") {
+      removeCardFromDeck(k);
+      logMd(t("fxCardBurn")(k), "fx-log");
+      if (thenEffects && thenEffects.length) {
+        runEffects([...thenEffects, ...rest]);
+        return;
+      }
+    }
     if (mode === "dup") { addCardToDeck(k); logMd(t("fxCardDup")(k), "fx-log"); }
   } else {
     logMd(t("fxNothing"), "fx-log");
   }
+  updateBattleHUD(false);
   runEffects(rest);
 }

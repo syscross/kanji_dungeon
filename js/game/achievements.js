@@ -213,14 +213,21 @@ function renderAchievementsModal() {
     body.innerHTML = `<p class="ach-hint">${escapeHtml(t("bestiaryHint"))}</p>` +
       Object.keys(KANKEN_DATA).map(did => {
         const tiles = items.filter(a => a.depthId === did).map(a => {
-          const ts = config.achievements[a.id];
-          const date = ts ? new Date(ts).toLocaleDateString() : "";
-          return `<div class="boss-tile${ts ? " seen" : ""}" title="${escapeHtml(date)}">${escapeHtml(a.kanji)}</div>`;
+          const killedTs = config.achievements[a.id];
+          const seenTs = config.seenFoes && config.seenFoes[a.kanji];
+          if (killedTs) {
+            const date = new Date(killedTs).toLocaleDateString();
+            return `<div class="boss-tile seen" title="${escapeHtml(a.kanji)} (${escapeHtml(date)})">${escapeHtml(a.kanji)}</div>`;
+          }
+          if (seenTs) {
+            return `<div class="boss-tile encountered" title="${escapeHtml(a.kanji)}">${escapeHtml(a.kanji)}</div>`;
+          }
+          return `<div class="boss-tile unknown" title="?">？</div>`;
         }).join("");
-        const seen = items.filter(a => a.depthId === did && config.achievements[a.id]).length;
+        const killed = items.filter(a => a.depthId === did && config.achievements[a.id]).length;
         const total = items.filter(a => a.depthId === did).length;
         return `<div class="ach-group">
-          <div class="ach-group-title">${depthNumStr(did)} ${escapeHtml(depthName(did))} <small>${seen}/${total}</small></div>
+          <div class="ach-group-title">${depthNumStr(did)} ${escapeHtml(depthName(did))} <small>${killed}/${total}</small></div>
           <div class="boss-grid">${tiles}</div>
         </div>`;
       }).join("");

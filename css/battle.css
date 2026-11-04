@@ -392,6 +392,13 @@ body.kb-open .gm-box { min-height: 48px; }
 }
 .fork-kanji { font-family: 'Noto Serif JP', serif; font-size: 2.2rem; font-weight: 900; color: var(--gold); line-height: 1.1; }
 .fork-omen { font-size: 0.7rem; color: var(--muted); }
+.fork-cards-hint {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.68rem;
+  color: #8fa6bc;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
 .fork-reveal { position: absolute; top: 4px; right: 6px; font-size: 0.9rem; }
 .dock-action .boss-door { flex-basis: 100%; padding: 16px; font-family: 'Noto Serif JP', serif; font-size: 1rem; border-color: var(--crimson); color: #ff8a95; }
 
@@ -416,6 +423,93 @@ body.kb-open .gm-box { min-height: 48px; }
   align-items: center;
   justify-content: center;
 }
+
+/* Run encounter roster bar (top of battle view) */
+.run-roster-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  background: rgba(11, 13, 20, 0.85);
+  border: 1px solid #261b20;
+  flex-shrink: 0;
+  min-height: 28px;
+  overflow-x: auto;
+}
+.rr-mobs {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.rr-chip {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid #2a2d3a;
+  background: #0e1018;
+  color: #464b59;
+  white-space: nowrap;
+}
+.rr-chip.unknown {
+  color: #464b59;
+  border-color: #232632;
+}
+.rr-chip.seen {
+  color: #9ca3b5;
+  border-color: #5b6273;
+  background: #161924;
+}
+.rr-chip.killed {
+  color: #ff5a6b;
+  border-color: var(--crimson);
+  background: rgba(215, 58, 73, 0.14);
+  text-shadow: 0 0 8px rgba(215, 58, 73, 0.45);
+}
+.rr-chip.boss {
+  margin-left: auto;
+  padding: 1px 8px;
+  font-weight: 900;
+}
+
+/* Hand card source (Bag vs Stage) & Kanken Grade Tier colors */
+.kanji-card.src-bag {
+  border-color: #b58d3d;
+  background: linear-gradient(165deg, #2b2218 0%, #110e0b 100%);
+}
+.kanji-card.src-stage {
+  border-color: #3b5a6f;
+  background: linear-gradient(165deg, #172432 0%, #0d1218 100%);
+}
+.kanji-card .src-badge {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0 3px;
+  border-radius: 2px;
+  line-height: 1.3;
+  pointer-events: none;
+}
+.kanji-card.src-bag .src-badge {
+  color: var(--gold);
+  background: rgba(229, 192, 123, 0.14);
+  border: 1px solid rgba(229, 192, 123, 0.35);
+}
+.kanji-card.src-stage .src-badge {
+  color: #8ab4d0;
+  background: rgba(90, 140, 175, 0.14);
+  border: 1px solid rgba(90, 140, 175, 0.35);
+}
+.kanji-card.tier-edu .char { color: #8ce0a8; }
+.kanji-card.tier-common .char { color: #f5b066; }
+.kanji-card.tier-abyss .char { color: #ff5c6c; text-shadow: 0 0 12px rgba(255, 77, 94, 0.5); }
+.kanji-card.multi .char { font-size: 1.5rem; writing-mode: vertical-rl; }
 
 /* Stage card in neutral (non-combat) mode, rank mark */
 .boss-card.neutral { border-color: #6e5931; box-shadow: 0 0 18px rgba(229,192,123,0.18); cursor: default; }

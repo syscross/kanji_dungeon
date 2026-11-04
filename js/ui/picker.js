@@ -1,18 +1,13 @@
 /*
- * One modal for every "choose a kanji" moment: the starting-deck draft, spoils/event picks
- * (add / burn / copy), and the read-only deck viewer.
- *
- * openPicker({ title, desc, cards, onCard, actions, locked, onClose })
- *   cards   — kanji strings (duplicates allowed)
- *   onCard  — (kanji, index) => void; omit for read-only
- *   actions — [{ label, onClick, gold }]
- *   locked  — true: ✕ / ESC / back cannot close it (a choice is required)
- *   onClose — called when the player dismisses it with ✕ / ESC / back
+ * One modal for every "choose a kanji" moment:
+ *  - Stage card scavenge (multi-select up to 5 cards in a single centered row)
+ *  - Spoils / event picks (add / burn / copy)
+ *  - Read-only bag (deck) viewer
  */
 
 let pickerOnClose = null;
 
-function openPicker({ title, desc = "", cards, onCard = null, actions = [], locked = false, onClose = null }) {
+function openPicker({ title, desc = "", cards, onCard = null, multiSelect = false, selectedIndices = [], actions = [], locked = false, onClose = null }) {
   const modal = $("pick-modal");
   pickerOnClose = onClose;
   modal.dataset.locked = locked ? "1" : "";
@@ -23,14 +18,20 @@ function openPicker({ title, desc = "", cards, onCard = null, actions = [], lock
 
   const grid = $("pick-grid");
   grid.innerHTML = "";
-  grid.classList.toggle("readonly", !onCard);
+  grid.classList.toggle("readonly", !onCard && !multiSelect);
+
   cards.forEach((k, i) => {
     const tile = document.createElement("button");
-    tile.className = "pick-tile";
+    const tier = typeof getKanjiTier === "function" ? getKanjiTier(k) : "edu";
+    const isSel = selectedIndices.includes(i);
+    tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}`;
     tile.textContent = k;
     tile.classList.toggle("multi", [...k].length > 1);
-    if (onCard) tile.onclick = () => { playClickSfx(); onCard(k, i); };
-    else tile.disabled = true;
+    if (onCard) {
+      tile.onclick = () => { playClickSfx(); onCard(k, i, tile); };
+    } else {
+      tile.disabled = true;
+    }
     grid.appendChild(tile);
   });
 
@@ -59,26 +60,19 @@ function dismissPicker() {
   if (cb) cb();
 }
 
-/* ---- Starting deck draft ---- */
-
-function openDraftPicker() {
-  openPicker({
-    title: t("draftTitle"),
-    desc: t("draftDesc"),
-    cards: state.draftOffer,
-    onClose: cancelDraft,
-    actions: [
-      { label: t("draftReroll"), onClick: () => { state.draftOffer = rollDraftOffer(); saveRunToStorage(); openDraftPicker(); } },
-      { label: t("draftConfirm"), gold: true, onClick: confirmDraft }
-    ]
-  });
-}
-
-/* ---- Deck viewer ---- */
+/* ---- Bag (Deck) viewer ---- */
 
 function openDeckViewer() {
   playClickSfx();
   closeDropdowns();
   const sorted = [...state.deck].sort((a, b) => a.localeCompare(b, "ja"));
-  openPicker({ title: t("deckTitle")(state.deck.length), cards: sorted });
+  const stagePreview = (state.stageCards || []).join(" · ");
+  const desc = state.deck.length === 0
+    ? t("bagEmptyDesc")(stagePreview)
+    : t("bagDesc")(stagePreview);
+  openPicker({
+    title: t("deckTitle")(state.deck.length),
+    desc,
+    cards: sorted
+  });
 }

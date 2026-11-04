@@ -1,4 +1,4 @@
-/* Battle screen rendering: HUD, cards, the run log, combat effects, judging spinner, dock actions. */
+/* Battle screen rendering: HUD, run encounter strip, cards, the run log, combat effects, judging spinner, dock actions. */
 
 const LOG_DOM_CAP = 250;   // entries kept on screen (older ones are dropped from the DOM)
 const LOG_HISTORY_CAP = 300;
@@ -27,9 +27,47 @@ function stageCardContent() {
   if (state.phase === "battle" || (state.phase === "reward" && state.enemyKanji)) {
     return { kanji: state.enemyKanji, neutral: false };
   }
-  if (state.phase === "event" && EVENTS[state.eventId]) return { kanji: EVENTS[state.eventId].kanji, neutral: true };
-  if (state.phase === "draft") return { kanji: "札", neutral: true };
+  if (state.phase === "event") {
+    const ev = typeof getActiveEventDef === "function" ? getActiveEventDef() : EVENTS[state.eventId];
+    if (ev) return { kanji: ev.kanji, neutral: true };
+  }
   return { kanji: state.sign || "道", neutral: true };
+}
+
+/* Top bar showing this run's encountered/slain foes (left) and the run's boss as ?/gray/red (right). */
+function renderRunRosterBar() {
+  const bar = $("b-run-roster");
+  if (!bar || !KANKEN_DATA[state.depthId]) return;
+  const roster = depthRoster(state.depthId);
+  const runBoss = state.runBoss || roster.boss;
+  const mobs = [...new Set([...roster.normal, ...roster.elite])].filter(k => k !== runBoss);
+
+  const mobHtml = mobs.map(k => {
+    const killed = (state.defeatedEnemies || []).includes(k);
+    const seen = (state.encounteredEnemies || []).includes(k);
+    if (killed) {
+      return `<span class="rr-chip killed" title="${escapeHtml(k)} (斬)">${escapeHtml(k)}</span>`;
+    }
+    if (seen) {
+      const wHp = state.woundedEnemies && state.woundedEnemies[k];
+      const tip = wHp ? `${k} (HP ${wHp})` : k;
+      return `<span class="rr-chip seen" title="${escapeHtml(tip)}">${escapeHtml(k)}</span>`;
+    }
+    return `<span class="rr-chip unknown" title="?">？</span>`;
+  }).join("");
+
+  const bossKilled = (state.defeatedEnemies || []).includes(runBoss);
+  const bossSeen = Boolean(state.bossEncountered || (state.encounteredEnemies || []).includes(runBoss));
+  let bossHtml = `<span class="rr-chip boss unknown" title="Boss: ?">主 ？</span>`;
+  if (bossKilled) {
+    bossHtml = `<span class="rr-chip boss killed" title="Boss: ${escapeHtml(runBoss)} (斬)">主 ${escapeHtml(runBoss)}</span>`;
+  } else if (bossSeen) {
+    const bHp = state.woundedEnemies && state.woundedEnemies[runBoss];
+    const tip = bHp ? `Boss: ${runBoss} (HP ${bHp})` : `Boss: ${runBoss}`;
+    bossHtml = `<span class="rr-chip boss seen" title="${escapeHtml(tip)}">主 ${escapeHtml(runBoss)}</span>`;
+  }
+
+  bar.innerHTML = `<div class="rr-mobs">${mobHtml}</div>${bossHtml}`;
 }
 
 function updateBattleHUD(animateCards = false) {
@@ -42,11 +80,15 @@ function updateBattleHUD(animateCards = false) {
   $("b-sign").textContent = state.sign || "道";
   $("b-sign").title = signInfo ? pickLang(signInfo.omen) : "";
   updateTimerBadge();
+  renderRunRosterBar();
 
   const inFight = state.phase === "battle";
   const card = stageCardContent();
-  $("b-boss-kanji").textContent = card.kanji;
-  $("b-boss-kanji").classList.toggle("multi", [...card.kanji].length > 1);
+  const bossKanjiEl = $("b-boss-kanji");
+  bossKanjiEl.textContent = card.kanji;
+  bossKanjiEl.classList.toggle("multi", [...card.kanji].length > 1);
+  const bossTier = typeof getKanjiTier === "function" ? getKanjiTier(card.kanji) : "edu";
+  bossKanjiEl.dataset.tier = bossTier;
   $("b-boss-card").classList.toggle("neutral", card.neutral);
   $("enemy-stage").classList.toggle("no-foe", card.neutral);
   $("b-rank").textContent = RANK_MARK[state.enemyRank] || "";
@@ -74,23 +116,40 @@ function updateRerollChip() {
 function renderCardRow(rowId, cards, isEnemy, animate) {
   const row = $(rowId);
   row.innerHTML = "";
-  cards.forEach((k, i) => row.appendChild(makeCardEl(k, isEnemy, i, animate)));
+  cards.forEach((k, i) => {
+    const source = !isEnemy && state.playerHandSources ? state.playerHandSources[i] : null;
+    row.appendChild(makeCardEl(k, isEnemy, i, animate, source));
+  });
 }
 
-function makeCardEl(k, isEnemy = false, idx = 0, animate = true) {
+function dictUrlFor(k) {
+  if (config.lang === "KO") return `https://hanja.dict.naver.com/#/search?query=${encodeURIComponent(k)}`;
+  return `https://jisho.org/search/${encodeURIComponent(k)}%20%23kanji`;
+}
+
+function makeCardEl(k, isEnemy = false, idx = 0, animate = true, source = null) {
   const el = document.createElement("div");
-  el.className = "kanji-card" + (isEnemy ? " enemy-sm" : "");
+  const tier = typeof getKanjiTier === "function" ? getKanjiTier(k) : "edu";
+  const srcCls = !isEnemy ? (source === "bag" ? " src-bag" : " src-stage") : "";
+  const multiCls = [...String(k)].length > 1 ? " multi" : "";
+  el.className = `kanji-card tier-${tier}${isEnemy ? " enemy-sm" : ""}${srcCls}${multiCls}`;
   if (animate) el.style.animationDelay = `${idx * 65}ms`;
   else el.style.animation = "none";
-  // Keep the text field focused (and the on-screen keyboard up) when a card is tapped mid-typing.
+
   const keepFocus = (e) => { if (document.activeElement === $("b-input")) e.preventDefault(); };
   el.addEventListener("pointerdown", keepFocus);
   el.addEventListener("mousedown", keepFocus);
-  el.onclick = () => {
+  el.onclick = (e) => {
+    if (e.target.closest(".dict-link")) return;
     playClickSfx();
     insertKanji(k);
   };
-  el.innerHTML = `<div class="char">${escapeHtml(k)}</div>${!isEnemy ? `<span class="key-hint">Alt+${idx + 1}</span>` : ""}`;
+
+  const srcBadge = !isEnemy
+    ? `<span class="src-badge" title="${source === "bag" ? t("bagCardTip") : t("stageCardTip")(state.sign)}">${source === "bag" ? "★" : escapeHtml(state.sign || "地")}</span>`
+    : "";
+  const dictLink = `<a class="dict-link" href="${dictUrlFor(k)}" target="_blank" rel="noopener" title="🔍">${!isEnemy ? "🔍" : ""}</a>`;
+  el.innerHTML = `${srcBadge}${dictLink}<div class="char">${escapeHtml(k)}</div>${!isEnemy ? `<span class="key-hint">Alt+${idx + 1}</span>` : ""}`;
   return el;
 }
 

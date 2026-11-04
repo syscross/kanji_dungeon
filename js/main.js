@@ -10,6 +10,7 @@ async function initApp() {
 
   const res = await fetch("/kanken_data.json");
   KANKEN_DATA = await res.json();
+  if (typeof buildKanjiDepthMap === "function") buildKanjiDepthMap();
 
   buildAchievementCatalog();
   migrateLegacyAchievements();

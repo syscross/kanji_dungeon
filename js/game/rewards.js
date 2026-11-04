@@ -32,7 +32,7 @@ function rewardEffects(o) {
     case "maxhp": return [{ maxHp: p.n }];
     case "summon": return [{ summonReset: true }];
     case "tokens": return [{ tokens: p.n }];
-    case "card": return [{ addCard: "pick", choices: p.choices }];
+    case "card": return [{ scavenge: p.choices || 5 }];
     case "burn": return [{ burn: "pick" }];
     default: return [];
   }
@@ -41,6 +41,7 @@ function rewardEffects(o) {
 function chooseReward(i) {
   playClickSfx();
   const o = state.offer[i];
+  if (!o) return;
   state.offer = [];
   setDockActions([]);
   logMd(`→ ${REWARDS[o.id].kanji} ${pickLang(REWARDS[o.id].label)(o.params)}`, "choice-log");

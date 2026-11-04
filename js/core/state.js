@@ -10,12 +10,13 @@ const STORAGE = {
   customInst: "kd_custom_inst",
   lang: "kd_lang",
   achievements: "kd_achievements",
+  seenFoes: "kd_seen_foes",
   stats: "kd_stats",
   records: "kd_records",
   savedRun: "kd_saved_run"
 };
 
-const RUN_VERSION = 2; // bump when the saved-run shape changes; older saves are discarded
+const RUN_VERSION = 3; // bump when the saved-run shape changes; older saves are discarded
 
 function readJson(key, fallback) {
   try {
@@ -49,13 +50,15 @@ let config = {
   customInst: localStorage.getItem(STORAGE.customInst) || "",
   lang: localStorage.getItem(STORAGE.lang) || "KO",
   achievements: readJson(STORAGE.achievements, {}),
+  seenFoes: readJson(STORAGE.seenFoes, {}),
   stats: readJson(STORAGE.stats, { kills: 0, runs: 0 }),
   records: readJson(STORAGE.records, {})
 };
 
 /*
- * One descent. `phase` drives what the screen shows:
- *   draft → (path ↔ battle → reward | event)* → boss battle → cleared | dead
+ * One descent. Each run is completely isolated and starts empty-handed (`deck: []`).
+ * `phase` drives what the screen shows:
+ *   path ↔ battle → reward | event → boss battle → cleared | dead
  */
 function createRunState() {
   return {
@@ -63,33 +66,41 @@ function createRunState() {
     active: false,
     depthId: "depth_1",
     runNo: 0,
-    phase: "draft",
-    step: 0,                 // 1..PATH_STEPS; the last step is the boss
-    sign: "道",              // sign kanji of the current node
+    phase: "path",
+    step: 0,                 // 0 at start; steps 1..PATH_STEPS
+    sign: "道",              // sign kanji of the current stage
     fork: [],                // [{ sign, outcome, revealed }]
     revealNext: false,
     eventId: null,
     lastEventId: null,
+    quizKanji: "",
     offer: [],               // pending spoils [{ id, params }]
-    pending: null,           // { mode: "add"|"burn"|"dup", choices, rest } — a card pick in progress
+    pending: null,           // { mode: "add"|"burn"|"dup"|"scavenge", choices, selected, rest }
 
-    deck: [],
-    drawPile: [],
-    discard: [],
+    deck: [],                // cards the player has scavenged/kept in their bag this run
+    stageCards: [],          // base environment cards provided by the current stage
+    drawPile: [],            // [{ kanji, source: "bag"|"stage" }]
+    discard: [],             // [{ kanji, source: "bag"|"stage" }]
     draftOffer: [],
-    playerHand: [],
-    enemyHand: [],
+    playerHand: [],          // ["火", ...]
+    playerHandSources: [],   // ["bag"|"stage", ...] matching playerHand indices
+    enemyHand: [],           // 1-2 telegraphed Intent Kanji for the foe
 
     maxHp: 100,
     playerHp: 100,
-    rerollTokens: 0,
+    rerollTokens: 1,         // start with 1 free reroll token
     summonCost: 10,          // escalates for the whole descent; spoils / shrines reset it
 
+    runBoss: "",             // the boss assigned to this run
+    bossEncountered: false,  // true once the player has laid eyes on runBoss this run
     enemyKanji: "",
     enemyRank: "normal",
     enemyHp: 0,
     enemyMaxHp: 0,
-    seenEnemies: [],
+    seenEnemies: [],         // legacy compat: defeated enemies
+    encounteredEnemies: [],  // enemies encountered in this run (shown gray if not yet killed)
+    defeatedEnemies: [],     // enemies killed in this run (shown red, never respawn this run)
+    woundedEnemies: {},      // { [kanji]: remainingHp } for foes escaped from in this run
     lastKill: null,          // { kanji, turns, dmgTaken } for the kill card
     turn: 1,                 // turns against the current foe
     totalTurns: 0,
@@ -122,6 +133,18 @@ function persistConfig() {
 
 function persistAchievements() {
   localStorage.setItem(STORAGE.achievements, JSON.stringify(config.achievements));
+}
+
+function persistSeenFoes() {
+  localStorage.setItem(STORAGE.seenFoes, JSON.stringify(config.seenFoes));
+}
+
+function recordFoeEncountered(kanji) {
+  if (!kanji) return;
+  if (!config.seenFoes[kanji]) {
+    config.seenFoes[kanji] = Date.now();
+    persistSeenFoes();
+  }
 }
 
 function persistStats() {
