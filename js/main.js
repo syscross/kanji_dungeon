@@ -16,6 +16,8 @@ async function initApp() {
   loadSavedRunFromStorage();
   applyLocalization();
   setupKeyboardNavigation();
+  setupInstall();
+  restoreViewFromHash();
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".dropdown")) closeDropdowns();
@@ -36,6 +38,14 @@ async function initApp() {
       updateTimerBadge();
     }
   }, 1000);
+}
+
+/* A refresh keeps you where you were: #battle resumes the saved run, #select reopens depth select. */
+function restoreViewFromHash() {
+  const view = location.hash.replace("#", "");
+  if (view === "battle" && hasActiveRun()) resumeSavedRun();
+  else if (view === "select") switchDomView("select", true);
+  else if (view) history.replaceState(null, "", location.pathname);
 }
 
 initApp();

@@ -56,7 +56,7 @@ function renderDepthSpine() {
     const seen = d.enemies.filter(k => config.achievements[`boss_${k}`]).length;
     const node = document.createElement("div");
     node.className = "abyss-node";
-    node.onclick = () => startRun(did);
+    node.onclick = () => requestStartRun(did);
     node.innerHTML = `
       <div class="node-num">${numStr}</div>
       <div class="node-body">

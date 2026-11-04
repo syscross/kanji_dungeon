@@ -23,6 +23,9 @@ js/ui/hud.js          battle HUD, cards, GM log, combat FX, judging spinner
 js/ui/viewport.js     visible-viewport sizing for on-screen keyboards (--app-h, kb-open)
 js/ui/keyboard.js     desktop keyboard navigation
 js/ui/settings.js     settings modal
+js/ui/connect.js      trial mode detection, quick Gemini connect modal, run-start gate
+js/ui/install.js      PWA install button (beforeinstallprompt / iOS instructions), SW registration
+sw.js, manifest.json, icons/   PWA shell (network-first cache; cross-origin untouched)
 js/ui/screens.js      title, guide, depth select, game over
 js/game/achievements.js  catalog build, unlock + event hooks, achievements modal
 js/game/run.js        start / spawn / deal / pause / resume / abandon
@@ -31,7 +34,9 @@ js/main.js            bootstrap
 ```
 
 ## 3. Judging contract (`js/ai/gm.js`)
-- The GM reads intent generously: a card counts as used if written **or** clearly invoked by meaning.
+- The GM judges only what the player wrote — it must not invent the player's tactics. Bare Kanji input (`bareKanjiDump`) is forced to FIZZLE.
+- A card counts as used if written **or** invoked by meaning (native words count). The GM fills `card_roles` for every hand card (role or null) — this per-card check helps weak models.
+- The enemy wields only enemy-hand Kanji (`enemy_used_kanji`, filtered in code) or attacks plainly with its own nature. Both hand and used cards are shown in the log.
 - The GM returns a **verdict** (`FIZZLE | WEAK | SOLID | CLEVER | MASTERFUL`) plus numbers inside that verdict's band.
 - `normalizeJudgment()` enforces per-verdict damage/heal caps (`VERDICT_DAMAGE_HINT[].cap`, `VERDICT_HEAL_CAP`), filters `used_kanji` to the hand, and fills defaults. FIZZLE always deals 0.
 - Enemy counter baseline scales with depth (`enemyCounterBaseline`).
@@ -46,5 +51,8 @@ js/main.js            bootstrap
 - Stored as `{ id: timestamp }` in `kd_achievements`; total kills in `kd_stats`.
 - Old ids `dog_slayer` / `heaven_defier` migrate to `boss_犬` / `boss_天`.
 
-## 6. Known limits
-- Free Keyless endpoint (pollinations) allows ~1 reply / 45 s per IP. Excess turns fall back to the offline engine, marked `🔌 offline GM` in the log.
+## 6. Trial mode vs. keys
+- `free_keyless` = trial. Starting a run in trial mode opens the quick-connect modal once per session; the battle bar shows `🔌 Trial`; the first offline verdict in a run shows a connect CTA.
+
+## 7. Known limits
+- Trial endpoint (pollinations `openai`) allows ~1 reply / 45 s per IP and is a weak reasoning model (needs `max_tokens` headroom; often misses native-word meanings and ignores the output language). Excess turns fall back to the offline engine, marked `🔌 offline GM`.

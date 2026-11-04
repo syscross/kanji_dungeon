@@ -6,6 +6,12 @@
   <meta name="theme-color" content="#090a0f" />
   <title>KANJI DUNGEON 【漢字地獄】</title>
   <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="漢字地獄" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
@@ -32,6 +38,44 @@
       <div class="modal-actions">
         <button class="btn btn-gold" data-i18n="confirm" onclick="closeConfirmModal(true)">Confirm</button>
         <button class="btn" data-i18n="cancel" onclick="closeConfirmModal(false)">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info (iOS install instructions etc.) -->
+  <div class="modal-backdrop" id="info-modal">
+    <div class="modal-card">
+      <div class="modal-title" id="info-title"></div>
+      <div class="modal-desc" id="info-desc"></div>
+      <div class="modal-actions">
+        <button class="btn btn-gold" onclick="closeModal('info-modal')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI connect (quick Gemini key setup) -->
+  <div class="modal-backdrop" id="connect-modal">
+    <div class="modal-card wide">
+      <div class="modal-head">
+        <div class="modal-title" data-i18n="connectTitle">【Connect an AI GM】</div>
+        <button class="btn icon-btn" onclick="closeConnectModal(false)">✕</button>
+      </div>
+      <p class="modal-desc" data-i18n="connectDesc"></p>
+      <div class="connect-step">
+        <span data-i18n="connectStep1">1. Get a free key</span>
+        <a class="btn btn-gold" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio ↗</a>
+      </div>
+      <div class="field-group">
+        <label data-i18n="connectStep2">2. Paste it here</label>
+        <input type="password" id="c-key" class="input-ctrl" placeholder="AIza…" autocomplete="off" />
+      </div>
+      <div class="connect-status" id="c-status"></div>
+      <div class="connect-actions">
+        <button class="btn btn-gold connect-main" id="c-save-btn" data-i18n="connectSave" onclick="connectGeminiKey()">🔗 Test & connect</button>
+        <div class="connect-sub">
+          <button class="btn" data-i18n="connectOther" onclick="closeConnectModal(false); openSettingsModal()">Other providers…</button>
+          <button class="btn" data-i18n="connectTrial" onclick="closeConnectModal(true)">Continue in trial mode</button>
+        </div>
       </div>
     </div>
   </div>
@@ -171,15 +215,17 @@
       </div>
 
       <div class="saved-run-banner" id="saved-run-banner" onclick="handlePlayGameClick()"></div>
+      <div class="trial-line" id="title-trial" data-i18n="titleTrialLine" onclick="openConnectModal()"></div>
 
       <div class="title-menu">
         <button class="menu-btn" id="play-btn" onclick="handlePlayGameClick()">⚔ PLAY GAME</button>
+        <button class="menu-btn" id="install-btn" data-i18n="installBtn" onclick="handleInstallClick()" style="display:none">📲 Install app</button>
         <button class="menu-btn" onclick="openSettingsModal()">⚙ <span data-i18n="settings">Settings</span></button>
         <button class="menu-btn" data-i18n="exit" onclick="promptExitGame()">🚪 EXIT</button>
       </div>
 
       <button class="corner-btn left" data-i18n-title="guideBtn" onclick="openGuideModal()">📖</button>
-      <button class="corner-btn right" data-i18n-title="achBtn" onclick="openAchievementsModal()">🏆<span class="count-badge" id="ach-count">0</span></button>
+      <button class="corner-btn right" id="ach-corner-btn" data-i18n-title="achBtn" onclick="openAchievementsModal()">🏆</button>
     </div>
 
     <!-- VIEW: DEPTH SELECT -->
@@ -201,6 +247,7 @@
           <span class="badge" id="b-turn">T1</span>
           <span class="badge" id="b-streak">🔥 0</span>
           <span class="badge" id="b-timer">⏱ 00:00</span>
+          <button class="badge trial-badge" id="b-trial" data-i18n="trialBadge" onclick="openConnectModal()">🔌 Trial</button>
         </div>
         <div class="dropdown align-right" id="battle-menu">
           <button class="btn icon-btn" data-i18n-title="menuBtn" onclick="toggleDropdown('battle-menu', event)">⋮</button>
@@ -281,6 +328,8 @@
   <script src="/js/ui/viewport.js"></script>
   <script src="/js/ui/keyboard.js"></script>
   <script src="/js/ui/settings.js"></script>
+  <script src="/js/ui/connect.js"></script>
+  <script src="/js/ui/install.js"></script>
   <script src="/js/ui/screens.js"></script>
   <script src="/js/game/achievements.js"></script>
   <script src="/js/game/run.js"></script>

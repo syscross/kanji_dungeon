@@ -46,7 +46,7 @@ button { font-family: inherit; }
   width: 100%;
   max-width: 960px;
   margin: 0 auto;
-  padding: 10px 16px calc(10px + var(--safe-b));
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px calc(10px + var(--safe-b));
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -285,6 +285,6 @@ textarea { min-height: 70px; resize: vertical; user-select: text; }
   .input-ctrl, select, textarea, .prompt-input { font-size: 16px; }
 }
 @media (max-width: 680px) {
-  .app-container { padding: 6px 8px calc(6px + var(--safe-b)); gap: 6px; }
+  .app-container { padding: calc(6px + env(safe-area-inset-top, 0px)) 8px calc(6px + var(--safe-b)); gap: 6px; }
   .modal-card { padding: 16px; }
 }

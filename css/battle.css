@@ -18,6 +18,9 @@
   overflow: hidden;
   font-size: 0.8rem;
 }
+.trial-badge { cursor: pointer; color: #9aa3b5; border-style: dashed; font-family: inherit; }
+.trial-badge:hover { color: var(--gold); border-color: var(--gold); }
+.log-cta { display: block; margin-top: 8px; }
 .bb-depth {
   color: var(--crimson);
   font-family: 'Noto Serif JP', serif;

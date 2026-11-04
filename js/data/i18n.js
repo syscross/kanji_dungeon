@@ -107,8 +107,6 @@ const I18N = {
 
     leNoCard: (hand) => `You cast into the void without using any card (${hand}). Weave your cards' meanings into the action!`,
     leDump: "You merely recited Kanji names. With no action to give them shape, the spell collapses.",
-    leHit: (cards, boss) => `The power of 【${cards}】 takes shape and strikes 【${boss}】!`,
-    leCounter: (boss, card) => `【${boss}】 retaliates with the force of 【${card}】!`,
     leHint: (hand, enemy, boss) => `• Your hand: [ ${hand} ] — tap 🔍 on a card to look it up.\n• Enemy hand: [ ${enemy} ]\n• Tip: describe a concrete action that uses each card's meaning against 【${boss}】.\n• Tip: block or counter what the enemy's cards suggest.`
   },
 
@@ -210,8 +208,6 @@ const I18N = {
 
     leNoCard: (hand) => `손패(${hand})를 하나도 쓰지 않고 허공에 주문을 외웠습니다. 카드의 뜻을 행동에 녹여내세요!`,
     leDump: "한자 이름만 늘어놓았을 뿐, 형상을 부여할 행동이 없어 주문이 붕괴했습니다.",
-    leHit: (cards, boss) => `【${cards}】의 힘이 형상을 갖추어 【${boss}】에게 적중했습니다!`,
-    leCounter: (boss, card) => `【${boss}】이(가) 【${card}】의 힘으로 반격합니다!`,
     leHint: (hand, enemy, boss) => `• 내 패: [ ${hand} ] — 카드의 🔍로 사전을 열어보세요.\n• 적의 패: [ ${enemy} ]\n• 팁: 각 카드의 뜻을 살린 구체적인 행동으로 【${boss}】를 공략하세요.\n• 팁: 적의 패가 암시하는 공격을 막거나 되받아치면 유리합니다.`
   },
 
@@ -313,8 +309,6 @@ const I18N = {
 
     leNoCard: (hand) => `手札(${hand})を一枚も使わず虚空に呪文を唱えた。カードの意味を行動に織り込め！`,
     leDump: "漢字の名を並べただけで、形を与える行動がない。呪文は崩壊した。",
-    leHit: (cards, boss) => `【${cards}】の力が形を成し、【${boss}】を捉えた！`,
-    leCounter: (boss, card) => `【${boss}】が【${card}】の力で反撃する！`,
     leHint: (hand, enemy, boss) => `• 手札: [ ${hand} ] — カードの🔍で辞書を開けます。\n• 敵の手札: [ ${enemy} ]\n• ヒント: 各カードの意味を活かした具体的な行動で【${boss}】を攻めよ。\n• ヒント: 敵の手札が示す攻撃を防ぐ・返すと有利。`
   },
 
@@ -416,8 +410,6 @@ const I18N = {
 
     leNoCard: (hand) => `你没有使用任何手牌(${hand})就对着虚空念咒。把卡牌的含义融入行动吧！`,
     leDump: "只是罗列汉字，没有赋予形态的行动，咒语崩溃了。",
-    leHit: (cards, boss) => `【${cards}】之力化为实体，击中了【${boss}】！`,
-    leCounter: (boss, card) => `【${boss}】以【${card}】之力反击！`,
     leHint: (hand, enemy, boss) => `• 你的手牌: [ ${hand} ] — 点击卡牌上的🔍查词典。\n• 敌方手牌: [ ${enemy} ]\n• 提示: 用体现每张卡含义的具体行动攻击【${boss}】。\n• 提示: 防御或反制敌方手牌暗示的攻击会更有利。`
   },
 
@@ -519,8 +511,6 @@ const I18N = {
 
     leNoCard: (hand) => `你沒有使用任何手牌(${hand})就對著虛空唸咒。把卡牌的含義融入行動吧！`,
     leDump: "只是羅列漢字，沒有賦予形態的行動，咒語崩潰了。",
-    leHit: (cards, boss) => `【${cards}】之力化為實體，擊中了【${boss}】！`,
-    leCounter: (boss, card) => `【${boss}】以【${card}】之力反擊！`,
     leHint: (hand, enemy, boss) => `• 你的手牌: [ ${hand} ] — 點擊卡牌上的🔍查字典。\n• 敵方手牌: [ ${enemy} ]\n• 提示: 用體現每張卡含義的具體行動攻擊【${boss}】。\n• 提示: 防禦或反制敵方手牌暗示的攻擊會更有利。`
   }
 };
@@ -556,5 +546,119 @@ function applyLocalization() {
   if (modeBadge) modeBadge.textContent = `${t("mode")}: ${config.instMode}`;
   if (typeof updateSavedRunBanner === "function") updateSavedRunBanner();
   if (typeof updateAchCounter === "function") updateAchCounter();
+  if (typeof updateTrialUI === "function") updateTrialUI();
+  if (typeof updateInstallUI === "function") updateInstallUI();
   if (typeof renderDepthSpine === "function" && KANKEN_DATA && Object.keys(KANKEN_DATA).length) renderDepthSpine();
 }
+
+/* ---- Install / AI connect / log additions ---- */
+Object.assign(I18N.EN, {
+  leHit: (cards, n) => `(Offline verdict) Counted ${n} hand card(s) written in your spell: 【${cards}】. Meanings are not judged offline — connect an AI for a real verdict.`,
+  installBtn: "📲 Install app",
+  iosInstallTitle: "【Install on iPhone / iPad】",
+  iosInstallDesc: "In Safari, tap the Share button (□↑) and choose “Add to Home Screen”. The game then opens full-screen without browser bars.",
+  connectTitle: "【Connect an AI GM】",
+  connectDesc: "Every verdict in Kanji Dungeon comes from an AI. Trial mode borrows a shared free server that answers about once every 45 seconds — other turns get a crude offline verdict. A free Gemini key takes about a minute and gives you a real GM every turn.",
+  connectStep1: "1. Get a free key",
+  connectStep2: "2. Paste it here",
+  connectSave: "🔗 Test & connect",
+  connectOther: "Other providers…",
+  connectTrial: "Continue in trial mode",
+  connectOk: "✅ Connected. The GM is ready.",
+  connectFail: (msg) => `❌ Connection failed: ${msg}`,
+  connectEmpty: "Paste a key first.",
+  connectBtn: "🔗 Connect AI",
+  trialBadge: "🔌 Trial",
+  trialNudge: "🔌 The shared free server was busy, so this turn got a crude offline verdict. Connect your own AI key for a real GM every turn.",
+  titleTrialLine: "🔌 Trial mode — connect an AI for real verdicts",
+  enemyHandLog: "hand",
+  leCounter: (boss) => `【${boss}】 lunges through the opening you left!`
+});
+Object.assign(I18N.KO, {
+  leHit: (cards, n) => `(간이 판정) 주문에 적힌 손패 ${n}장을 셌습니다: 【${cards}】. 오프라인에서는 뜻을 판정하지 못합니다 — 제대로 판정받으려면 AI를 연결하세요.`,
+  installBtn: "📲 앱 설치",
+  iosInstallTitle: "【iPhone / iPad에 설치】",
+  iosInstallDesc: "Safari 하단의 공유 버튼(□↑)을 누르고 “홈 화면에 추가”를 선택하세요. 브라우저 탭바 없이 전체 화면으로 실행됩니다.",
+  connectTitle: "【AI GM 연결】",
+  connectDesc: "칸지 던전의 모든 판정은 AI가 내립니다. 체험판은 공용 무료 서버를 빌려 쓰기 때문에 약 45초에 한 번만 AI가 응답하고, 나머지 턴은 단순한 오프라인 판정으로 대체됩니다. Gemini 무료 키를 넣으면 1분이면 끝나고, 매 턴 제대로 된 GM이 판정합니다.",
+  connectStep1: "1. 무료 키 발급",
+  connectStep2: "2. 여기에 붙여넣기",
+  connectSave: "🔗 테스트 후 연결",
+  connectOther: "다른 프로바이더…",
+  connectTrial: "체험판으로 계속",
+  connectOk: "✅ 연결 완료. GM이 준비되었습니다.",
+  connectFail: (msg) => `❌ 연결 실패: ${msg}`,
+  connectEmpty: "먼저 키를 붙여넣으세요.",
+  connectBtn: "🔗 AI 연결",
+  trialBadge: "🔌 체험판",
+  trialNudge: "🔌 공용 무료 서버가 바빠 이번 턴은 단순 오프라인 판정으로 처리됐습니다. 개인 AI 키를 연결하면 매 턴 제대로 된 GM이 판정합니다.",
+  titleTrialLine: "🔌 체험판으로 플레이 중 — AI를 연결하면 제대로 판정받습니다",
+  enemyHandLog: "패",
+  leCounter: (boss) => `【${boss}】이(가) 빈틈을 파고들어 덮쳐옵니다!`
+});
+Object.assign(I18N.JA, {
+  leHit: (cards, n) => `(簡易裁定) 呪文に書かれた手札${n}枚を数えました: 【${cards}】。オフラインでは意味を裁定できません — 本格裁定にはAIを接続してください。`,
+  installBtn: "📲 アプリをインストール",
+  iosInstallTitle: "【iPhone / iPadにインストール】",
+  iosInstallDesc: "Safariの共有ボタン(□↑)から「ホーム画面に追加」を選んでください。ブラウザのバーなしで全画面起動します。",
+  connectTitle: "【AI GMを接続】",
+  connectDesc: "漢字地獄の裁定はすべてAIが行います。体験版は共用の無料サーバーを借りるため約45秒に1回しかAIが応答せず、それ以外は簡易オフライン裁定になります。Gemini無料キーなら1分で設定でき、毎ターン本物のGMが裁定します。",
+  connectStep1: "1. 無料キーを取得",
+  connectStep2: "2. ここに貼り付け",
+  connectSave: "🔗 テストして接続",
+  connectOther: "他のプロバイダ…",
+  connectTrial: "体験版で続ける",
+  connectOk: "✅ 接続完了。GMの準備ができました。",
+  connectFail: (msg) => `❌ 接続失敗: ${msg}`,
+  connectEmpty: "先にキーを貼り付けてください。",
+  connectBtn: "🔗 AI接続",
+  trialBadge: "🔌 体験版",
+  trialNudge: "🔌 共用無料サーバーが混雑していたため、このターンは簡易オフライン裁定でした。自分のAIキーを接続すれば毎ターン本物のGMが裁定します。",
+  titleTrialLine: "🔌 体験版でプレイ中 — AIを接続すると本格裁定に",
+  enemyHandLog: "手札",
+  leCounter: (boss) => `【${boss}】が隙を突いて襲いかかる！`
+});
+Object.assign(I18N.ZH_CN, {
+  leHit: (cards, n) => `(简易裁决) 统计到咒语中写出的手牌 ${n} 张: 【${cards}】。离线时无法判断含义 — 连接 AI 获得真正的裁决。`,
+  installBtn: "📲 安装应用",
+  iosInstallTitle: "【安装到 iPhone / iPad】",
+  iosInstallDesc: "在 Safari 中点击分享按钮(□↑)，选择“添加到主屏幕”。之后将以全屏方式启动，没有浏览器栏。",
+  connectTitle: "【连接 AI GM】",
+  connectDesc: "汉字地狱的所有裁决都由 AI 完成。体验版借用共享免费服务器，大约每 45 秒才响应一次，其余回合使用简易离线裁决。填入免费的 Gemini 密钥只需一分钟，每回合都有真正的 GM 裁决。",
+  connectStep1: "1. 获取免费密钥",
+  connectStep2: "2. 粘贴到这里",
+  connectSave: "🔗 测试并连接",
+  connectOther: "其他服务商…",
+  connectTrial: "继续使用体验版",
+  connectOk: "✅ 已连接，GM 准备就绪。",
+  connectFail: (msg) => `❌ 连接失败: ${msg}`,
+  connectEmpty: "请先粘贴密钥。",
+  connectBtn: "🔗 连接 AI",
+  trialBadge: "🔌 体验版",
+  trialNudge: "🔌 共享免费服务器繁忙，本回合使用了简易离线裁决。连接你自己的 AI 密钥，每回合都由真正的 GM 裁决。",
+  titleTrialLine: "🔌 体验版游玩中 — 连接 AI 获得真正的裁决",
+  enemyHandLog: "手牌",
+  leCounter: (boss) => `【${boss}】趁虚而入，扑了过来！`
+});
+Object.assign(I18N.ZH_TW, {
+  leHit: (cards, n) => `(簡易裁決) 統計到咒語中寫出的手牌 ${n} 張: 【${cards}】。離線時無法判斷含義 — 連接 AI 獲得真正的裁決。`,
+  installBtn: "📲 安裝應用程式",
+  iosInstallTitle: "【安裝到 iPhone / iPad】",
+  iosInstallDesc: "在 Safari 中點擊分享按鈕(□↑)，選擇「加入主畫面」。之後將以全螢幕啟動，沒有瀏覽器列。",
+  connectTitle: "【連接 AI GM】",
+  connectDesc: "漢字地獄的所有裁決都由 AI 完成。體驗版借用共享免費伺服器，大約每 45 秒才回應一次，其餘回合使用簡易離線裁決。填入免費的 Gemini 金鑰只需一分鐘，每回合都有真正的 GM 裁決。",
+  connectStep1: "1. 取得免費金鑰",
+  connectStep2: "2. 貼上到這裡",
+  connectSave: "🔗 測試並連接",
+  connectOther: "其他供應商…",
+  connectTrial: "繼續使用體驗版",
+  connectOk: "✅ 已連接，GM 準備就緒。",
+  connectFail: (msg) => `❌ 連接失敗: ${msg}`,
+  connectEmpty: "請先貼上金鑰。",
+  connectBtn: "🔗 連接 AI",
+  trialBadge: "🔌 體驗版",
+  trialNudge: "🔌 共享免費伺服器忙碌，本回合使用了簡易離線裁決。連接你自己的 AI 金鑰，每回合都由真正的 GM 裁決。",
+  titleTrialLine: "🔌 體驗版遊玩中 — 連接 AI 獲得真正的裁決",
+  enemyHandLog: "手牌",
+  leCounter: (boss) => `【${boss}】趁虛而入，撲了過來！`
+});

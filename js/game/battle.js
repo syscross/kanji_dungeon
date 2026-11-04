@@ -129,6 +129,18 @@ async function handleBattleSubmit(e) {
   }
 }
 
+/* Once per run, explain why a turn got the crude offline verdict and offer to connect an AI. */
+function maybeShowTrialNudge(j) {
+  if (!j.offline || state.trialNudgeShown) return;
+  state.trialNudgeShown = true;
+  const entry = appendGmLog(t("trialNudge"), "hint-log");
+  const btn = document.createElement("button");
+  btn.className = "btn btn-gold log-cta";
+  btn.textContent = t("connectBtn");
+  btn.onclick = () => openConnectModal();
+  entry.appendChild(btn);
+}
+
 function applyTurnResult(rawInput, j, sec = "0.0") {
   state.fieldState = j.fieldState;
   state.playerState = j.playerState;
@@ -155,6 +167,7 @@ function applyTurnResult(rawInput, j, sec = "0.0") {
     const log = `${youLine}\n${gmLine}`;
     state.history.push(log);
     appendGmLog(log, verdictClass);
+    maybeShowTrialNudge(j);
     achOnEnemyDefeated({
       kanji: state.enemyKanji,
       depthId: state.depthId,
@@ -171,9 +184,12 @@ function applyTurnResult(rawInput, j, sec = "0.0") {
   state.dmgTakenThisEnemy += j.playerDamage;
   triggerCombatFX(j.enemyDamage, j.playerDamage, healed);
 
-  const log = `${youLine}\n${gmLine}\n👹 **【${state.enemyKanji}】** ${j.enemyAction} (**${t("dmgYou")(j.playerDamage)}**)`;
+  const enemyUsedTxt = j.enemyUsed.length ? `\n   ${t("usedCards")}: ${j.enemyUsed.join(" · ")} → ` : "\n   ";
+  const enemyLine = `👹 **【${state.enemyKanji}】** *(${t("enemyHandLog")}: ${state.enemyHand.join(" ")})* ${j.enemyAction}${enemyUsedTxt}**${t("dmgYou")(j.playerDamage)}**`;
+  const log = `${youLine}\n${gmLine}\n${enemyLine}`;
   state.history.push(log);
   appendGmLog(log, verdictClass);
+  maybeShowTrialNudge(j);
 
   if (state.playerHp <= 0) {
     updateBattleHUD(false);

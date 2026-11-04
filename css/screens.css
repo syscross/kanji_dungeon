@@ -118,22 +118,26 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(229, 192, 123, 0.25);
 }
-.count-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border-radius: 10px;
-  background: var(--crimson);
-  color: #fff;
-  font-size: 0.66rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.trial-line {
+  display: none;
+  font-size: 0.74rem;
+  color: #9aa3b5;
+  border-bottom: 1px dashed #6e5931;
+  cursor: pointer;
+  padding-bottom: 2px;
 }
+.trial-line.show { display: inline-block; }
+.trial-line:hover { color: var(--gold); }
+
+/* AI connect modal */
+.connect-step { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.8rem; color: var(--gold); }
+.connect-status { font-size: 0.78rem; min-height: 1.2em; color: var(--muted); }
+.connect-status.ok { color: var(--green); }
+.connect-status.err { color: #ff8a95; }
+.connect-actions { display: flex; flex-direction: column; gap: 8px; }
+.connect-main { padding: 10px; font-size: 0.88rem; }
+.connect-sub { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+.connect-sub .btn { flex: 1; }
 
 /* Depth select */
 #view-select { gap: 10px; }

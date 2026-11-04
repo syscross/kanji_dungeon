@@ -70,6 +70,7 @@ function createRunState() {
     history: [],           // full turn logs (for export / resume)
     recentActions: [],     // last few player inputs, sent to the GM to discourage repetition
     dmgTakenThisEnemy: 0,
+    trialNudgeShown: false,
     runAchievements: []
   };
 }

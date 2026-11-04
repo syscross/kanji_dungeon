@@ -1,14 +1,6 @@
 const PROVIDERS = {
-  free_keyless: {
-    name: "⚡ Free Keyless (Zero-Setup Instant Play — No API Key Needed!)",
-    keyUrl: "https://aistudio.google.com/app/apikey",
-    keyLabel: "Optional: Get Personal Gemini Key ↗",
-    models: [
-      { id: "openai", label: "Free Public AI + Built-in Kanji GM Engine (Zero-Setup)" }
-    ]
-  },
   gemini: {
-    name: "Google Gemini API (Free Tier Available)",
+    name: "★ Google Gemini API (Recommended — free tier)",
     keyUrl: "https://aistudio.google.com/app/apikey",
     keyLabel: "Get Free Gemini API Key ↗",
     models: [
@@ -88,6 +80,14 @@ const PROVIDERS = {
       { id: "qwen2.5:14b", label: "qwen2.5:14b (Ollama Local)" },
       { id: "llama3.2", label: "llama3.2 (Ollama Local)" }
     ]
+  },
+  free_keyless: {
+    name: "🔌 Trial — no key (shared free server, ~1 reply / 45 s)",
+    keyUrl: "https://aistudio.google.com/app/apikey",
+    keyLabel: "Optional: Get Personal Gemini Key ↗",
+    models: [
+      { id: "openai", label: "Shared public model (offline GM when busy)" }
+    ]
   }
 };
 
@@ -106,7 +106,7 @@ async function callLLM(prompt, expectJson = true, opts = {}) {
   if (provider === "free_keyless") {
     try {
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 9500);
+      const timer = setTimeout(() => ctrl.abort(), 20000);
       const r = await fetch("https://text.pollinations.ai/openai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -114,7 +114,9 @@ async function callLLM(prompt, expectJson = true, opts = {}) {
         body: JSON.stringify({
           model: "openai",
           messages: [{ role: "user", content: systemPrompt }],
-          temperature
+          // The shared model reasons before answering; without headroom it truncates the JSON.
+          max_tokens: 2500,
+          reasoning_effort: "low"
         })
       });
       clearTimeout(timer);
@@ -188,8 +190,14 @@ async function callLLM(prompt, expectJson = true, opts = {}) {
   return expectJson ? parseJsonSafe(txt) : txt;
 }
 
+/* Lenient JSON extraction: strips code fences, grabs the outer object, tolerates trailing commas. */
 function parseJsonSafe(txt) {
-  const cleaned = txt.replace(/```json|```/gi, "").trim();
+  const cleaned = String(txt).replace(/```json|```/gi, "").trim();
   const match = cleaned.match(/\{[\s\S]*\}/);
-  return JSON.parse(match ? match[0] : cleaned);
+  const body = match ? match[0] : cleaned;
+  try {
+    return JSON.parse(body);
+  } catch (_) {
+    return JSON.parse(body.replace(/,\s*([}\]])/g, "$1").replace(/[“”]/g, '"'));
+  }
 }

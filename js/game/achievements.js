@@ -102,8 +102,8 @@ function countUnlocked(cat = null) {
 }
 
 function updateAchCounter() {
-  const badge = $("ach-count");
-  if (badge) badge.textContent = countUnlocked();
+  const btn = $("ach-corner-btn");
+  if (btn) btn.title = `${t("achBtn")} (${countUnlocked()}/${ACHIEVEMENT_CATALOG.length})`;
 }
 
 /* ---- Game event hooks ---- */
