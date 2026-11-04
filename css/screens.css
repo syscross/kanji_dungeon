@@ -460,9 +460,10 @@
 .depth-modal-zone.tier-abyss { color: #ff6b7b; background: rgba(255, 59, 78, 0.16); border: 1px solid rgba(255, 59, 78, 0.5); }
 
 .depth-modal-title {
-  font-size: 1.3rem;
-  letter-spacing: 1px;
+  font-size: 1.18rem;
+  letter-spacing: 0.5px;
   color: #f5efe6;
+  white-space: nowrap;
 }
 .depth-modal-card.tier-abyss .depth-modal-title {
   color: #ff4d5e;
@@ -543,9 +544,10 @@
 }
 .depth-modal-actions .btn {
   flex: 1;
-  padding: 11px 12px;
-  font-size: 0.88rem;
+  padding: 11px 10px;
+  font-size: 0.86rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 .btn-abyss-enter {
   border-color: #ff3b4e;
