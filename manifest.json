@@ -1,0 +1,9 @@
+{
+  "name": "KANJI DUNGEON 【漢字地獄】",
+  "short_name": "KanjiDungeon",
+  "description": "Dark-Fantasy AI TRPG Kanji Card Roguelike across 6,355 Kanji",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090a0f",
+  "theme_color": "#d73a49"
+}

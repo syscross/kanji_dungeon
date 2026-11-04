@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KANJI DUNGEON 【漢字地獄】</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090a0f;
+      --panel: #11131c;
+      --border: #3b2328;
+      --crimson: #d73a49;
+      --gold: #e5c07b;
+      --green: #98c379;
+      --muted: #5c6370;
+      --text: #e0dcd3;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      user-select: none;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    /* Top Navigation Bar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .brand {
+      color: var(--crimson);
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+    .top-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: var(--panel);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover, .btn.active {
+      border-color: var(--crimson);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(215, 58, 73, 0.35);
+    }
+    .btn-gold { border-color: #6e5931; color: var(--gold); }
+    .btn-gold:hover { border-color: var(--gold); }
+
+    /* Views */
+    .view { display: none; flex-direction: column; gap: 16px; animation: fadeIn 0.35s ease; }
+    .view.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Hero Logo */
+    .hero-box {
+      text-align: center;
+      padding: 20px 10px 8px;
+    }
+    .hero-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 3rem;
+      color: var(--crimson);
+      letter-spacing: 0.4rem;
+      text-shadow: 0 0 20px rgba(215, 58, 73, 0.4);
+    }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    /* Depth Grid */
+    .depth-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+      gap: 10px;
+    }
+    .depth-card {
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .depth-card:hover {
+      border-color: var(--crimson);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(215, 58, 73, 0.25);
+    }
+    .depth-title { color: var(--crimson); font-weight: 700; font-size: 0.9rem; }
+    .depth-meta { color: var(--muted); font-size: 0.76rem; }
+    .depth-scores { font-size: 0.75rem; color: var(--gold); }
+
+    /* Battle Arena */
+    .status-banner {
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+    .badge {
+      padding: 2px 8px;
+      background: #1a1d2b;
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--gold);
+    }
+    .enemy-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+    }
+    .boss-card {
+      width: 116px;
+      height: 136px;
+      background: radial-gradient(circle, #1f1318 0%, #0d0f17 100%);
+      border: 2px solid var(--crimson);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(215, 58, 73, 0.3);
+      position: relative;
+    }
+    .boss-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 4.2rem;
+      color: var(--crimson);
+      line-height: 1;
+    }
+    .hp-bar-wrap {
+      width: 240px;
+      height: 10px;
+      background: #1c1f2b;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .hp-bar-fill {
+      height: 100%;
+      background: var(--crimson);
+      transition: width 0.3s ease;
+    }
+    .hp-bar-fill.player { background: var(--green); }
+
+    /* Hearthstone / Slay the Spire Hand Cards */
+    .hand-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .hand-label { font-size: 0.76rem; color: var(--muted); }
+    .prev-hand-row {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+    .card-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .kanji-card {
+      width: 84px;
+      height: 112px;
+      background: linear-gradient(160deg, #181b28 0%, #0e1017 100%);
+      border: 2px solid #452930;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    .kanji-card:hover {
+      transform: translateY(-8px) scale(1.05);
+      border-color: var(--crimson);
+      box-shadow: 0 8px 18px rgba(215, 58, 73, 0.35);
+    }
+    .kanji-card.enemy-sm {
+      width: 58px;
+      height: 74px;
+      border-color: #382227;
+    }
+    .kanji-card .char {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 2.75rem;
+      color: #f0ece1;
+      line-height: 1;
+    }
+    .kanji-card.enemy-sm .char {
+      font-size: 1.75rem;
+      color: #e06c75;
+    }
+    .kanji-card .dict-link {
+      position: absolute;
+      top: 3px;
+      right: 5px;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .kanji-card .dict-link:hover { color: var(--gold); }
+
+    /* GM Log Box */
+    .gm-box {
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      padding: 14px 16px;
+      min-height: 115px;
+      color: var(--gold);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      user-select: text;
+      position: relative;
+    }
+
+    /* Command Chips & Prompt Input */
+    .cmd-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .chip {
+      background: #161925;
+      border: 1px solid var(--border);
+      color: #abb2bf;
+      padding: 4px 10px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .chip:hover { border-color: var(--crimson); color: #fff; }
+    .prompt-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .prompt-input {
+      flex: 1;
+      background: #0d0f17;
+      border: 2px solid var(--crimson);
+      color: #fff;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      outline: none;
+    }
+    .prompt-input:disabled { opacity: 0.5; }
+
+    /* Settings & Modals */
+    .panel-box {
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 0.8rem; color: var(--gold); }
+    .input-ctrl, select, textarea {
+      background: #0d0f17;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+    textarea { min-height: 95px; resize: vertical; user-select: text; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="brand" onclick="showView('menu')">KANJI DUNGEON 【漢字地獄】</div>
+      <div class="top-controls">
+        <button class="btn" id="lang-btn" onclick="cycleLang()">🌐 EN</button>
+        <button class="btn btn-gold" id="mode-badge" onclick="showView('settings')">⚙ Mode: Default</button>
+        <button class="btn" onclick="testApiKey()">🧪 Test Key</button>
+        <button class="btn" onclick="showView('settings')">🔑 Settings</button>
+      </div>
+    </div>
+
+    <div id="global-toast" style="text-align:center; font-size:0.82rem; color:var(--gold); min-height:18px;"></div>
+
+    <!-- VIEW 1: MAIN MENU / DEPTH SELECT -->
+    <div id="view-menu" class="view active">
+      <div class="hero-box">
+        <div class="hero-kanji">漢 字 地 獄</div>
+        <div class="hero-sub">6,355 Kanji AI TRPG Roguelike — Click any Kanji card to weave your spell</div>
+      </div>
+      <div class="depth-grid" id="depth-grid"></div>
+    </div>
+
+    <!-- VIEW 2: BATTLE ARENA -->
+    <div id="view-battle" class="view">
+      <div class="status-banner">
+        <div>
+          <strong id="b-depth-title" style="color:var(--crimson)">Depth 01</strong>
+          <span id="b-turn" style="margin-left:8px; color:var(--muted)">Turn 1</span>
+        </div>
+        <div>Field: <span class="badge" id="b-field-state">Pitch-Black Dungeon</span></div>
+        <div>
+          Streak: <span class="badge" id="b-streak">🔥 0 Kills</span>
+          <button class="btn" style="margin-left:6px; padding:3px 8px;" onclick="exportBattleLog()">📋 Copy Log</button>
+          <button class="btn" style="padding:3px 8px;" onclick="showView('menu')">↩ Leave</button>
+        </div>
+      </div>
+
+      <!-- Enemy Area -->
+      <div class="enemy-stage">
+        <div class="prev-hand-row" id="b-enemy-prev">Enemy Prev Hand: (None)</div>
+        <div class="boss-card" onclick="insertKanji(state.enemyKanji)" title="Click to insert Boss Kanji">
+          <div class="boss-kanji" id="b-boss-kanji">犬</div>
+        </div>
+        <div style="font-size:0.84rem;">
+          ENEMY 【<span id="b-boss-name">犬</span>】 HP: <strong id="b-enemy-hp">100</strong>/100
+          | State: <span class="badge" id="b-enemy-state">Hostile</span>
+        </div>
+        <div class="hp-bar-wrap"><div class="hp-bar-fill" id="b-enemy-bar" style="width:100%"></div></div>
+        <div class="hand-label">Enemy's Current Hand (Click card to reference in prompt):</div>
+        <div class="card-row" id="b-enemy-hand"></div>
+      </div>
+
+      <!-- GM Judgment Log -->
+      <div class="gm-box" id="b-gm-log"></div>
+
+      <!-- Player Area -->
+      <div class="hand-section">
+        <div style="font-size:0.86rem;">
+          YOUR HP: <strong id="b-player-hp" style="color:var(--green)">100</strong>/100
+          | State: <span class="badge" id="b-player-state">Normal</span>
+          | Next <code>/summon</code> Cost: <span class="badge" id="b-summon-cost">10 HP</span>
+        </div>
+        <div class="hp-bar-wrap"><div class="hp-bar-fill player" id="b-player-bar" style="width:100%"></div></div>
+        <div class="hand-label">Your Current Hand (Click any card to insert into input):</div>
+        <div class="card-row" id="b-player-hand"></div>
+        <div class="prev-hand-row" id="b-player-prev">Your Prev Hand: (None)</div>
+      </div>
+
+      <!-- Slash Command Quick Chips & Input -->
+      <div class="cmd-chips">
+        <span class="chip" onclick="triggerSlash('/hint')">💡 /hint (Free Briefing)</span>
+        <span class="chip" onclick="triggerSlash('/reroll')">🎲 /reroll (-5 HP Redraw)</span>
+        <span class="chip" onclick="prefillSlash('/prompt ')">❓ /prompt [Question]</span>
+        <span class="chip" onclick="prefillSlash('/summon ')">🐉 /summon [Optional Dir]</span>
+      </div>
+      <form class="prompt-row" onsubmit="handleBattleSubmit(event)">
+        <input type="text" id="b-input" class="prompt-input" placeholder="Click cards above or type action (/hint, /reroll, /prompt ..., /summon ...) & press ENTER" autocomplete="off" />
+        <button type="submit" class="btn" id="b-send-btn">⚔️ Execute</button>
+      </form>
+    </div>
+
+    <!-- VIEW 3: SETTINGS -->
+    <div id="view-settings" class="view">
+      <div class="panel-box">
+        <h3 style="color:var(--crimson)">【 SETTINGS — PROVIDER, MODEL & GM INSTRUCTION MODE 】</h3>
+        <p style="font-size:0.78rem; color:var(--muted);">
+          🔒 Your API Key is stored strictly in your browser's <code>localStorage</code> and never sent to any intermediate server.
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold); margin-left:6px;">[Get Free Gemini API Key ↗]</a>
+        </p>
+
+        <div class="field-group">
+          <label>1. AI Provider</label>
+          <select id="s-provider" onchange="onProviderChange()">
+            <option value="gemini">Google Gemini API (Direct Browser CORS)</option>
+            <option value="anthropic">Anthropic Claude API (Haiku 5.5 / Sonnet 5.5 Direct)</option>
+            <option value="openrouter">OpenRouter API (Any Model)</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>2. API Key</label>
+          <input type="password" id="s-apikey" class="input-ctrl" placeholder="Paste API Key here..." />
+        </div>
+
+        <div class="field-group">
+          <label>3. Model Preset or Custom Model ID</label>
+          <select id="s-model-preset" onchange="document.getElementById('s-model-custom').value = this.value">
+            <option value="gemini-flash-lite-latest">gemini-flash-lite-latest (Gemini Default)</option>
+            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Gemini 3.5 Flash-Lite)</option>
+            <option value="gemini-3.8-flash">gemini-3.8-flash (Gemini 3.8 Flash)</option>
+            <option value="claude-haiku-5-5">claude-haiku-5-5 (Anthropic Haiku 5.5 — Ultra Fast & Cheap)</option>
+            <option value="claude-sonnet-5-5">claude-sonnet-5-5 (Anthropic Sonnet 5.5)</option>
+            <option value="anthropic/claude-haiku-5.5">anthropic/claude-haiku-5.5 (via OpenRouter)</option>
+          </select>
+          <input type="text" id="s-model-custom" class="input-ctrl" placeholder="Or type any model ID directly..." />
+        </div>
+
+        <div class="field-group">
+          <label>4. Instruction Mode (Scores are tracked separately per mode!)</label>
+          <select id="s-inst-mode" onchange="onInstModeChange()">
+            <option value="Default">🏆 Default (Official Rules — Read-Only)</option>
+            <option value="Custom">🛠 Custom (Official Rules + Your Addon Patch)</option>
+            <option value="Sandbox">🧪 Sandbox (Full Custom Ruleset)</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Default Official Instruction (Read-Only Reference)</label>
+          <textarea id="s-default-inst" readonly style="opacity:0.65;"></textarea>
+        </div>
+
+        <div class="field-group" id="s-custom-group">
+          <label id="s-custom-label">Custom Addon / Sandbox Instruction</label>
+          <textarea id="s-custom-inst" placeholder="Add extra GM persona rules, generosity tweaks, or custom mechanics..."></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="btn" onclick="saveSettings()">💾 Save & Return</button>
+          <button class="btn" onclick="testApiKey()">🧪 Test Key Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const DEFAULT_GM_RULES = `1. Judge the Player's action using ONLY Kanji present in their 5 Drawn Cards. If they lie about a Kanji's meaning or use unheld Kanji, mock them and deal 0 damage.
+2. Normal attack damage is 15~45. If the player is absurdly greedy without matching Kanji (like 百/千), call out "Too greedy!" and scale damage to 15~38.
+3. Reward clever Kanji combinations, healing (休/水/生/草/林 etc.), defense, or preemptively countering the Enemy's 5 visible cards!
+4. If the enemy survives, the Enemy counterattacks using 1~3 Kanji from the Enemy's current hand.
+5. Update Battlefield, Player, and Enemy states concisely.`;
+
+let KANKEN_DATA = {};
+const LANGS = ["EN", "KO", "JA"];
+
+let config = {
+  provider: localStorage.getItem("kd_provider") || "gemini",
+  apiKey: localStorage.getItem("kd_apikey") || "",
+  model: localStorage.getItem("kd_model") || "gemini-flash-lite-latest",
+  instMode: localStorage.getItem("kd_inst_mode") || "Default",
+  customInst: localStorage.getItem("kd_custom_inst") || "",
+  lang: localStorage.getItem("kd_lang") || "EN",
+  scores: JSON.parse(localStorage.getItem("kd_scores") || "{}")
+};
+
+let state = {
+  depthId: "depth_1",
+  turn: 1,
+  streak: 0,
+  summonCost: 10,
+  playerHp: 100,
+  enemyHp: 100,
+  enemyKanji: "犬",
+  fieldState: "Pitch-Black Dungeon",
+  playerState: "Normal",
+  enemyState: "Hostile",
+  playerHand: [],
+  enemyHand: [],
+  prevPlayerHand: [],
+  prevEnemyHand: [],
+  history: []
+};
+
+async function initApp() {
+  document.getElementById("s-default-inst").value = DEFAULT_GM_RULES;
+  syncSettingsUI();
+  const res = await fetch("./kanken_data.json");
+  KANKEN_DATA = await res.json();
+  renderDepthGrid();
+}
+
+function showToast(msg) {
+  document.getElementById("global-toast").textContent = msg;
+}
+
+function cycleLang() {
+  const idx = (LANGS.indexOf(config.lang) + 1) % LANGS.length;
+  config.lang = LANGS[idx];
+  localStorage.setItem("kd_lang", config.lang);
+  document.getElementById("lang-btn").textContent = `🌐 ${config.lang}`;
+}
+
+function showView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById(`view-${name}`).classList.add("active");
+  if (name === "menu") renderDepthGrid();
+}
+
+function getScore(depthId, mode) {
+  return (config.scores[depthId] && config.scores[depthId][mode]) || 0;
+}
+
+function recordKill(depthId) {
+  if (!config.scores[depthId]) config.scores[depthId] = {};
+  const cur = config.scores[depthId][config.instMode] || 0;
+  if (state.streak > cur) {
+    config.scores[depthId][config.instMode] = state.streak;
+    localStorage.setItem("kd_scores", JSON.stringify(config.scores));
+  }
+}
+
+function renderDepthGrid() {
+  const grid = document.getElementById("depth-grid");
+  grid.innerHTML = "";
+  Object.keys(KANKEN_DATA).forEach(did => {
+    const d = KANKEN_DATA[did];
+    const card = document.createElement("div");
+    card.className = "depth-card";
+    card.onclick = () => startRun(did);
+    card.innerHTML = `
+      <div class="depth-title">${d.title}</div>
+      <div class="depth-meta">Pool: ${d.count} Kanji | Bosses: ${d.enemies.slice(0,6).join(" ")}...</div>
+      <div class="depth-scores">
+        🏆 Default: ${getScore(did, "Default")} | 🛠 Custom: ${getScore(did, "Custom")} | 🧪 Sandbox: ${getScore(did, "Sandbox")}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function sample5(arr) {
+  const copy = [...arr];
+  const out = [];
+  for (let i = 0; i < 5 && copy.length > 0; i++) {
+    const idx = Math.floor(Math.random() * copy.length);
+    out.push(copy.splice(idx, 1)[0]);
+  }
+  return out;
+}
+
+function startRun(depthId) {
+  if (!config.apiKey) {
+    showToast("⚠ Please set your API Key in Settings first!");
+    showView("settings");
+    return;
+  }
+  state.depthId = depthId;
+  state.streak = 0;
+  state.playerHp = 100;
+  state.playerState = "Normal";
+  state.fieldState = "Pitch-Black Dungeon";
+  state.history = [];
+  spawnNextEnemy(true);
+  showView("battle");
+}
+
+function spawnNextEnemy(isFirst = false) {
+  const d = KANKEN_DATA[state.depthId];
+  state.enemyKanji = d.enemies[Math.floor(Math.random() * d.enemies.length)];
+  state.enemyHp = 100;
+  state.enemyState = "Hostile";
+  state.turn = 1;
+  state.summonCost = 10; // 라운드마다 소환 코스트 10으로 초기화!
+  state.prevPlayerHand = [];
+  state.prevEnemyHand = [];
+  dealNewHands();
+  const introMsg = isFirst
+    ? `[ GM ] Entered ${d.title}. A wild 【 ${state.enemyKanji} 】 blocks your path!\nClick any Kanji card to insert it, or use /hint, /reroll, /prompt, /summon.`
+    : `🩸 Enemy slain! Streak: 🔥 ${state.streak} Kills! (HP & State carried over, /summon reset to 10 HP)\nNext Challenger: 【 ${state.enemyKanji} 】 (HP: 100/100) approaches!`;
+  updateBattleHUD(introMsg);
+}
+
+function dealNewHands() {
+  const pool = KANKEN_DATA[state.depthId].kanji;
+  if (state.playerHand.length) state.prevPlayerHand = [...state.playerHand];
+  if (state.enemyHand.length) state.prevEnemyHand = [...state.enemyHand];
+  state.playerHand = sample5(pool);
+  state.enemyHand = sample5(pool);
+}
+
+function makeCardEl(k, isEnemy = false) {
+  const el = document.createElement("div");
+  el.className = "kanji-card" + (isEnemy ? " enemy-sm" : "");
+  el.onclick = (e) => {
+    if (e.target.tagName === "A") return;
+    insertKanji(k);
+  };
+  el.innerHTML = `
+    <a class="dict-link" href="https://jisho.org/search/${encodeURIComponent(k)}%20%23kanji" target="_blank" title="Open Dictionary">🔍</a>
+    <div class="char">${k}</div>
+  `;
+  return el;
+}
+
+function insertKanji(k) {
+  const inp = document.getElementById("b-input");
+  const start = inp.selectionStart || inp.value.length;
+  const end = inp.selectionEnd || inp.value.length;
+  inp.value = inp.value.slice(0, start) + k + inp.value.slice(end);
+  inp.focus();
+  inp.selectionStart = inp.selectionEnd = start + k.length;
+}
+
+function updateBattleHUD(gmText = null) {
+  const d = KANKEN_DATA[state.depthId];
+  document.getElementById("b-depth-title").textContent = `${d.title} [${config.instMode}]`;
+  document.getElementById("b-turn").textContent = `Turn ${state.turn}`;
+  document.getElementById("b-field-state").textContent = state.fieldState;
+  document.getElementById("b-streak").textContent = `🔥 ${state.streak} Kills`;
+
+  document.getElementById("b-boss-kanji").textContent = state.enemyKanji;
+  document.getElementById("b-boss-name").textContent = state.enemyKanji;
+  document.getElementById("b-enemy-hp").textContent = state.enemyHp;
+  document.getElementById("b-enemy-state").textContent = state.enemyState;
+  document.getElementById("b-enemy-bar").style.width = `${Math.max(0, state.enemyHp)}%`;
+
+  document.getElementById("b-player-hp").textContent = state.playerHp;
+  document.getElementById("b-player-state").textContent = state.playerState;
+  document.getElementById("b-summon-cost").textContent = `${state.summonCost} HP`;
+  document.getElementById("b-player-bar").style.width = `${Math.max(0, state.playerHp)}%`;
+
+  document.getElementById("b-enemy-prev").textContent = state.prevEnemyHand.length
+    ? `Enemy Prev Hand: [ ${state.prevEnemyHand.join(" ] [ ")} ]`
+    : "Enemy Prev Hand: (None — Turn 1)";
+  document.getElementById("b-player-prev").textContent = state.prevPlayerHand.length
+    ? `Your Prev Hand: [ ${state.prevPlayerHand.join(" ] [ ")} ]`
+    : "Your Prev Hand: (None — Turn 1)";
+
+  const eRow = document.getElementById("b-enemy-hand");
+  eRow.innerHTML = "";
+  state.enemyHand.forEach(k => eRow.appendChild(makeCardEl(k, true)));
+
+  const pRow = document.getElementById("b-player-hand");
+  pRow.innerHTML = "";
+  state.playerHand.forEach(k => pRow.appendChild(makeCardEl(k, false)));
+
+  if (gmText !== null) {
+    document.getElementById("b-gm-log").textContent = gmText;
+  }
+}
+
+function prefillSlash(prefix) {
+  const inp = document.getElementById("b-input");
+  inp.value = prefix;
+  inp.focus();
+}
+
+function triggerSlash(cmd) {
+  const inp = document.getElementById("b-input");
+  inp.value = cmd;
+  handleBattleSubmit(new Event("submit"));
+}
+
+/* 4대 슬래시 명령어 엄격 파서 (/hint, /reroll 노인자 강제 처리 & /prompt, /summon 인자 분리) */
+function parseInputCommand(raw) {
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith("/")) return { type: "NORMAL", arg: trimmed };
+
+  const parts = trimmed.split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  const arg = parts.slice(1).join(" ").trim();
+
+  if (cmd === "/hint") return { type: "HINT", arg: "" };     // 뒤에 뭘 붙여도 싹 무시하고 순수 /hint 발동
+  if (cmd === "/reroll") return { type: "REROLL", arg: "" }; // 뒤에 뭘 붙여도 싹 무시하고 순수 /reroll 발동
+  if (cmd === "/prompt") return { type: "PROMPT", arg };     // 인자 필수
+  if (cmd === "/summon") return { type: "SUMMON", arg };     // 인자 선택
+  return { type: "UNKNOWN_SLASH", cmd, arg };
+}
+
+async function callLLM(systemPrompt, expectJson = true) {
+  const { provider, apiKey, model } = config;
+  if (provider === "gemini") {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const body = {
+      contents: [{ parts: [{ text: systemPrompt }] }],
+      generationConfig: expectJson ? { responseMimeType: "application/json", temperature: 0.8 } : { temperature: 0.7 }
+    };
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(`Gemini HTTP ${r.status}: ${await r.text()}`);
+    const data = await r.json();
+    const txt = data.candidates[0].content.parts[0].text;
+    return expectJson ? JSON.parse(txt) : txt;
+  }
+
+  if (provider === "anthropic") {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1024,
+        messages: [{ role: "user", content: systemPrompt }]
+      })
+    });
+    if (!r.ok) throw new Error(`Anthropic HTTP ${r.status}: ${await r.text()}`);
+    const data = await r.json();
+    const txt = data.content[0].text.trim();
+    if (!expectJson) return txt;
+    const match = txt.match(/\{[\s\S]*\}/);
+    return JSON.parse(match ? match[0] : txt);
+  }
+
+  // OpenRouter
+  const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: systemPrompt }]
+    })
+  });
+  if (!r.ok) throw new Error(`OpenRouter HTTP ${r.status}: ${await r.text()}`);
+  const data = await r.json();
+  const txt = data.choices[0].message.content.trim();
+  if (!expectJson) return txt;
+  const match = txt.match(/\{[\s\S]*\}/);
+  return JSON.parse(match ? match[0] : txt);
+}
+
+async function handleBattleSubmit(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const inp = document.getElementById("b-input");
+  const raw = inp.value.trim();
+  if (!raw) return;
+
+  const parsed = parseInputCommand(raw);
+
+  // 1. /reroll (노인자 즉시 발동, 턴 소모 없음, 체력 5 소모)
+  if (parsed.type === "REROLL") {
+    if (state.playerHp <= 5) {
+      updateBattleHUD("⚠ [GM]: Too weak to /reroll! (Requires > 5 HP)");
+      return;
+    }
+    state.playerHp -= 5;
+    state.playerHand = sample5(KANKEN_DATA[state.depthId].kanji);
+    inp.value = "";
+    updateBattleHUD("🎲 [/reroll]: Paid 5 HP and drew 5 fresh Kanji cards! (Turn continues)");
+    return;
+  }
+
+  // 2. /prompt (인자 필수 체크)
+  if (parsed.type === "PROMPT" && !parsed.arg) {
+    updateBattleHUD("⚠ Usage: /prompt [Your question about specific Kanji or strategy] (Tip: Click a card to insert its Kanji!)");
+    return;
+  }
+
+  if (parsed.type === "UNKNOWN_SLASH") {
+    updateBattleHUD(`⚠ Unknown command "${parsed.cmd}". Supported commands: /hint, /reroll, /prompt <text>, /summon [text]`);
+    return;
+  }
+
+  inp.disabled = true;
+  document.getElementById("b-send-btn").disabled = true;
+
+  try {
+    // 3. /hint 또는 /prompt (턴을 소모하지 않는 튜터/GM 브리핑)
+    if (parsed.type === "HINT" || parsed.type === "PROMPT") {
+      updateBattleHUD("🔮 [ GM is inspecting the Kanji cards... ]");
+      const qText = parsed.type === "HINT"
+        ? `Give a concise reading/meaning breakdown of Player's Hand ${JSON.stringify(state.playerHand)} and Enemy's Hand ${JSON.stringify(state.enemyHand)}, plus 2 clever combo suggestions.`
+        : `Answer the player's question concisely in the context of this Kanji battle (Player Hand: ${JSON.stringify(state.playerHand)}, Enemy: ${state.enemyKanji}): "${parsed.arg}"`;
+      const reply = await callLLM(`${qText}\nRespond in preferred language (${config.lang}) or the language of the question.`, false);
+      inp.value = "";
+      updateBattleHUD(`💡 [${parsed.type}]:\n${reply}`);
+      return;
+    }
+
+    // 4. /summon (누진세 10 -> 20 -> 30 HP 차감 후 턴 진행)
+    let summonDirective = "";
+    if (parsed.type === "SUMMON") {
+      if (state.playerHp <= state.summonCost) {
+        updateBattleHUD(`⚠ Not enough HP for /summon! Current summon cost this round is ${state.summonCost} HP.`);
+        return;
+      }
+      state.playerHp -= state.summonCost;
+      const paid = state.summonCost;
+      state.summonCost += 10; // 라운드 내 소환 코스트 10씩 증가!
+      summonDirective = `\n[SPECIAL COMMAND: /summon (Player paid ${paid} HP!)] The player is performing a SUMMONING ritual using their hand (${JSON.stringify(state.playerHand)}). Direction: "${parsed.arg || "Auto-summon the best fitting entity from my 5 Kanji cards"}". Grant a powerful summoned companion in 'new_player_state' and apply its immediate attack/shield effect!`;
+    }
+
+    updateBattleHUD("🎲 [ GM is judging your Kanji combination... ]");
+    const ruleBody = config.instMode === "Default"
+      ? DEFAULT_GM_RULES
+      : config.instMode === "Custom"
+      ? `${DEFAULT_GM_RULES}\n\n[User Custom Patch Rules]:\n${config.customInst}`
+      : `[Sandbox Rules]:\n${config.customInst || DEFAULT_GM_RULES}`;
+
+    const gmPrompt = `You are the TRPG Game Master of 'KANJI DUNGEON' (Mode: ${config.instMode}, Preferred UI Lang: ${config.lang}).
+Battle State:
+- Field State: [${state.fieldState}]
+- Enemy Boss: 【 ${state.enemyKanji} 】 (HP: ${state.enemyHp}/100, State: [${state.enemyState}])
+- Player (HP: ${state.playerHp}/100, State: [${state.playerState}])
+- Player's 5 Drawn Kanji Cards: ${JSON.stringify(state.playerHand)}
+- Enemy's 5 Drawn Kanji Cards: ${JSON.stringify(state.enemyHand)}
+
+Player's Input: "${raw}"${summonDirective}
+
+Rules:
+${ruleBody}
+- Always include the reading/meaning in parentheses when mentioning Kanji so the player learns naturally.
+- Language: If the player typed in Korean, respond in Korean. If Japanese, Japanese. Otherwise use ${config.lang}.
+
+Respond ONLY in valid JSON with this exact schema:
+{
+  "gm_judgment": "string",
+  "enemy_damage_taken": 0,
+  "player_heal": 0,
+  "enemy_action": "string",
+  "player_damage_taken": 0,
+  "new_field_state": "string",
+  "new_player_state": "string",
+  "new_enemy_state": "string"
+}`;
+
+    const res = await callLLM(gmPrompt, true);
+    applyTurnResult(raw, res);
+    inp.value = "";
+  } catch (err) {
+    updateBattleHUD(`⚠ API Error: ${err.message}`);
+  } finally {
+    inp.disabled = false;
+    document.getElementById("b-send-btn").disabled = false;
+    inp.focus();
+  }
+}
+
+function applyTurnResult(rawPrompt, res) {
+  const dmgE = Math.max(0, parseInt(res.enemy_damage_taken || 0, 10));
+  const healP = Math.max(0, parseInt(res.player_heal || 0, 10));
+  const dmgP = Math.max(0, parseInt(res.player_damage_taken || 0, 10));
+
+  if (res.new_field_state) state.fieldState = String(res.new_field_state).slice(0, 40);
+  if (res.new_player_state) state.playerState = String(res.new_player_state).slice(0, 40);
+  if (res.new_enemy_state) state.enemyState = String(res.new_enemy_state).slice(0, 40);
+
+  state.enemyHp = Math.max(0, state.enemyHp - dmgE);
+  state.playerHp = Math.min(100, state.playerHp + healP);
+
+  if (state.enemyHp <= 0) {
+    state.streak += 1;
+    recordKill(state.depthId);
+    const winLog = `🗣 [You]: "${rawPrompt}"\n⚖ [GM]: ${res.gm_judgment} (Enemy -${dmgE} HP)`;
+    state.history.push(winLog);
+    spawnNextEnemy(false);
+    document.getElementById("b-gm-log").textContent = `${winLog}\n\n` + document.getElementById("b-gm-log").textContent;
+    return;
+  }
+
+  state.playerHp = Math.max(0, state.playerHp - dmgP);
+  const turnLog = `🗣 [Turn ${state.turn} — You]: "${rawPrompt}"\n  (Your Hand: ${state.playerHand.join(" ")} | Enemy Hand: ${state.enemyHand.join(" ")})\n⚖ [GM]: ${res.gm_judgment} (Enemy -${dmgE} HP${healP ? `, You +${healP} HP` : ""})\n👹 【${state.enemyKanji}】: ${res.enemy_action} (You -${dmgP} HP)`;
+  state.history.push(turnLog);
+
+  if (state.playerHp <= 0) {
+    updateBattleHUD(`【 死 — GAME OVER (You have met your demise) 】\nFinal Streak in ${KANKEN_DATA[state.depthId].title}: 🔥 ${state.streak} Kills (Mode: ${config.instMode})\n\n${turnLog}\n\n[Click 'Copy Log' above to share your run, or 'Leave' to return to Menu]`);
+    return;
+  }
+
+  state.turn += 1;
+  dealNewHands();
+  updateBattleHUD(turnLog);
+}
+
+function exportBattleLog() {
+  const header = `=== KANJI DUNGEON 【漢字地獄】 (${KANKEN_DATA[state.depthId].title}) ===\nMode: ${config.instMode} | Model: ${config.model} | Streak: 🔥 ${state.streak} Kills\n\n`;
+  const body = state.history.length ? state.history.join("\n\n---\n\n") : document.getElementById("b-gm-log").textContent;
+  navigator.clipboard.writeText(header + body);
+  showToast("📋 Battle History copied to clipboard! Ready to paste on DC Inside / Reddit.");
+}
+
+function onProviderChange() {
+  const p = document.getElementById("s-provider").value;
+  const modelInput = document.getElementById("s-model-custom");
+  if (p === "gemini") modelInput.value = "gemini-flash-lite-latest";
+  if (p === "anthropic") modelInput.value = "claude-haiku-5-5";
+  if (p === "openrouter") modelInput.value = "anthropic/claude-haiku-5.5";
+}
+
+function onInstModeChange() {
+  const m = document.getElementById("s-inst-mode").value;
+  const grp = document.getElementById("s-custom-group");
+  grp.style.display = m === "Default" ? "none" : "flex";
+}
+
+function syncSettingsUI() {
+  document.getElementById("s-provider").value = config.provider;
+  document.getElementById("s-apikey").value = config.apiKey;
+  document.getElementById("s-model-custom").value = config.model;
+  document.getElementById("s-inst-mode").value = config.instMode;
+  document.getElementById("s-custom-inst").value = config.customInst;
+  document.getElementById("mode-badge").textContent = `⚙ Mode: ${config.instMode}`;
+  document.getElementById("lang-btn").textContent = `🌐 ${config.lang}`;
+  onInstModeChange();
+}
+
+function saveSettings() {
+  config.provider = document.getElementById("s-provider").value;
+  config.apiKey = document.getElementById("s-apikey").value.trim();
+  config.model = document.getElementById("s-model-custom").value.trim() || "gemini-flash-lite-latest";
+  config.instMode = document.getElementById("s-inst-mode").value;
+  config.customInst = document.getElementById("s-custom-inst").value.trim();
+
+  localStorage.setItem("kd_provider", config.provider);
+  localStorage.setItem("kd_apikey", config.apiKey);
+  localStorage.setItem("kd_model", config.model);
+  localStorage.setItem("kd_inst_mode", config.instMode);
+  localStorage.setItem("kd_custom_inst", config.customInst);
+
+  syncSettingsUI();
+  showToast(`✅ Saved! (${config.provider} / ${config.model} / Mode: ${config.instMode})`);
+  showView("menu");
+}
+
+async function testApiKey() {
+  saveSettings();
+  if (!config.apiKey) {
+    showToast("❌ API Key is empty!");
+    return;
+  }
+  showToast(`⏳ Testing ${config.provider} (${config.model})...`);
+  try {
+    const reply = await callLLM("Reply with the single word: READY", false);
+    showToast(`✅ OK [${config.model}]: "${reply.slice(0, 30)}"`);
+  } catch (err) {
+    showToast(`❌ Error: ${err.message.slice(0, 95)}`);
+  }
+}
+
+initApp();
+</script>
+</body>
+</html>
