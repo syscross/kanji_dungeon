@@ -34,6 +34,13 @@ function startRun(depthId) {
   renderPhase();
 }
 
+/* Closing the draft backs out of the descent before it starts. */
+function cancelDraft() {
+  clearSavedRun();
+  state.phase = "dead";
+  transitionToView("select");
+}
+
 function confirmDraft() {
   state.deck = [...state.draftOffer];
   state.draftOffer = [];

@@ -5,7 +5,7 @@
  */
 
 const HAND_SIZE = 5;
-const STARTING_DECK_SIZE = 8;
+const STARTING_DECK_SIZE = 10;
 const STARTING_MAX_HP = 100;
 const REROLL_HP_COST = 5;
 const SUMMON_COST_STEP = 10;

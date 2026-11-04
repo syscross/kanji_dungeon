@@ -18,7 +18,7 @@ function updateSavedRunBanner() {
 function handlePlayGameClick() {
   playClickSfx();
   if (hasActiveRun()) resumeSavedRun();
-  else transitionToView("select", "獄", t("selectDepth").replace(/[【】]/g, ""));
+  else transitionToView("select", "漢字地獄", "");
 }
 
 /* Guide */

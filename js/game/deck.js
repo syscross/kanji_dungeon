@@ -17,12 +17,6 @@ function rollDraftOffer() {
   return sample(depthPool(), STARTING_DECK_SIZE);
 }
 
-/* Replace one drafted kanji with a pool kanji not already offered. */
-function rerollDraftSlot(i) {
-  const pool = depthPool().filter(k => !state.draftOffer.includes(k));
-  if (pool.length) state.draftOffer[i] = pool[Math.floor(Math.random() * pool.length)];
-}
-
 function resetPilesForFight() {
   state.drawPile = shuffle(state.deck);
   state.discard = [];

@@ -328,7 +328,7 @@
 .node-bosses span.boss.seen { color: var(--gold); }
 
 /* Kanji picker (draft / picks / deck viewer) */
-.pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 8px; }
+.pick-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; max-width: 460px; width: 100%; margin: 0 auto; }
 .pick-tile {
   aspect-ratio: 3 / 4;
   background: linear-gradient(165deg, #212538 0%, #0e1018 100%);

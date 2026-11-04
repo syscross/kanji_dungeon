@@ -44,7 +44,9 @@ function anyModalOpen() {
 /* Locked modals (a required choice, e.g. the draft) ignore ESC / back. */
 function closeAllModals() {
   document.querySelectorAll(".modal-backdrop.active").forEach(m => {
-    if (!m.dataset.locked) m.classList.remove("active");
+    if (m.dataset.locked) return;
+    if (m.id === "pick-modal") dismissPicker();
+    else m.classList.remove("active");
   });
 }
 

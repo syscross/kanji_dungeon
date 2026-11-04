@@ -3,7 +3,7 @@
 const GUIDE_PAGES = {
   KO: [
     { title: "1/5 — 원정",
-      body: "• 열두 개의 옥(獄) 중 하나를 골라 내려간다. 깊을수록 글자가 어렵다.\n• 시작하면 **덱이 될 여덟 글자**를 고른다. 마음에 들 때까지 몇 번이고 다시 뽑아도 된다.\n• 갈림길마다 **글자 하나**를 고른다. 山은 험하고, 花는 달콤하고, 寺에서는 쉴 수 있다. 다만 글자는 암시일 뿐, 약속이 아니다.\n• 마지막 문 너머의 **옥주(獄主)**를 쓰러뜨리면 그 옥을 빠져나간다." },
+      body: "• 열두 개의 옥(獄) 중 하나를 고른다. 깊을수록 글자가 어렵다.\n• 시작하면 **시작 덱 10장**이 주어진다. 마음에 들 때까지 다시 뽑을 수 있다.\n• 갈림길마다 **글자 하나**를 고른다. 山은 험하고, 花는 달콤하고, 寺에서는 쉴 수 있다. 다만 글자는 암시일 뿐, 약속이 아니다.\n• 마지막 문 너머의 **옥주(獄主)**를 쓰러뜨리면 그 옥을 빠져나간다." },
     { title: "2/5 — 글자로 싸우기",
       body: "• 매 턴 덱에서 다섯 글자를 쥔다. 글자의 **진짜 뜻**을 살려 행동을 묘사하면 GM이 판정한다.\n• 예: 火로 불꽃을 날린다 · 水로 상처를 씻어낸다 · 石을 쌓아 막는다 · 刀로 벤다.\n• **글자만 써도 된다.** 火車, 火山처럼 진짜 숙어나 뜻이 통하는 조합이면 그 자체로 강한 영창이다. 아무렇게나 늘어놓은 글자는 불발한다.\n• 등급: 不発 · 凡 · 良 · 妙 · 絶. 같은 수를 되풀이하면 한 단계 내려간다." },
     { title: "3/5 — 적의 패",
@@ -15,7 +15,7 @@ const GUIDE_PAGES = {
   ],
   EN: [
     { title: "1/5 — The Descent",
-      body: "• Pick one of twelve gaols. The deeper, the harder the kanji.\n• First choose the **eight kanji that become your deck** — redraw as often as you like.\n• At each fork, choose **a sign kanji**. 山 is steep, 花 smells sweet, 寺 may let you rest. A sign is a hint, never a promise.\n• Defeat the **master of the gaol** behind the last door to walk out." },
+      body: "• Pick one of twelve gaols. The deeper, the harder the kanji.\n• You start with a **10-kanji deck** — redraw it as often as you like.\n• At each fork, choose **a sign kanji**. 山 is steep, 花 smells sweet, 寺 may let you rest. A sign is a hint, never a promise.\n• Defeat the **master of the gaol** behind the last door to walk out." },
     { title: "2/5 — Fighting With Words",
       body: "• Each turn you hold five kanji from your deck. Describe a move that uses their **real meanings**; the GM judges it.\n• e.g. 火 hurls flame · 水 washes a wound clean · 石 stacks into a wall · 刀 cuts.\n• **Kanji alone are enough.** A real compound (火車, 火山) or a combination that makes sense is a strong incantation on its own. A random string of kanji fizzles.\n• Verdicts: 不発 · 凡 · 良 · 妙 · 絶. Repeating the same move drops it one level." },
     { title: "3/5 — The Enemy's Hand",
@@ -27,7 +27,7 @@ const GUIDE_PAGES = {
   ],
   JA: [
     { title: "1/5 — 探索",
-      body: "• 十二の獄から一つを選んで降りる。深いほど字は難しい。\n• まず**デッキとなる八字**を選ぶ。気に入るまで何度でも引き直せる。\n• 分かれ道では**字を一つ**選ぶ。山は険しく、花は甘く、寺では休めるかもしれない。字は暗示であって約束ではない。\n• 最後の扉の先の**獄主**を倒せば、その獄を抜けられる。" },
+      body: "• 十二の獄から一つを選ぶ。深いほど字は難しい。\n• **初期デッキ10枚**が配られる。気に入るまで何度でも引き直せる。\n• 分かれ道では**字を一つ**選ぶ。山は険しく、花は甘く、寺では休めるかもしれない。字は暗示であって約束ではない。\n• 最後の扉の先の**獄主**を倒せば、その獄を抜けられる。" },
     { title: "2/5 — 字で戦う",
       body: "• 毎ターン、デッキから五字を手にする。字の**本当の意味**を活かした行動を描写すると、GMが裁定する。\n• 例: 火で炎を放つ · 水で傷を洗う · 石を積んで防ぐ · 刀で斬る。\n• **字だけでもよい。** 火車・火山のような実在の熟語や意味の通る組み合わせは、それだけで強い詠唱になる。でたらめな羅列は不発する。\n• 裁定: 不発 · 凡 · 良 · 妙 · 絶。同じ手の繰り返しは一段下がる。" },
     { title: "3/5 — 敵の手札",

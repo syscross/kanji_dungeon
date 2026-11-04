@@ -47,7 +47,7 @@ js/main.js              bootstrap + #battle / #select restore on refresh
 ```
 
 ## 3. A descent (run)
-- Choose a gaol → **draft** 8 kanji (tap one to redraw it, or redraw all; unlimited) → step 1 is a fight.
+- Choose a gaol → **starting deck** of 10 kanji (redraw all, unlimited; ✕ backs out) → step 1 is a fight.
 - Steps 2–8: a **fork** of three sign kanji. Outcomes are rolled when the fork is generated and stay hidden unless revealed (灯 event). A 寺 is guaranteed before the boss.
 - Step 9: the gaol's **boss**. Winning records a clear (time, turns, HP, kills, deck size, **provider/model**, mode, offline-turn share).
 - After a normal/elite win: choose one of 3 **spoils** or leave it. Treasure rooms use the elite tier.
