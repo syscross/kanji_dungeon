@@ -271,11 +271,12 @@ const EVENTS = {
     ]
   },
   corpse: {
-    kanji: "屍",
-    title: EVT_L("The Dying Exorcist", "숨이 붙어 있는 퇴마사", "息のある退魔師"),
+    kanji: "人",
+    isNpc: true,
+    title: EVT_L("The Wounded Figure", "쓰러져 있는 인영", "倒れ伏す人影"),
     text: EVT_L("A bloodied figure slumped against the wall gasps: \"Do you carry any talisman of healing, medicine, or water…?\"",
-            "벽에 기댄 피투성이 퇴마사가 가쁜 숨을 몰아쉰다. \"크윽… 혹시 가방에 치유나 약초, 물에 관한 부적이 있소…?\"",
-            "壁にもたれた血塗れの退魔師が荒い息を吐く。「くっ…袋に治癒や薬草、水にまつわる札を持ってはいないか…？」"),
+            "벽에 기댄 피투성이 인영이 가쁜 숨을 몰아쉰다. \"크윽… 혹시 가방에 치유나 약초, 물에 관한 부적이 있소…?\"",
+            "壁にもたれた血塗れの人影が荒い息を吐く。「くっ…袋に治癒や薬草、水にまつわる札を持ってはいないか…？」"),
     options: [
       {
         label: EVT_L("✨ Offer a healing/water/herb talisman — Max HP +14 & HP +25", "✨ 회생의 부적을 건넨다 (가방의 글자 1장 공양) — 최대 HP +14 · HP +25", "✨ 回生の札を渡す (袋の字を1枚供養) — 最大HP +14・HP +25"),
@@ -290,17 +291,59 @@ const EVENTS = {
         }],
         when: s => s.deck.some(k => /[薬医水草命活癒回茶救生泉露]/.test(k))
       },
-      { label: EVT_L("Pry their fingers open for spoils", "손가락을 벌려 유류품을 챙긴다", "指をこじ開けて遺品を漁る"),
-        effects: [{ chance: 0.65, win: [{ addCard: "pick", choices: 3 }], lose: [{ say: EVT_L("It was a trap — a corpse fiend lunges!", "함정이었다 — 시체 귀신이 덮쳐온다!", "罠だった — 屍鬼が襲いかかる！") }, { battle: "normal" }] }] },
+      { label: EVT_L("Step closer to check their belongings", "다가가서 상태와 유류품을 살핀다", "歩み寄って様子と遺品を確かめる"),
+        effects: [{ chance: 0.6, win: [{ say: EVT_L("They press a talisman into your palm before fading away.", "그 자는 고맙다며 품속의 한자 패를 건네고 안개 속으로 사라졌다.", "その者は礼を言って懐の札を渡し、霧の中へと消えた。") }, { addCard: "pick", choices: 3 }], lose: [{ say: EVT_L("It was a trap — their eyes flip crimson and they lunge!", "함정이었다 — 죽어가는 척하던 자의 눈이 핏빛으로 뒤집히며 덮쳐온다!", "罠だった — 死にかけを装っていた者の目が紅く染まり襲いかかる！") }, { ambushNpc: true }] }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
+    ]
+  },
+  stranger: {
+    kanji: "人",
+    isNpc: true,
+    title: EVT_L("Figure in the Mist", "안개 속의 행인", "霧の中の行人"),
+    text: EVT_L("A lone figure steps out of the mist and greets you calmly. You cannot yet tell whether they are friend or foe.",
+            "짙은 안개 속에서 한 인영이 걸어 나와 말을 건넨다. 우호적인 생존자인지, 사람의 탈을 쓴 적인지 아직 알 수 없다.",
+            "深い霧の中から一人の人影が歩み出て静かに声をかけてくる。味方か、人の皮を被った敵かはまだ分からない。"),
+    options: [
+      {
+        label: EVT_L("Talk with them and ask the way ahead", "대화를 나누며 앞길의 기척을 묻는다", "言葉を交わして先の気配を尋ねる"),
+        effects: [{
+          chance: 0.62,
+          win: [
+            { say: EVT_L("\"Take care ahead—here, take this before you go.\"", "\"이 앞은 위험하오. 부디 무사하길 빌며 이걸 드리리다.\"", "「この先は険しい。どうか無事でいてくれ。」") },
+            { hp: 18 },
+            { reveal: true },
+            { tokens: 1 }
+          ],
+          lose: [
+            { say: EVT_L("Their smile twists ear to ear — it was an enemy in disguise!", "입꼬리가 귀까지 찢어지며 본색을 드러낸다 — 사실 적이었다!", "口角が耳まで裂け、本性を現した — 実は敵だった！") },
+            { ambushNpc: true }
+          ]
+        }]
+      },
+      {
+        label: EVT_L("Trade 1 kanji from your bag — Max HP +8 & pick a new kanji", "가방의 글자 1장을 건네고 비전을 교환한다 — 최대 HP +8 · 글자 선택", "袋の字を1枚渡して秘伝と交換する — 最大HP +8・字を選択"),
+        effects: [{
+          burn: "pick",
+          then: [
+            { say: EVT_L("\"A fine inscription! Take my secret in return.\"", "\"귀한 글자로군! 답례로 내 비전을 넘기겠소.\"", "「良い字だ！礼に我が秘伝を授けよう。」") },
+            { maxHp: 8 },
+            { addCard: "pick", choices: 4 }
+          ]
+        }],
+        when: s => s.deck.length > 0
+      },
+      {
+        label: EVT_L("Leave without a word", "모른 척 그냥 지나간다", "関わらずに通り過ぎる"),
+        effects: []
+      }
     ]
   },
   swarm: {
     kanji: "虫",
-    title: EVT_L("The Swarm", "벌레떼", "蟲の群れ"),
-    text: EVT_L("The floor chitters. Thousands of legs, all moving toward you.",
-            "바닥이 사각거린다. 수천 개의 다리가 일제히 이쪽으로 온다.",
-            "床がざわめく。無数の脚が一斉にこちらへ来る。"),
+    title: EVT_L("The Swarm", "어둠 속의 군집", "闇の群れ"),
+    text: EVT_L("The floor chitters. Thousands of shadows, all moving toward you.",
+            "바닥이 사각거린다. 수많은 그림자가 일제히 이쪽으로 몰려온다.",
+            "床がざわめく。無数の影が一斉にこちらへ迫る。"),
     options: [
       { label: EVT_L("Fight", "싸운다", "戦う"), effects: [{ battle: "normal" }] },
       { label: EVT_L("Run through it (−10 HP)", "뚫고 달린다 (−10 HP)", "突っ切る (−10 HP)"), effects: [{ hp: -10 }] },
@@ -308,7 +351,8 @@ const EVENTS = {
     ]
   },
   dice: {
-    kanji: "賽",
+    kanji: "人",
+    isNpc: true,
     title: EVT_L("The Bone Gambler", "뼈 주사위 노름꾼", "骨賽の博徒"),
     text: EVT_L("A grinning figure rattles bone dice. \"Your blood for my luck?\"",
             "히죽 웃는 자가 뼈 주사위를 흔든다. \"네 피와 내 운을 바꾸지 않겠나?\"",
@@ -346,4 +390,20 @@ const EVENTS = {
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   }
+};
+
+/* Grade-matched NPC / Disguised-Foe kanji pool per depth (strictly matching each depth's Kanken grade & roster!). */
+const DEPTH_NPC_POOLS = {
+  depth_1:  ["人", "目"],
+  depth_2:  ["頭", "雪", "黒"],
+  depth_3:  ["客", "医", "者"],
+  depth_4:  ["兵", "徒", "卒", "官", "臣"],
+  depth_5:  ["士", "犯", "像", "迷"],
+  depth_6:  ["亡", "従", "警", "衆"],
+  depth_7:  ["僧", "盗", "狩", "影"],
+  depth_8:  ["侍", "賊", "偶", "猟", "幽"],
+  depth_9:  ["仙", "忍", "偵", "曹", "傑"],
+  depth_10: ["妖", "骸", "怨"],
+  depth_11: ["狐", "屍", "兇"],
+  depth_12: ["巫", "魑", "魍", "傀儡"]
 };

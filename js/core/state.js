@@ -74,6 +74,7 @@ function createRunState() {
     eventId: null,
     lastEventId: null,
     quizKanji: "",
+    eventNpcKanji: "",
     offer: [],               // pending spoils [{ id, params }]
     pending: null,           // { mode: "add"|"burn"|"dup"|"scavenge", choices, selected, rest }
 

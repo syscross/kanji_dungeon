@@ -70,11 +70,16 @@ function runEffects(list) {
     } else if (fx.returnGaol) {
       updateBattleHUD(false);
       return triggerFormalReturn();
+    } else if (fx.ambushNpc) {
+      const npcFoe = state.eventNpcKanji || null;
+      updateBattleHUD(false);
+      return startBattle("normal", npcFoe, { ambush: true });
     } else if (fx.battle) {
       const rank = fx.battle === "elite" ? "elite" : "normal";
       const forced = ["normal", "elite"].includes(fx.battle) ? null : fx.battle;
+      const fromEvent = state.phase === "event";
       updateBattleHUD(false);
-      return startBattle(rank, forced);
+      return startBattle(rank, forced, { ambush: fromEvent });
     }
   }
   updateBattleHUD(false);

@@ -22,10 +22,13 @@ function setHpBar(barId, numId, hp, max) {
   bar.classList.toggle("low", pct <= 30);
 }
 
-/* What the big card on the enemy stage shows, by phase. */
+/* What the big card on the enemy stage shows, by phase.
+ * - Initial gate (before entering a stage, state.sign === ""): top-right stage badge shows 門, top-left portrait shows 開 (열 개).
+ * - During events (including friendly/ambiguous NPCs): top-left portrait stays as the Stage Kanji (state.sign), while the NPC/event appears only in the log.
+ * - If an event NPC reveals itself as an enemy, phase switches to "battle" and the portrait transforms into the enemy kanji! */
 function stageCardContent() {
   if (state.phase === "dead") {
-    return { kanji: state.enemyKanji || state.sign || "門", neutral: !state.enemyKanji };
+    return { kanji: state.enemyKanji || state.sign || "開", neutral: !state.enemyKanji };
   }
   if (state.phase === "abandoned") {
     return { kanji: state.enemyKanji || state.sign || "閉", neutral: false, abandoned: true };
@@ -39,11 +42,7 @@ function stageCardContent() {
   if (state.phase === "battle" || (state.phase === "reward" && state.enemyKanji)) {
     return { kanji: state.enemyKanji, neutral: false };
   }
-  if (state.phase === "event") {
-    const ev = typeof getActiveEventDef === "function" ? getActiveEventDef() : EVENTS[state.eventId];
-    if (ev) return { kanji: ev.kanji, neutral: true };
-  }
-  return { kanji: state.sign || "門", neutral: true };
+  return { kanji: state.sign || "開", neutral: true };
 }
 
 /* Top bar showing this run's encountered/slain foes (left) and the run's boss as ?/gray/red (right). */

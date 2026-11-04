@@ -12,42 +12,42 @@ const DEPTHS = {
     name: "獄門",
     gloss: { EN: "The Prison Gate", KO: "지옥의 문턱", JA: "地獄の入口", ZH_CN: "地狱之门", ZH_TW: "地獄之門" },
     lore: {
-      KO: "벼가 자라던 논밭(田)과 아이들의 목소리가 울리던 학교(校), 평화롭던 마을(村·町)이 하룻밤 새 핏빛 안개에 잠겼다.\n가장 기초적인 사물의 이름조차 뒤틀린 변방. 어제까지 이웃이었던 사내(男)와 여인(女), 주인을 따르던 개(犬)마저 눈이 뒤집힌 채 산 자의 숨결을 쫓아 배회한다.",
-      EN: "Overnight, crimson mist swallowed the rice paddies (田), the village streets (村·町), and the old schoolhouse (校).\nEven the simplest words have twisted here. Men (男), women (女), and stray hounds (犬) that were neighbors yesterday now prowl the fog, drawn to the scent of the living.",
-      JA: "稲穂の揺れていた田(田)も、子供の声が響いた学び舎(校)も、穏やかだった村(村・町)も、一夜にして血霧に沈んだ。\n最も基本的な言葉すら歪んだ辺境。昨日まで隣人だった男女(男・女)や飼い犬(犬)までもが目を血走らせ、生者の息遣いを追って彷徨っている。"
+      KO: "벼가 자라던 논밭(田)과 아이들의 목소리가 울리던 학교(校), 평화롭던 마을(村·町)이 하룻밤 새 핏빛 안개에 잠겼다.\n가장 기초적인 사물의 이름조차 뒤틀린 변방. 주인을 잃고 굶주린 들개(犬)와 기괴하게 자라난 고목(木)·바위(石), 허공을 떠도는 외눈(目)과 망자(人)들이 산 자의 숨결을 쫓아 배회한다.",
+      EN: "Overnight, crimson mist swallowed the rice paddies (田), the village streets (村·町), and the old schoolhouse (校).\nEven the simplest words have twisted here. Starving hounds (犬), animated stones (石) and trees (木), floating eyes (目), and the restless dead (人) prowl the fog, drawn to the scent of the living.",
+      JA: "稲穂の揺れていた田(田)も、子供の声が響いた学び舎(校)も、穏やかだった村(村・町)も、一夜にして血霧に沈んだ。\n最も基本的な言葉すら歪んだ辺境。飢えた野犬(犬)や蠢く古木(木)・岩(石)、虚空を漂う一つ目(目)や亡者(人)が生者の息遣いを追って彷徨っている。"
     },
     roster: {
-      normal: ["犬", "虫", "人", "男", "女", "子", "木", "石"],
+      normal: ["犬", "虫", "人", "木", "石", "貝", "目"],
       elite: ["森", "車"],
       boss: "王",
-      bossPool: ["王", "天", "先"]
+      bossPool: ["王", "天", "月"]
     }
   },
   depth_2: {
     name: "風穴",
     gloss: { EN: "The Wind Hollow", KO: "바람의 굴", JA: "風の洞", ZH_CN: "风之洞", ZH_TW: "風之洞" },
     lore: {
-      KO: "마을을 덮친 재앙을 피해 가도(道)를 따라 도망치던 피난민들의 발길이 끊긴 곳. 저잣거리(市)와 칠흑 같은 바닷가(海) 위로 살을 에듯 날카로운 칼바람이 분다.\n구원을 빌며 숨어든 고찰(寺)과 신사(社)의 문짝은 부서졌고, 돌아오지 못한 부모(父·母)와 형제(兄·姉)의 형상을 한 그림자들이 밤(夜)마다 골짜기(谷)에서 산 자의 이름을 부른다.",
-      EN: "Refugees fled along the beaten road (道) toward the market (市) and the black sea (海), only to be overtaken by howling blades of wind.\nThe wayside shrines (社) and temples (寺) lie shattered. Every night (夜), shadows wearing the faces of lost parents (父·母) and siblings (兄·姉) call out from the gorge (谷).",
-      JA: "災厄から逃れようと街道(道)を走った避難民の足跡が途絶えた地。捨てられた市(市)と漆黒の海(海)に刃のような風が吹き荒れる。\n救いを求めた古寺(寺)や社(社)の扉は砕け、帰らぬ父母(父・母)や兄姉(兄・姉)の姿をした影が、夜(夜)ごとに谷(谷)から生者の名を呼んでいる。"
+      KO: "마을을 덮친 재앙을 피해 가도(道)를 따라 도망치던 발길이 끊긴 곳. 저잣거리(市)와 칠흑 같은 바닷가(海) 위로 살을 에듯 날카로운 칼바람이 분다.\n부서진 고찰(寺)과 신사(社) 너머로 미쳐 날뛰는 흑마(馬)와 광우(牛), 허공을 떠다니는 거대한 수급(頭)과 눈보라의 원령(雪)이 밤(夜)마다 골짜기(谷)에서 울부짖는다.",
+      EN: "Along the beaten road (道) toward the market (市) and the black sea (海), howling blades of wind cut down all who fled.\nBeyond shattered temples (寺) and shrines (社), maddened steeds (馬), charging bulls (牛), floating severed heads (頭), and frost wraiths (雪) howl through the gorge (谷) every night (夜).",
+      JA: "災厄から逃れようと街道(道)を走った足跡が途絶えた地。捨てられた市(市)と漆黒の海(海)に刃のような風が吹き荒れる。\n砕けた古寺(寺)や社(社)の向こうで、狂い走る黒馬(馬)や猛牛(牛)、宙を舞う巨大な首(頭)と吹雪の怨霊(雪)が夜(夜)ごとに谷(谷)で咆哮している。"
     },
     roster: {
-      normal: ["馬", "牛", "鳥", "魚", "兄", "姉", "父", "母"],
+      normal: ["馬", "牛", "鳥", "魚", "頭", "雪", "雲"],
       elite: ["岩", "黒"],
       boss: "電",
-      bossPool: ["電", "夜", "親"]
+      bossPool: ["電", "夜", "星"]
     }
   },
   depth_3: {
     name: "血池",
     gloss: { EN: "The Blood Pond", KO: "피의 못", JA: "血の池", ZH_CN: "血池", ZH_TW: "血池" },
     lore: {
-      KO: "원인 모를 역병(病)이 항구(港)와 외딴섬(島)까지 번지자, 의원(医)들은 병동(院)을 걸어 잠그고 시신을 호수(湖)에 수장하기 시작했다.\n그러나 바닥에 고인 피(血)와 원한이 얼어붙은 물결(氷) 속에서 죽음(死) 그 자체가 형체를 얻어 기어 나왔고, 버려진 폐옥(屋)과 무기고(庫)마다 미쳐버린 객(客)들의 비명이 메아리친다.",
-      EN: "When an unnamed plague (病) swept the harbor (港) and outer island (島), physicians (医) bolted the infirmaries (院) and dumped the dead into the lake (湖).\nFrom that stagnant blood (血) and black ice (氷), Death (死) itself crawled ashore. Now mad guests (客) shriek endlessly inside the creaking houses (屋) and rusted vaults (庫).",
-      JA: "得体の知れぬ疫病(病)が港(港)や孤島(島)にまで広がり、医者(医)たちは病棟(院)を封鎖して骸を湖(湖)へと沈めた。\nだが澱んだ血(血)と凍てつく氷(氷)の底から死(死)そのものが這い上がり、軋む廃屋(屋)や武器庫(庫)には狂い果てた客(客)の悲鳴が木霊している。"
+      KO: "원인 모를 역병(病)이 항구(港)와 외딴섬(島)까지 번지자, 의원(医)들은 병동(院)을 걸어 잠그고 시신을 호수(湖)에 수장하기 시작했다.\n그러나 바닥에 고인 피(血)와 원한이 얼어붙은 물결(氷) 속에서 죽음(死) 그 자체가 형체를 얻어 기어 나왔고, 버려진 폐옥(屋)과 무기고(庫)마다 미쳐버린 객(客)들과 어둠의 그림자(暗)가 도사린다.",
+      EN: "When an unnamed plague (病) swept the harbor (港) and outer island (島), physicians (医) bolted the infirmaries (院) and dumped the dead into the lake (湖).\nFrom that stagnant blood (血) and black ice (氷), Death (死) itself crawled ashore. Now mad guests (客) and creeping darkness (暗) lurk inside the creaking houses (屋) and rusted vaults (庫).",
+      JA: "得体の知れぬ疫病(病)が港(港)や孤島(島)にまで広がり、医者(医)たちは病棟(院)を封鎖して骸を湖(湖)へと沈めた。\nだが澱んだ血(血)と凍てつく氷(氷)の底から死(死)そのものが這い上がり、軋む廃屋(屋)や武器庫(庫)には狂い果てた客(客)や暗影(暗)が潜んでいる。"
     },
     roster: {
-      normal: ["羊", "童", "客", "医", "者", "氷", "病"],
+      normal: ["羊", "客", "医", "者", "氷", "病", "暗"],
       elite: ["血", "悪"],
       boss: "死",
       bossPool: ["死", "神", "主"]
@@ -57,27 +57,27 @@ const DEPTHS = {
     name: "古戦場",
     gloss: { EN: "The Old Battlefield", KO: "번국의 옛 싸움터", JA: "古き戦場", ZH_CN: "古战场", ZH_TW: "古戰場" },
     lore: {
-      KO: "역병과 기근 끝에 각 지방 번국(藩國)이 서로의 목을 겨누며 벌인 대전란의 흔적. 이바라키의 가시나무 들판(茨)과 니가타의 검은 개펄(潟), 토치기의 고목림(栃)과 오사카의 핏빛 비탈길(阪), 기후의 험준한 갈림길(岐)까지 열도 곳곳이 거대한 무덤이 되었다.\n전쟁은 진작 끝났건만, 불타는 고성(城)과 병영 거리(街)에는 자신이 죽은 줄도 모르는 병졸(兵)과 관리(官), 망령이 된 군세(軍)가 여전히 진군 북을 울리고 있다.",
-      EN: "In the wake of plague and famine, the provinces tore each other apart. From the briar wastes of Ibaraki (茨) and black mudflats of Niigata (潟) to the woods of Tochigi (栃), the bloodied slopes of Osaka (阪), and the mountain crossroads of Gifu (岐), the land became one vast grave.\nThough the war is long over, dead soldiers (兵), magistrates (官), and phantom armies (軍) still march through the burning fortress (城) and garrison streets (街).",
-      JA: "疫病と飢饉の果てに諸藩が刃を交えた大戦乱の跡。茨城の茨野(茨)、新潟の黒い干潟(潟)、栃木の古木林(栃)、大阪の血塗られた坂(阪)、岐阜の険しい岐路(岐)に至るまで、各地が巨大な墓標と化した。\n戦はとうに終わったはずが、燃える古城(城)や廃墟の街(街)では、己の死すら知らぬ兵(兵)や官吏(官)、亡霊の軍勢(軍)が今なお進軍の太鼓を鳴らしている。"
+      KO: "역병과 기근 끝에 각 지방 번국(藩國)이 서로의 목을 겨누며 벌인 대전란의 흔적. 이바라키의 가시나무 들판(茨)과 니가타의 검은 개펄(潟), 토치기의 고목림(栃)과 오사카의 핏빛 비탈길(阪), 기후의 험준한 갈림길(岐)까지 열도 곳곳이 거대한 무덤이 되었다.\n전쟁은 진작 끝났건만, 불타는 고성(城)과 병영 거리(街)에는 자신이 죽은 줄도 모르는 병졸(兵·卒)과 관리(官), 망령이 된 군세(軍)가 여전히 진군 북을 울리고 있다.",
+      EN: "In the wake of plague and famine, the provinces tore each other apart. From the briar wastes of Ibaraki (茨) and black mudflats of Niigata (潟) to the woods of Tochigi (栃), the bloodied slopes of Osaka (阪), and the mountain crossroads of Gifu (岐), the land became one vast grave.\nThough the war is long over, dead soldiers (兵·卒), magistrates (官), and phantom armies (軍) still march through the burning fortress (城) and garrison streets (街).",
+      JA: "疫病と飢饉の果てに諸藩が刃を交えた大戦乱の跡。茨城の茨野(茨)、新潟の黒い干潟(潟)、栃木の古木林(栃)、大阪の血塗られた坂(阪)、岐阜の険しい岐路(岐)に至るまで、各地が巨大な墓標と化した。\n戦はとうに終わったはずが、燃える古城(城)や廃墟の街(街)では、己の死すら知らぬ兵卒(兵・卒)や官吏(官)、亡霊の軍勢(軍)が今なお進軍の太鼓を鳴らしている。"
     },
     roster: {
-      normal: ["熊", "鹿", "兵", "徒", "民", "老", "児"],
+      normal: ["熊", "鹿", "兵", "徒", "卒", "隊", "機"],
       elite: ["官", "臣"],
       boss: "軍",
-      bossPool: ["軍", "司", "夫"]
+      bossPool: ["軍", "司", "勇"]
     }
   },
   depth_5: {
     name: "罪人塚",
     gloss: { EN: "The Sinners' Mound", KO: "죄인의 무덤", JA: "罪人の塚", ZH_CN: "罪人冢", ZH_TW: "罪人塚" },
     lore: {
-      KO: "전란의 패잔병과 대역죄인(犯·罪)들을 산 채로 수장하고 파묻은 금단의 유배지.\n독가스가 새어 나오는 폐광(鉱)과 잿빛 강물(河) 너머, 이단의 법당(堂)에서는 기괴한 불상(像)과 타락한 법사(師)들이 죽은 조상(祖)의 유해를 일으켜 세우며 산 자와 죽은 자의 경계(境)를 허물고 있다.",
-      EN: "A forbidden penal ground where war criminals and heretics (犯·罪) were buried alive.\nBeyond the toxic collapsed mines (鉱) and rivers of ash (河), defiled statues (像) and fallen priests (師) chant inside heretic halls (堂), raising the bones of ancestors (祖) to erase the border (境) between life and death.",
-      JA: "戦乱の落武者や大罪人(犯・罪)が生き埋めにされた禁断の流刑地。\n毒ガスが漏れる廃鉱(鉱)と灰色の河(河)の向こう、異端の堂(堂)では歪んだ仏像(像)と堕ちた法師(師)が祖先の骸(祖)を操り、生死の境(境)を塗り潰している。"
+      KO: "전란의 패잔병과 대역죄인(犯·罪)들을 산 채로 수장하고 파묻은 금단의 유배지.\n독가스가 새어 나오는 폐광(鉱)과 잿빛 강물(河) 너머, 이단의 법당(堂)에서는 기괴한 불상(像)과 타락한 법사(師)들이 원통하게 죽은 미망령(迷)들을 일으켜 세우며 산 자와 죽은 자의 경계(境)를 허물고 있다.",
+      EN: "A forbidden penal ground where war criminals and heretics (犯·罪) were buried alive.\nBeyond the toxic collapsed mines (鉱) and rivers of ash (河), defiled statues (像) and fallen priests (師) chant inside heretic halls (堂), raising lost spirits (迷) to erase the border (境) between life and death.",
+      JA: "戦乱の落武者や大罪人(犯・罪)が生き埋めにされた禁断の流刑地。\n毒ガスが漏れる廃鉱(鉱)と灰色の河(河)の向こう、異端の堂(堂)では歪んだ仏像(像)と堕ちた法師(師)が迷える亡霊(迷)を操り、生死の境(境)を塗り潰している。"
     },
     roster: {
-      normal: ["士", "婦", "妻", "祖", "犯", "像"],
+      normal: ["士", "犯", "像", "象", "毒", "迷"],
       elite: ["武", "罪"],
       boss: "災",
       bossPool: ["災", "師", "仏"]
@@ -92,7 +92,7 @@ const DEPTHS = {
       JA: "人の世の果て。幾万もの白骨(骨)と亡者(亡)の骸を積み上げて築かれた巨大な地下楼閣(閣)。\n骨灰が砂(砂)のように舞い、肉が実る大樹(樹)の下で、自らを皇(皇)や聖(聖)と称する白骨の支配者たちが、煮え立つ血の泉(泉)と骨蔵(蔵)を守っている。"
     },
     roster: {
-      normal: ["骨", "亡", "幼", "衆", "俳", "蚕"],
+      normal: ["骨", "亡", "蚕", "衆", "従", "警"],
       elite: ["敵", "異"],
       boss: "皇",
       bossPool: ["皇", "将", "聖"]
@@ -107,7 +107,7 @@ const DEPTHS = {
       JA: "民草が巻き込まれた辺境はここで終わる。これより先は、鬼を斬るために自ら刃を握った討伐隊・鬼殺の領域だ。\n人の声を真似る食人鬼(鬼)と狂暴な魔獣(獣)が、雷落ちる塔(塔)や腐敗の沼(沼)に巣食っている。先遣隊が血で描いた陣(陣)を越え、鬼を討つと誓った者だけがこの哭き声の谷へ踏み込める。"
     },
     roster: {
-      normal: ["獣", "奴", "娘", "郎", "僧", "隷"],
+      normal: ["獣", "僧", "盗", "狩", "影", "凶"],
       elite: ["巨", "狂"],
       boss: "鬼",
       bossPool: ["鬼", "雷", "雄"]
@@ -122,7 +122,7 @@ const DEPTHS = {
       JA: "熟練の侍(侍)ですら単独で踏み込めば怨霊(霊・幽)に肉体を乗っ取られて帰るという魔境。\n魂を溶かして妖刀を鍛える炉(炉)、生贄の血が乾かぬ祭壇(壇)、暴かれた古墳(墳)、絶叫の牢獄(獄)が闇に口を開けている。生半可な覚悟では一歩も進めぬ手練れの死地。"
     },
     roster: {
-      normal: ["霊", "怪", "賊", "婆", "嬢", "姫", "豚"],
+      normal: ["霊", "怪", "賊", "偶", "猟", "蛮", "鯨"],
       elite: ["侍", "幽", "邪"],
       boss: "魔",
       bossPool: ["魔", "帝", "騎"]
@@ -137,8 +137,8 @@ const DEPTHS = {
       JA: "一時代を血で統べた覇王(覇)や大元帥(帥)、人を超えようとして怪異に堕ちた仙人(仙)と火竜(竜)が覇権を争う修羅道。\n処刑刀の塚(塚)や鉄艦沈む堀(堀)、人骨を焼く窯(窯)、竜眠る洞(洞)を突破するには、敵の殺気を見切り真っ向から斬り伏せる達人の境地が求められる。"
     },
     roster: {
-      normal: ["猫", "蛇", "猿", "蚊", "忍", "囚", "虜"],
-      elite: ["仙", "翁"],
+      normal: ["猫", "蛇", "猿", "蚊", "忍", "偵", "曹"],
+      elite: ["仙", "傑"],
       boss: "覇",
       bossPool: ["覇", "竜", "帥"]
     }
@@ -147,12 +147,12 @@ const DEPTHS = {
     name: "冥府",
     gloss: { EN: "The Underworld", KO: "저승의 문턱", JA: "冥府", ZH_CN: "冥府", ZH_TW: "冥府" },
     lore: {
-      KO: "인간의 언어와 상식(상용한자)이 닿을 수 있는 가장 깊고 어두운 극한.\n빛 한 줄기 들지 않는 칠흑(闇)의 절벽(崖) 너머, 죄인을 삶는 지옥 가마솥(釜)이 끓어오르고 천 년 묵은 원념(怨)과 해골(骸)이 저승(冥)의 문턱을 가로막는다. 여기까지 살아서 도달한 자라면, 인간으로서 도달할 수 있는 무예와 지략의 정점에 섰다고 부르기에 부족함이 없다.",
-      EN: "The deepest limit where human language and common reason (Jōyō kanji) still hold sway.\nBeyond storm-lashed cliffs (崖) of lightless dark (闇), hell cauldrons (釜) boil and ancient grudges (怨) and skeletons (骸) bar the threshold of the Underworld (冥). Anyone who reaches this gate has already proven the pinnacle of human skill.",
-      JA: "人の言葉と常識(常用漢字)が届く最も深く暗い極限。\n光なき闇(闇)の断崖(崖)の向こうで地獄釜(釜)が煮え立ち、千年の怨念(怨)と骸(骸)が冥府(冥)の敷居を塞いでいる。ここまで辿り着いた者ならば、人の身で到達し得る武と知の頂に立ったと言っていい。"
+      KO: "인간의 언어와 상식(상용한자)이 닿을 수 있는 가장 깊고 어두운 극한.\n빛 한 줄기 들지 않는 산기슭(麓)과 폭풍 치는 절벽(崖) 너머, 죄인을 삶는 지옥 가마솥(釜)이 끓어오르고 천 년 묵은 원념(怨)과 해골(骸)이 저승(冥)의 철책(柵)을 가로막는다. 여기까지 살아서 도달한 자라면, 인간으로서 도달할 수 있는 무예와 지략의 정점에 섰다고 부르기에 부족함이 없다.",
+      EN: "The deepest limit where human language and common reason (Jōyō kanji) still hold sway.\nBeyond lightless foothills (麓) and storm-lashed cliffs (崖), hell cauldrons (釜) boil and ancient grudges (怨) and skeletons (骸) bar the palisade (柵) of the Underworld (冥). Anyone who reaches this gate has already proven the pinnacle of human skill.",
+      JA: "人の言葉と常識(常用漢字)が届く最も深く暗い極限。\n光なき山麓(麓)と嵐の断崖(崖)の向こうで地獄釜(釜)が煮え立ち、千年の怨念(怨)と骸(骸)が冥府(冥)の柵(柵)を塞いでいる。ここまで辿り着いた者ならば、人の身で到達し得る武と知の頂に立ったと言っていい。"
     },
     roster: {
-      normal: ["虎", "亀", "蜂", "鶴", "駒", "妖", "乞"],
+      normal: ["虎", "亀", "蜂", "鶴", "駒", "妖", "顎"],
       elite: ["骸", "怨"],
       boss: "冥",
       bossPool: ["冥", "闇", "鬱"]

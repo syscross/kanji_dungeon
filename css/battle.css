@@ -784,5 +784,14 @@ body.kb-open .gm-box { min-height: 48px; }
   0% { opacity: 0; transform: scale(1.5); filter: blur(6px) brightness(3); }
   100% { opacity: 1; transform: scale(1); filter: none; }
 }
+.boss-card.ambush-reveal {
+  animation: ambushFlipReveal 0.68s cubic-bezier(0.18, 0.88, 0.28, 1.15);
+}
+@keyframes ambushFlipReveal {
+  0% { transform: scale(0.92) rotateY(0deg); border-color: var(--gold); filter: brightness(2.6); }
+  38% { transform: scale(1.22) rotateY(90deg) rotateZ(-8deg); filter: brightness(3.5) drop-shadow(0 0 28px #ff243b); }
+  72% { transform: scale(1.08) rotateY(180deg) rotateZ(4deg); border-color: #ff243b; box-shadow: 0 0 42px rgba(255, 36, 59, 0.85); }
+  100% { transform: scale(1) rotateY(0deg) rotateZ(0deg); filter: none; }
+}
 
 .badge:empty { display: none; }

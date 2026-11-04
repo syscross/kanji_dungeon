@@ -62,12 +62,39 @@ function buildQuizEvent(q) {
   };
 }
 
+/* Pick a grade-matched NPC kanji for the current depth WITHOUT marking it as an encountered enemy!
+ * If the NPC turns out to be a disguised foe (`ambushNpc`), that exact kanji transforms into the enemy portrait. */
+function pickEventNpcKanji(depthId) {
+  const pool = (typeof DEPTH_NPC_POOLS !== "undefined" && DEPTH_NPC_POOLS[depthId]) || ["人"];
+  const defeated = state.defeatedEnemies || [];
+  const encountered = state.encounteredEnemies || [];
+  const alivePool = pool.filter(k => !defeated.includes(k));
+  if (alivePool.length) {
+    const unseenAlive = alivePool.filter(k => !encountered.includes(k));
+    const candidates = unseenAlive.length ? unseenAlive : alivePool;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  }
+  const roster = depthRoster(depthId);
+  const aliveNormal = (roster.normal || []).filter(k => !defeated.includes(k));
+  if (aliveNormal.length) {
+    return aliveNormal[Math.floor(Math.random() * aliveNormal.length)];
+  }
+  return pool[0] || "人";
+}
+
 function getActiveEventDef() {
   if (state.eventId === "quiz") {
     const q = QUIZ_BANK.find(item => item.kanji === state.quizKanji) || QUIZ_BANK[0];
     return buildQuizEvent(q);
   }
-  return EVENTS[state.eventId] || EVENTS.rest;
+  const base = EVENTS[state.eventId] || EVENTS.rest;
+  if (base.isNpc && state.eventNpcKanji) {
+    return {
+      ...base,
+      kanji: state.eventNpcKanji
+    };
+  }
+  return base;
 }
 
 function startEvent(id) {
@@ -78,6 +105,13 @@ function startEvent(id) {
   state.eventId = id;
   state.lastEventId = id;
   state.phase = "event";
+
+  const baseDef = EVENTS[id];
+  if (baseDef && baseDef.isNpc) {
+    state.eventNpcKanji = pickEventNpcKanji(state.depthId);
+  } else {
+    state.eventNpcKanji = "";
+  }
 
   if (id === "quiz") {
     const dNum = depthNumber(state.depthId);

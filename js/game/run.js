@@ -392,7 +392,7 @@ function enterConqueredBossSanctum() {
   runEffects([{ hp: 15 }, { scavenge: 5 }, { bossClear: true }]);
 }
 
-function startBattle(rank, forcedKanji = null) {
+function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   const picked = pickEnemyForStage(rank, forcedKanji);
   if (!picked) {
     if (rank === "boss") return enterConqueredBossSanctum();
@@ -435,10 +435,19 @@ function startBattle(rank, forcedKanji = null) {
 
   resetBattleChrome();
   const mark = RANK_MARK[actualRank] ? `${RANK_MARK[actualRank]}·` : "";
+  const encounterLine = typeof getEnemyEncounterLine === "function"
+    ? getEnemyEncounterLine(kanji, actualRank, Boolean(prevWoundedHp), Boolean(ambush))
+    : "";
   if (prevWoundedHp) {
-    logMd(t("reEncounterChallenger")(`${mark}${kanji}`, startHp, maxHp), "sys-log");
+    logMd(
+      t("reEncounterChallenger")(`${mark}${kanji}`, startHp, maxHp) + (encounterLine ? ` — ${encounterLine}` : ""),
+      "sys-log"
+    );
   } else {
-    logMd(t("nextChallenger")(`${mark}${kanji}`), "sys-log");
+    logMd(
+      t("nextChallenger")(`${mark}${kanji}`) + (encounterLine ? ` — ${encounterLine}` : ""),
+      "sys-log"
+    );
   }
   logMd(`🎴 **${t("stageCardsLog")}(【${state.sign}】)**: ${state.stageCards.join(" · ")}`, "fx-log");
 
@@ -446,10 +455,21 @@ function startBattle(rank, forcedKanji = null) {
   renderPhase();
   updateBattleHUD(true);
   const boss = $("b-boss-card");
-  boss.classList.remove("enter");
+  boss.classList.remove("enter", "ambush-reveal");
   void boss.offsetWidth;
-  boss.classList.add("enter");
-  if (actualRank === "boss") playGongSfx();
+  if (ambush) {
+    boss.classList.add("ambush-reveal");
+    if (typeof playSealStampSfx === "function") playSealStampSfx();
+    if (typeof playDamageSfx === "function") setTimeout(() => playDamageSfx(), 120);
+    const vig = $("damage-vignette");
+    if (vig) {
+      vig.classList.add("flash");
+      setTimeout(() => vig.classList.remove("flash"), 360);
+    }
+  } else {
+    boss.classList.add("enter");
+    if (actualRank === "boss") playGongSfx();
+  }
   if (!isCoarsePointer()) $("b-input").focus();
 }
 
