@@ -19,11 +19,12 @@ function escapeHtml(raw) {
   return String(raw).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/* Minimal markdown: headings, **bold**, `code`. Input is escaped first. */
+/* Minimal markdown: headings, **bold**, *italic*, `code`. Input is escaped first. */
 function formatGmText(raw) {
   return escapeHtml(raw)
     .replace(/^#{1,4}\s*(.+)$/gm, "<strong>▸ $1</strong>")
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|\s)\*([^*\s][^*\n]*?)\*(?=\s|$)/gm, "$1<em>$2</em>")
     .replace(/`([^`]+)`/g, "<strong>[$1]</strong>");
 }
 

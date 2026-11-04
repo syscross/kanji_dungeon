@@ -69,38 +69,3 @@ function renderDepthSpine() {
     spine.appendChild(node);
   });
 }
-
-/* Game over */
-function showGameOverModal(wasAbandoned = false) {
-  const savedDepth = state.depthId;
-  const dTitle = KANKEN_DATA[savedDepth] ? KANKEN_DATA[savedDepth].title : savedDepth;
-  clearSavedRun();
-
-  $("go-title").textContent = wasAbandoned ? t("goAbandon") : t("goDead");
-
-  const achNames = state.runAchievements
-    .map(id => findAchievement(id))
-    .filter(Boolean)
-    .map(a => `${a.icon} ${a.name}`)
-    .join(", ") || t("goNone");
-
-  $("go-stats").innerHTML = formatGmText(
-    `• **${t("goDepth")}**: ${dTitle}\n` +
-    `• **${t("goBoss")}**: 【${state.enemyKanji}】 (HP ${state.enemyHp}/100)\n` +
-    `• **${t("goStreak")}**: 🔥 ${state.streak} (Mode: ${config.instMode})\n` +
-    `• **${t("goTurns")}**: ${state.turn} · ⏱ ${formatTime(state.elapsedSec)}\n` +
-    `• **${t("goAch")}**: ${achNames}`
-  );
-
-  $("go-retry-btn").onclick = () => {
-    closeModal("gameover-modal");
-    startRun(savedDepth);
-  };
-  openModal("gameover-modal");
-}
-
-function closeGameOverToTitle() {
-  playClickSfx();
-  closeModal("gameover-modal");
-  transitionToView("title");
-}

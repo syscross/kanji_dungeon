@@ -243,15 +243,6 @@
 .guide-body { white-space: pre-wrap; min-height: 150px; }
 .guide-body strong { color: var(--gold); }
 
-/* Game over */
-.go-stats {
-  text-align: left;
-  white-space: pre-wrap;
-  background: #0b0d14;
-  padding: 12px;
-  border: 1px solid var(--border);
-}
-
 /* Achievements */
 .ach-card { height: min(720px, 100%); }
 .tab-row { display: flex; gap: 6px; flex-shrink: 0; }

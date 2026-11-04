@@ -166,6 +166,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .gm-box strong { color: var(--gold); }
+.gm-box em { font-style: normal; color: var(--muted); }
 
 /* Player dock */
 .player-dock {
@@ -360,3 +361,60 @@ body.kb-open .kanji-card.enemy-sm { width: 30px; height: 36px; }
 body.kb-open .kanji-card.enemy-sm .char { font-size: 1rem; }
 body.kb-open .player-dock { gap: 6px; padding: 6px 8px; }
 body.kb-open .gm-box { min-height: 48px; }
+
+/* ---- Beats: victory intermission & run end (js/game/beats.js) ---- */
+.dock-action { display: none; gap: 8px; width: 100%; justify-content: center; flex-wrap: wrap; }
+.dock-action .btn { flex: 1; min-width: 110px; padding: 12px 10px; font-size: 0.86rem; }
+#view-battle.intermission .dock-action,
+#view-battle.run-over .dock-action { display: flex; }
+#view-battle.intermission .prompt-row,
+#view-battle.intermission .cmd-chips,
+#view-battle.run-over .prompt-row,
+#view-battle.run-over .cmd-chips { display: none; }
+#view-battle.intermission .hand-table,
+#view-battle.run-over .hand-table,
+#view-battle.intermission .enemy-hand-wrap,
+#view-battle.run-over .enemy-hand-wrap { opacity: 0.3; pointer-events: none; }
+#view-battle.run-over .player-stat-row { opacity: 0.6; }
+
+.beat-log { text-align: center; border-left: none; padding: 12px 10px; }
+.beat-title { font-family: 'Noto Serif JP', serif; font-size: 1.15rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 6px; }
+.beat-line { font-size: 0.8rem; }
+.victory-log {
+  border: 1px solid #6e5931;
+  background: linear-gradient(90deg, rgba(229,192,123,0.04), rgba(229,192,123,0.14), rgba(229,192,123,0.04));
+}
+.victory-log .beat-title { color: var(--gold); text-shadow: 0 0 14px rgba(229,192,123,0.5); }
+.death-log {
+  border: 1px solid var(--crimson);
+  background: linear-gradient(180deg, rgba(90, 10, 22, 0.55), rgba(22, 10, 14, 0.85));
+  text-align: left;
+}
+.death-log .beat-title { color: var(--crimson); text-align: center; text-shadow: 0 0 16px rgba(215,58,73,0.7); }
+.death-log .beat-line { padding: 2px 0; }
+.death-log .beat-line:last-child { margin-top: 6px; color: var(--muted); text-align: center; }
+
+/* Defeated boss: drained, stamped with 斬 */
+.boss-card.defeated { border-color: #4a3036; box-shadow: none; }
+.boss-card.defeated .boss-kanji { color: #5a4a4e; text-shadow: none; transition: color 0.4s ease; }
+.boss-card.defeated::after {
+  content: "斬";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 900;
+  font-size: 2.6rem;
+  color: #ff4d5e;
+  transform: rotate(-14deg);
+  text-shadow: 0 0 12px rgba(0,0,0,0.9), 0 0 18px rgba(255,77,94,0.6);
+  animation: stampIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes stampIn { from { opacity: 0; transform: rotate(-14deg) scale(2.4); } to { opacity: 1; transform: rotate(-14deg) scale(1); } }
+.boss-card.enter { animation: bossEnter 0.6s cubic-bezier(0.2, 0.9, 0.3, 1); }
+@keyframes bossEnter {
+  0% { opacity: 0; transform: scale(1.5); filter: blur(6px) brightness(3); }
+  100% { opacity: 1; transform: scale(1); filter: none; }
+}

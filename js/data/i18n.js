@@ -79,7 +79,6 @@ const I18N = {
     unknownCmd: (cmd) => `⚠ Unknown command "${cmd}". Use **/hint**, **/reroll**, **/prompt <text>**, **/summon [text]**`,
     summonNoHp: (cost) => `⚠ Not enough HP to summon! Current cost: **${cost} HP**.`,
     apiError: (msg) => `⚠ **API Error**: ${msg}`,
-    enemySlain: (streak, boss) => `🩸 Enemy slain! Streak **🔥 ${streak}** (summon cost reset)\nNext challenger: **【${boss}】** emerges!`,
     logYou: "You",
     dmgEnemy: (n) => `Enemy −${n} HP`,
     healYou: (n) => `You +${n} HP`,
@@ -180,7 +179,6 @@ const I18N = {
     unknownCmd: (cmd) => `⚠ 알 수 없는 명령 "${cmd}". **/hint**, **/reroll**, **/prompt <질문>**, **/summon [지시]**를 사용하세요.`,
     summonNoHp: (cost) => `⚠ 소환에 필요한 체력이 부족합니다! 현재 비용: **${cost} HP**`,
     apiError: (msg) => `⚠ **API 오류**: ${msg}`,
-    enemySlain: (streak, boss) => `🩸 적 처치! 연속 **🔥 ${streak}** (소환 비용 초기화)\n다음 상대 **【${boss}】**(이)가 모습을 드러냅니다!`,
     logYou: "나",
     dmgEnemy: (n) => `적 −${n} HP`,
     healYou: (n) => `나 +${n} HP`,
@@ -281,7 +279,6 @@ const I18N = {
     unknownCmd: (cmd) => `⚠ 不明なコマンド "${cmd}"。**/hint**, **/reroll**, **/prompt <質問>**, **/summon [指示]** を使用。`,
     summonNoHp: (cost) => `⚠ 召喚に必要な体力が足りない！現在のコスト: **${cost} HP**`,
     apiError: (msg) => `⚠ **APIエラー**: ${msg}`,
-    enemySlain: (streak, boss) => `🩸 撃破！連続 **🔥 ${streak}** (召喚コストリセット)\n次の敵 **【${boss}】** が現れた！`,
     logYou: "自分",
     dmgEnemy: (n) => `敵 −${n} HP`,
     healYou: (n) => `自分 +${n} HP`,
@@ -382,7 +379,6 @@ const I18N = {
     unknownCmd: (cmd) => `⚠ 未知命令 "${cmd}"。请使用 **/hint**、**/reroll**、**/prompt <问题>**、**/summon [指示]**`,
     summonNoHp: (cost) => `⚠ 召唤所需体力不足！当前消耗: **${cost} HP**`,
     apiError: (msg) => `⚠ **API 错误**: ${msg}`,
-    enemySlain: (streak, boss) => `🩸 击败敌人！连斩 **🔥 ${streak}** (召唤消耗重置)\n下一个对手 **【${boss}】** 出现了！`,
     logYou: "你",
     dmgEnemy: (n) => `敌 −${n} HP`,
     healYou: (n) => `你 +${n} HP`,
@@ -483,7 +479,6 @@ const I18N = {
     unknownCmd: (cmd) => `⚠ 未知指令 "${cmd}"。請使用 **/hint**、**/reroll**、**/prompt <問題>**、**/summon [指示]**`,
     summonNoHp: (cost) => `⚠ 召喚所需體力不足！目前消耗: **${cost} HP**`,
     apiError: (msg) => `⚠ **API 錯誤**: ${msg}`,
-    enemySlain: (streak, boss) => `🩸 擊敗敵人！連斬 **🔥 ${streak}** (召喚消耗重置)\n下一個對手 **【${boss}】** 出現了！`,
     logYou: "你",
     dmgEnemy: (n) => `敵 −${n} HP`,
     healYou: (n) => `你 +${n} HP`,
@@ -661,4 +656,46 @@ Object.assign(I18N.ZH_TW, {
   titleTrialLine: "🔌 體驗版遊玩中 — 連接 AI 獲得真正的裁決",
   enemyHandLog: "手牌",
   leCounter: (boss) => `【${boss}】趁虛而入，撲了過來！`
+});
+
+/* ---- Victory intermission / run end ---- */
+Object.assign(I18N.EN, {
+  victoryTitle: (boss) => `【${boss}】 VANQUISHED`,
+  victoryStats: (streak, turns, dmg) => `🔥 Streak ${streak} · ${turns} turn(s) · damage taken ${dmg}`,
+  nextEnemyBtn: "⚔ Descend to the next foe",
+  nextChallenger: (boss) => `👁 Something stirs in the dark… **【${boss}】** emerges! (summon cost reset)`,
+  runEndHint: "The run is over. Retry this depth, copy the log, or return to the title.",
+  goTotalTurns: "Turns"
+});
+Object.assign(I18N.KO, {
+  victoryTitle: (boss) => `【${boss}】 토벌`,
+  victoryStats: (streak, turns, dmg) => `🔥 연속 ${streak} · ${turns}턴 · 받은 피해 ${dmg}`,
+  nextEnemyBtn: "⚔ 다음 적에게로",
+  nextChallenger: (boss) => `👁 어둠 속에서 무언가 꿈틀거립니다… **【${boss}】**(이)가 모습을 드러냅니다! (소환 비용 초기화)`,
+  runEndHint: "원정이 끝났습니다. 같은 계층에 다시 도전하거나, 로그를 복사하거나, 타이틀로 돌아가세요.",
+  goTotalTurns: "총 턴"
+});
+Object.assign(I18N.JA, {
+  victoryTitle: (boss) => `【${boss}】 討伐`,
+  victoryStats: (streak, turns, dmg) => `🔥 連続 ${streak} · ${turns}ターン · 被ダメージ ${dmg}`,
+  nextEnemyBtn: "⚔ 次の敵へ",
+  nextChallenger: (boss) => `👁 闇の中で何かが蠢く… **【${boss}】** が姿を現した！(召喚コストリセット)`,
+  runEndHint: "探索は終わった。同じ階層に再挑戦するか、記録をコピーするか、タイトルへ戻ろう。",
+  goTotalTurns: "総ターン"
+});
+Object.assign(I18N.ZH_CN, {
+  victoryTitle: (boss) => `【${boss}】 讨伐`,
+  victoryStats: (streak, turns, dmg) => `🔥 连斩 ${streak} · ${turns} 回合 · 受到伤害 ${dmg}`,
+  nextEnemyBtn: "⚔ 前往下一个敌人",
+  nextChallenger: (boss) => `👁 黑暗中有什么在蠢动… **【${boss}】** 现身了！(召唤消耗重置)`,
+  runEndHint: "远征结束。可以再次挑战本阶层、复制记录或返回标题。",
+  goTotalTurns: "总回合"
+});
+Object.assign(I18N.ZH_TW, {
+  victoryTitle: (boss) => `【${boss}】 討伐`,
+  victoryStats: (streak, turns, dmg) => `🔥 連斬 ${streak} · ${turns} 回合 · 受到傷害 ${dmg}`,
+  nextEnemyBtn: "⚔ 前往下一個敵人",
+  nextChallenger: (boss) => `👁 黑暗中有什麼在蠢動… **【${boss}】** 現身了！(召喚消耗重置)`,
+  runEndHint: "遠征結束。可以再次挑戰本階層、複製紀錄或返回標題。",
+  goTotalTurns: "總回合"
 });

@@ -30,6 +30,7 @@ js/ui/screens.js      title, guide, depth select, game over
 js/game/achievements.js  catalog build, unlock + event hooks, achievements modal
 js/game/run.js        start / spawn / deal / pause / resume / abandon
 js/game/battle.js     slash commands, judged turns, applying results, log export
+js/game/beats.js      in-log beats: victory intermission (player advances) and run end (death / abandon)
 js/main.js            bootstrap
 ```
 

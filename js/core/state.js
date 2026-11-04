@@ -71,6 +71,9 @@ function createRunState() {
     recentActions: [],     // last few player inputs, sent to the GM to discourage repetition
     dmgTakenThisEnemy: 0,
     trialNudgeShown: false,
+    totalTurns: 0,         // judged turns across the whole run
+    awaitingNext: false,   // victory intermission: waiting for the player to advance
+    lastKill: null,        // { kanji, turns, dmgTaken } for the intermission card
     runAchievements: []
   };
 }

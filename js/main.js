@@ -33,7 +33,7 @@ async function initApp() {
   });
 
   setInterval(() => {
-    if (currentView === "battle" && state.active && state.playerHp > 0 && !anyModalOpen() && !document.hidden) {
+    if (currentView === "battle" && state.active && !state.awaitingNext && state.playerHp > 0 && !anyModalOpen() && !document.hidden) {
       state.elapsedSec = (state.elapsedSec || 0) + 1;
       updateTimerBadge();
     }

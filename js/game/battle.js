@@ -50,7 +50,7 @@ async function handleBattleSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
   const inp = $("b-input");
   const raw = inp.value.trim();
-  if (!raw || inp.disabled) return;
+  if (!raw || inp.disabled || !state.active || state.awaitingNext || state.playerHp <= 0) return;
 
   state._lastRawInput = raw;
   const parsed = parseInputCommand(raw);
@@ -146,6 +146,7 @@ function applyTurnResult(rawInput, j, sec = "0.0") {
   state.playerState = j.playerState;
   state.enemyState = j.enemyState;
   state.recentActions = [...state.recentActions, rawInput.slice(0, 140)].slice(-3);
+  state.totalTurns = (state.totalTurns || 0) + 1;
 
   state.enemyHp = Math.max(0, state.enemyHp - j.enemyDamage);
   const hpBefore = state.playerHp;
@@ -176,7 +177,11 @@ function applyTurnResult(rawInput, j, sec = "0.0") {
       playerHp: state.playerHp,
       streak: state.streak
     });
-    spawnNextEnemy(false);
+    state.lastKill = { kanji: state.enemyKanji, turns: state.turn, dmgTaken: state.dmgTakenThisEnemy };
+    state.awaitingNext = true;
+    updateBattleHUD(false);
+    saveRunToStorage();
+    setTimeout(() => showVictoryBeat(), 450);
     return;
   }
 
@@ -193,7 +198,7 @@ function applyTurnResult(rawInput, j, sec = "0.0") {
 
   if (state.playerHp <= 0) {
     updateBattleHUD(false);
-    showGameOverModal(false);
+    setTimeout(() => showRunEnd(false), 650);
     return;
   }
 

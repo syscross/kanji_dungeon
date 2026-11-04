@@ -20,6 +20,7 @@ function startRun(depthId) {
   state.depthId = depthId;
   achOnRunStart(depthId);
 
+  resetBattleChrome();
   clearGmLog(false);
   spawnNextEnemy(true);
   transitionToView("battle", `DEPTH ${depthNumStr(depthId)}`, depthCleanTitle(depthId));
@@ -38,7 +39,7 @@ function spawnNextEnemy(isFirst = false) {
   dealNewHands(true);
 
   updateBattleHUD(true);
-  appendGmLog(isFirst ? t("enteredMsg")(d.title, state.enemyKanji) : t("enemySlain")(state.streak, state.enemyKanji), "sys-log");
+  appendGmLog(isFirst ? t("enteredMsg")(d.title, state.enemyKanji) : t("nextChallenger")(state.enemyKanji), "sys-log");
   saveRunToStorage();
 }
 
@@ -51,10 +52,12 @@ function dealNewHands(animate = true) {
 
 function resumeSavedRun() {
   const d = KANKEN_DATA[state.depthId];
+  resetBattleChrome();
   clearGmLog(false);
   updateBattleHUD(true);
   if (state.history.length > 0) state.history.slice(-6).forEach(h => appendGmLog(h));
   else appendGmLog(t("enteredMsg")(d.title, state.enemyKanji), "sys-log");
+  if (state.awaitingNext) showVictoryBeat(true);
   transitionToView("battle", "探索再開", `RESUMING ${d.title} (TURN ${state.turn})`);
 }
 
@@ -67,5 +70,5 @@ function pauseRunToTitle() {
 function promptAbandonRun() {
   playClickSfx();
   closeDropdowns();
-  openConfirmModal(t("abandonModalTitle"), t("abandonModalDesc"), () => showGameOverModal(true));
+  openConfirmModal(t("abandonModalTitle"), t("abandonModalDesc"), () => showRunEnd(true));
 }

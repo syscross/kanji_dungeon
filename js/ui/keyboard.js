@@ -31,6 +31,11 @@ function setupKeyboardNavigation() {
     }
 
     if (anyModalOpen()) return;
+    if (currentView === "battle" && state.awaitingNext && e.key === "Enter") {
+      e.preventDefault();
+      proceedToNextEnemy();
+      return;
+    }
     if (document.activeElement && ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
 
     const selector = currentView === "title"

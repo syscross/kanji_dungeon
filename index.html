@@ -172,19 +172,6 @@
     </div>
   </div>
 
-  <!-- Game over -->
-  <div class="modal-backdrop" id="gameover-modal">
-    <div class="modal-card">
-      <div class="modal-title" id="go-title">【死】</div>
-      <div class="modal-desc go-stats" id="go-stats"></div>
-      <div class="modal-actions">
-        <button class="btn btn-gold" id="go-retry-btn" data-i18n="retryBtn">🔄 Retry</button>
-        <button class="btn" data-i18n="copyLogBtn" onclick="exportBattleLog()">📋 Copy Log</button>
-        <button class="btn" data-i18n="titleBtn" onclick="closeGameOverToTitle()">⛩ Title</button>
-      </div>
-    </div>
-  </div>
-
   <div class="app-container" id="app-root">
     <div class="topbar">
       <div class="brand" onclick="handleBrandClick()"><span>⛩</span><span class="brand-text">KANJI DUNGEON</span></div>
@@ -305,6 +292,8 @@
           <button class="chip" title="/summon" onclick="prefillSlash('/summon ')"><span data-i18n="summonChip">🐉 Summon</span> <span class="chip-cost">−<span id="b-summon-cost">10</span></span></button>
         </div>
 
+        <div class="dock-action" id="b-dock-action"></div>
+
         <form class="prompt-row" onsubmit="handleBattleSubmit(event)">
           <input type="text" id="b-input" class="prompt-input" autocomplete="off" enterkeyhint="send" />
           <button type="submit" class="btn btn-gold" id="b-send-btn" data-i18n="castBtn">⚔ Cast</button>
@@ -334,6 +323,7 @@
   <script src="/js/game/achievements.js"></script>
   <script src="/js/game/run.js"></script>
   <script src="/js/game/battle.js"></script>
+  <script src="/js/game/beats.js"></script>
   <script src="/js/main.js"></script>
 </body>
 </html>
