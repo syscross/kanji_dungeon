@@ -33,7 +33,7 @@ const COMMON_ACHIEVEMENTS = [
     desc: { EN: "Recover 30 HP or more in a single turn.", KO: "한 턴에 HP를 30 이상 회복했다.", JA: "1ターンでHPを30以上回復した。", ZH_CN: "单回合恢复 30 以上 HP。", ZH_TW: "單回合恢復 30 以上 HP。" } },
   { id: "streak_5", icon: "🔥", name: "五連斬",
     desc: { EN: "Defeat 5 foes in one descent.", KO: "한 원정에서 적 5체를 처치했다.", JA: "一度の探索で5体を倒した。", ZH_CN: "单次远征击败 5 个敌人。", ZH_TW: "單次遠征擊敗 5 個敵人。" } },
-  { id: "clear_any", icon: "⛩", name: "踏破",
+  { id: "clear_any", icon: "🏆", name: "踏破",
     desc: { EN: "Walk out of any gaol alive.", KO: "어느 옥이든 살아서 빠져나왔다.", JA: "いずれかの獄を生きて抜けた。", ZH_CN: "活着走出任意一座狱。", ZH_TW: "活著走出任意一座獄。" } },
   { id: "clear_deep", icon: "🌑", name: "深獄踏破",
     desc: { EN: "Walk out of gaol 7 or deeper.", KO: "7번째 이후의 옥을 빠져나왔다.", JA: "第七獄以降を抜けた。", ZH_CN: "走出第七狱或更深处。", ZH_TW: "走出第七獄或更深處。" } },
@@ -54,7 +54,7 @@ const COMMON_ACHIEVEMENTS = [
 /* One entry per depth for each template; desc keys live in I18N (dKillDesc etc.). */
 const DEPTH_ACHIEVEMENT_TEMPLATES = [
   { key: "kill",     icon: "🩸", name: "初討伐", descKey: "dKillDesc" },
-  { key: "clear",    icon: "⛩", name: "踏破",   descKey: "dClearDesc" },
+  { key: "clear",    icon: "🏆", name: "踏破",   descKey: "dClearDesc" },
   { key: "flawless", icon: "🛡️", name: "無傷",   descKey: "dFlawlessDesc" },
   { key: "purge",    icon: "👑", name: "制覇",   descKey: "dPurgeDesc" }
 ];

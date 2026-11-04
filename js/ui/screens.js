@@ -74,20 +74,29 @@ function renderDepthSpine() {
     const dTier = dNum >= 11 ? "abyss" : dNum >= 7 ? "common" : "edu";
     const roster = depthRoster(did);
     const allFoes = allRosterKanji(did);
-    const killedCount = allFoes.filter(k => config.achievements[`boss_${k}`]).length;
+    const activeRun = hasActiveRun();
+    const runSlain = activeRun && Array.isArray(state.defeatedEnemies) ? state.defeatedEnemies : [];
+    const runSeen = activeRun && Array.isArray(state.encounteredEnemies) ? state.encounteredEnemies : [];
+    const isDiscovered = (k) => Boolean(
+      (config.seenFoes && config.seenFoes[k]) ||
+      (config.achievements && config.achievements[`boss_${k}`]) ||
+      runSeen.includes(k) ||
+      runSlain.includes(k)
+    );
+    const discoveredCount = allFoes.filter(isDiscovered).length;
     const best = bestRecord(did);
     const recordLine = best
-      ? `⛩ ${t("bestLabel")} ${formatTime(best.timeSec)} · ${escapeHtml(modelTag(best))}`
+      ? `★ ${t("bestLabel")} ${formatTime(best.timeSec)} · ${escapeHtml(modelTag(best))}`
       : `<span class="unconquered">${escapeHtml(t("unconquered"))}</span>`;
 
     const bosses = roster.bossPool || [roster.boss];
     const mobs = [...new Set([...roster.normal, ...roster.elite])].filter(k => !bosses.includes(k));
 
     const renderFoeSpan = (k, isBoss = false) => {
-      const killed = Boolean(config.achievements[`boss_${k}`]);
-      const seen = Boolean(config.seenFoes && config.seenFoes[k]);
-      const cls = [isBoss ? "boss" : "", killed ? "seen" : seen ? "encountered" : "unknown"].filter(Boolean).join(" ");
-      const txt = (killed || seen) ? k : "？";
+      const killedInExpedition = runSlain.includes(k);
+      const seenEver = isDiscovered(k);
+      const cls = [isBoss ? "boss" : "", killedInExpedition ? "seen" : seenEver ? "encountered" : "unknown"].filter(Boolean).join(" ");
+      const txt = (killedInExpedition || seenEver) ? k : "？";
       return `<span class="${cls}">${escapeHtml(txt)}</span>`;
     };
 
@@ -98,7 +107,7 @@ function renderDepthSpine() {
       <div class="node-num tier-${dTier}">${depthNumStr(did)}</div>
       <div class="node-body">
         <div class="node-title">${escapeHtml(depthName(did))} <span class="node-gloss">${escapeHtml(depthGloss(did))}</span></div>
-        <div class="node-meta">${kankenLabel(did)} · ${d.count.toLocaleString()}字 · ${t("depthBestiary")(killedCount, allFoes.length)}</div>
+        <div class="node-meta">${kankenLabel(did)} · ${d.count.toLocaleString()}字 · ${t("depthBestiary")(discoveredCount, allFoes.length)}</div>
         <div class="node-scores">${recordLine}</div>
       </div>
       <div class="node-bosses">${mobs.map(k => renderFoeSpan(k, false)).join("")}<span class="boss-group">主 ${bosses.map(k => renderFoeSpan(k, true)).join("")}</span></div>

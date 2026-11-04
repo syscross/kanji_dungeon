@@ -103,11 +103,38 @@ function availableEventOptions() {
 }
 
 function renderEventOptions() {
-  setDockActions(availableEventOptions().map(({ o, i }) => ({
-    html: `<span class="opt-text">${escapeHtml(pickLang(o.label))}</span>`,
-    onClick: () => chooseEventOption(i),
-    cls: "opt-btn"
-  })));
+  const opts = availableEventOptions();
+  const hasLeaveOpt = opts.some(({ o }) => !o.effects || o.effects.length === 0);
+  const buttons = opts.map(({ o, i }) => {
+    const isLeave = !o.effects || o.effects.length === 0;
+    if (isLeave) {
+      return {
+        label: pickLang(o.label),
+        onClick: () => chooseEventOption(i),
+        cls: "opt-skip"
+      };
+    }
+    return {
+      html: `<span class="opt-text">${escapeHtml(pickLang(o.label))}</span>`,
+      onClick: () => chooseEventOption(i),
+      cls: "opt-btn"
+    };
+  });
+  if (!hasLeaveOpt && state.eventId !== "swarm" && state.eventId !== "quiz") {
+    buttons.push({
+      label: t("skipBtn"),
+      onClick: skipEvent,
+      cls: "opt-skip"
+    });
+  }
+  setDockActions(buttons);
+}
+
+function skipEvent() {
+  playClickSfx();
+  setDockActions([]);
+  logMd(`→ ${t("skipBtn")}`, "choice-log");
+  advance();
 }
 
 function chooseEventOption(i) {

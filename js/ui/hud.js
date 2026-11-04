@@ -25,7 +25,7 @@ function setHpBar(barId, numId, hp, max) {
 /* What the big card on the enemy stage shows, by phase. */
 function stageCardContent() {
   if (state.phase === "dead") {
-    return { kanji: state.enemyKanji || "死", neutral: false, dead: true };
+    return { kanji: state.enemyKanji || state.sign || "門", neutral: !state.enemyKanji };
   }
   if (state.phase === "abandoned") {
     return { kanji: state.enemyKanji || state.sign || "閉", neutral: false, abandoned: true };
@@ -34,7 +34,7 @@ function stageCardContent() {
     return { kanji: state.sign || "門", neutral: true, returned: true };
   }
   if (state.phase === "cleared") {
-    return { kanji: state.enemyKanji || state.runBoss || "完", neutral: false, completed: true };
+    return { kanji: state.enemyKanji || state.runBoss || "主", neutral: false, defeated: true };
   }
   if (state.phase === "battle" || (state.phase === "reward" && state.enemyKanji)) {
     return { kanji: state.enemyKanji, neutral: false };
@@ -56,7 +56,9 @@ function renderRunRosterBar() {
 
   const mobHtml = mobs.map(k => {
     const killed = (state.defeatedEnemies || []).includes(k);
-    const seen = (state.encounteredEnemies || []).includes(k);
+    const seen = (state.encounteredEnemies || []).includes(k) ||
+      Boolean(config.seenFoes && config.seenFoes[k]) ||
+      Boolean(config.achievements && config.achievements[`boss_${k}`]);
     if (killed) {
       return `<span class="rr-chip killed" title="${escapeHtml(k)} (殺)">${escapeHtml(k)}</span>`;
     }
@@ -104,12 +106,12 @@ function updateBattleHUD(animateCards = false) {
   const bossTier = typeof getKanjiTier === "function" ? getKanjiTier(card.kanji) : "edu";
   bossKanjiEl.dataset.tier = bossTier;
   const bossCardEl = $("b-boss-card");
-  const isEndSeal = Boolean(card.dead || card.abandoned || card.returned || card.completed);
+  const isEndSeal = Boolean(card.abandoned || card.returned);
   bossCardEl.classList.toggle("neutral", Boolean(card.neutral));
-  bossCardEl.classList.toggle("player-dead", Boolean(card.dead));
+  bossCardEl.classList.remove("player-dead", "completed");
+  if (card.defeated) bossCardEl.classList.add("defeated");
   bossCardEl.classList.toggle("abandoned", Boolean(card.abandoned));
   bossCardEl.classList.toggle("returned", Boolean(card.returned));
-  bossCardEl.classList.toggle("completed", Boolean(card.completed));
   $("enemy-stage").classList.toggle("no-foe", Boolean(card.neutral) || isEndSeal);
   $("b-rank").textContent = RANK_MARK[state.enemyRank] || "";
   $("b-rank").style.display = !card.neutral && !isEndSeal && RANK_MARK[state.enemyRank] ? "" : "none";

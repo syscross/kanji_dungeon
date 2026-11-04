@@ -24,12 +24,23 @@ function startRun(depthId) {
 
   const roster = depthRoster(depthId);
   const bossPool = roster.bossPool && roster.bossPool.length ? roster.bossPool : [roster.boss];
-  const runBoss = bossPool[Math.floor(Math.random() * bossPool.length)];
 
   if (isContinuing) {
     const keptDeck = Array.isArray(state.deck)
       ? state.deck.map(k => String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "")).filter(Boolean)
       : [];
+    const gaolBosses = { ...(state.gaolBosses || {}) };
+    if (!gaolBosses[depthId]) {
+      gaolBosses[depthId] = bossPool[Math.floor(Math.random() * bossPool.length)];
+    }
+    const runBoss = gaolBosses[depthId];
+    const encounteredEnemies = Array.isArray(state.encounteredEnemies) ? [...state.encounteredEnemies] : [];
+    const defeatedEnemies = Array.isArray(state.defeatedEnemies) ? [...state.defeatedEnemies] : [];
+    const woundedEnemies = { ...(state.woundedEnemies || {}) };
+    const bossEncountered = Boolean(
+      encounteredEnemies.includes(runBoss) || defeatedEnemies.includes(runBoss)
+    );
+
     Object.assign(state, {
       active: true,
       depthId,
@@ -48,15 +59,17 @@ function startRun(depthId) {
       playerHand: [],
       playerHandSources: [],
       enemyHand: [],
+      gaolBosses,
       runBoss,
-      bossEncountered: false,
+      bossEncountered,
+      hasClearedBoss: false,
       enemyKanji: "",
       enemyRank: "normal",
       enemyHp: 0,
       enemyMaxHp: 0,
-      encounteredEnemies: [],
-      defeatedEnemies: [],
-      woundedEnemies: {},
+      encounteredEnemies,
+      defeatedEnemies,
+      woundedEnemies,
       lastKill: null,
       turn: 1,
       dmgTakenThisEnemy: 0,
@@ -65,6 +78,7 @@ function startRun(depthId) {
       enemyState: ""
     });
   } else {
+    const runBoss = bossPool[Math.floor(Math.random() * bossPool.length)];
     state = createRunState();
     Object.assign(state, {
       active: true,
@@ -76,8 +90,10 @@ function startRun(depthId) {
       step: 1,
       sign: "",
       fieldState: t("forkFieldState"),
+      gaolBosses: { [depthId]: runBoss },
       runBoss,
       bossEncountered: false,
+      hasClearedBoss: false,
       deck: []
     });
   }
@@ -88,7 +104,7 @@ function startRun(depthId) {
   resetBattleChrome();
   logMd(`── ${depthNumStr(depthId)} ${depthName(depthId)} · ${kankenLabel(depthId)} ──`, "sep-log");
   logMd(t("enteredMsg")(depthName(depthId), depthGloss(depthId)), "sys-log");
-  logMd(`⛩ 1/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
+  logMd(`◆ 1/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
   saveRunToStorage();
 
   enterGaolCinematic(depthId, () => renderPhase());
@@ -107,11 +123,10 @@ function renderPhase() {
   const over = ["cleared", "dead", "abandoned", "returned"].includes(state.phase);
   view.classList.toggle("intermission", !over && state.phase !== "battle");
   view.classList.toggle("run-over", over);
-  if (state.phase !== "reward") $("b-boss-card").classList.remove("defeated");
-  if (state.phase !== "dead") $("b-boss-card").classList.remove("player-dead");
+  if (state.phase !== "reward" && state.phase !== "cleared") $("b-boss-card").classList.remove("defeated");
+  $("b-boss-card").classList.remove("player-dead", "completed");
   if (state.phase !== "abandoned") $("b-boss-card").classList.remove("abandoned");
   if (state.phase !== "returned") $("b-boss-card").classList.remove("returned");
-  if (state.phase !== "cleared") $("b-boss-card").classList.remove("completed");
   updateBattleHUD(false);
   if (!state.pending) closePicker();
 
@@ -134,6 +149,16 @@ function renderPhase() {
       break;
     default: break;
   }
+}
+
+/* Pick a fitting stage sign for the Boss sanctum so state.sign is always a true stage kanji, never the Boss kanji itself. */
+function pickBossStageSign(depthId, bossKanji) {
+  const pool = (DEPTH_STAGE_POOLS[depthId] || ["山"]).filter(s => STAGE_SIGNS[s] && s !== bossKanji);
+  const withBoss = pool.filter(s => (STAGE_SIGNS[s].foes || []).includes(bossKanji));
+  if (withBoss.length) return withBoss[Math.floor(Math.random() * withBoss.length)];
+  const risky = pool.filter(s => STAGE_SIGNS[s].risky);
+  if (risky.length) return risky[Math.floor(Math.random() * risky.length)];
+  return pool[0] || "山";
 }
 
 /* ---- Path ---- */
@@ -167,7 +192,8 @@ function advance() {
   state.step = nextStep;
   if (nextStep >= PATH_STEPS) {
     const boss = state.runBoss || depthRoster(state.depthId).boss;
-    state.fork = [{ sign: boss, outcome: "boss", revealed: true }];
+    const bossStageSign = pickBossStageSign(state.depthId, boss);
+    state.fork = [{ sign: bossStageSign, boss, outcome: "boss", revealed: true }];
     logMd(t("bossPrompt")(boss), "sys-log");
   } else {
     state.fork = generateFork(nextStep);
@@ -175,14 +201,16 @@ function advance() {
       state.fork.forEach(f => { f.revealed = true; });
       state.revealNext = false;
     }
-    logMd(`⛩ ${nextStep}/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
+    logMd(`◆ ${nextStep}/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
   }
   state.phase = "path";
   saveRunToStorage();
   renderPhase();
 }
 
-/* Pick 3 distinct stage signs from the current depth's stage pool. */
+/* Pick 3 distinct stage signs from the current depth's stage pool.
+ * When enemies in a stage (or across the Gaol) have already been slain during this expedition,
+ * outcomes shift naturally toward events and peaceful stage exploration! */
 function generateFork(step) {
   const depthPoolSigns = DEPTH_STAGE_POOLS[state.depthId] || Object.keys(STAGE_SIGNS);
   let signs = depthPoolSigns.filter(s => STAGE_SIGNS[s]);
@@ -190,7 +218,6 @@ function generateFork(step) {
     signs = signs.filter(s => s !== state.sign);
   }
   if (step === 1) {
-    // First step: avoid pure risky/rest signs so the player explores an opening stage cleanly
     const gentle = signs.filter(s => !STAGE_SIGNS[s].risky && s !== "寺" && s !== "謎");
     if (gentle.length >= FORK_WIDTH) signs = gentle;
   }
@@ -198,13 +225,35 @@ function generateFork(step) {
   if (step === PATH_STEPS - 1 && !picks.includes("寺") && !picks.includes("堂") && !picks.includes("祠")) {
     picks[picks.length - 1] = STAGE_SIGNS["寺"] ? "寺" : picks[picks.length - 1];
   }
+
+  const roster = depthRoster(state.depthId);
+  const allDepthMobs = [...new Set([...roster.normal, ...roster.elite])];
+  const defeated = state.defeatedEnemies || [];
+  const aliveDepthMobs = allDepthMobs.filter(k => !defeated.includes(k));
+
   return picks.map((sign, idx) => {
     const def = STAGE_SIGNS[sign] || STAGE_SIGNS.田;
+    const stageMobs = (def.foes || []).filter(k => allDepthMobs.includes(k));
+    const aliveStageMobs = stageMobs.filter(k => !defeated.includes(k));
+    const stageCleared = aliveDepthMobs.length === 0 || (stageMobs.length > 0 && aliveStageMobs.length === 0);
+    const stageAliveRatio = stageMobs.length > 0 ? (aliveStageMobs.length / stageMobs.length) : 1;
+
     let outcome = weightedPick(def.outcomes);
-    // Guarantee at least 2 battle opportunities on step 1 so empty-handed players get stage action & cards
-    if (step === 1 && idx < 2 && outcome.startsWith("event:")) {
+
+    if (stageCleared) {
+      // All enemies in this stage (or Gaol) were already slain in this expedition: spawn events / caches!
+      if (outcome === "battle" || outcome === "elite") {
+        outcome = Math.random() < 0.78 ? "event:*" : "treasure";
+      }
+    } else if ((outcome === "battle" || outcome === "elite") && stageAliveRatio < 1) {
+      // Partially cleared stage: proportionally higher chance for an event instead of a fight
+      if (Math.random() > stageAliveRatio) {
+        outcome = "event:*";
+      }
+    } else if (step === 1 && idx < 2 && outcome.startsWith("event:")) {
       outcome = "battle";
     }
+
     if (outcome === "event:*") {
       outcome = `event:${RANDOM_EVENT_POOL[Math.floor(Math.random() * RANDOM_EVENT_POOL.length)]}`;
     }
@@ -220,8 +269,13 @@ function outcomeIcon(outcome) {
 
 function renderFork() {
   if (state.fork.length === 1 && state.fork[0].outcome === "boss") {
-    const boss = state.fork[0].sign;
-    const labelKanji = state.bossEncountered ? boss : "？";
+    const boss = state.fork[0].boss || state.runBoss || depthRoster(state.depthId).boss;
+    const bossKnown = Boolean(
+      state.bossEncountered ||
+      (state.encounteredEnemies || []).includes(boss) ||
+      (state.defeatedEnemies || []).includes(boss)
+    );
+    const labelKanji = bossKnown ? boss : "？";
     setDockActions([
       { label: t("bossBtn")(labelKanji), onClick: () => choosePath(0), gold: true, cls: "boss-door" },
       { label: t("returnGaolBtn"), onClick: () => triggerFormalReturn(), cls: "fork-return-btn" }
@@ -231,7 +285,8 @@ function renderFork() {
   const tiles = state.fork.map((f, i) => {
     const def = STAGE_SIGNS[f.sign] || STAGE_SIGNS.田;
     const maxD = depthNumber(state.depthId);
-    const validCards = (def.cards || []).filter(k => getKanjiDepthNum(k) <= maxD);
+    const allFoesInDepth = typeof allRosterKanji === "function" ? allRosterKanji(state.depthId) : [];
+    const validCards = (def.cards || []).filter(k => k !== f.sign && !allFoesInDepth.includes(k) && getKanjiDepthNum(k) <= maxD);
     const previewCards = validCards.slice(0, 4).join(" ");
     return {
       html: `<span class="fork-kanji tier-${getKanjiTier(f.sign)}">${escapeHtml(f.sign)}</span>` +
@@ -264,17 +319,24 @@ function choosePath(i) {
 /* ---- Fights ---- */
 
 function pickEnemyForStage(rank, forcedKanji = null) {
-  if (forcedKanji) return { kanji: forcedKanji, rank };
+  const defeated = state.defeatedEnemies || [];
+  if (forcedKanji) {
+    if (defeated.includes(forcedKanji)) return null;
+    return { kanji: forcedKanji, rank };
+  }
   const roster = depthRoster(state.depthId);
   const runBoss = state.runBoss || roster.boss;
 
-  if (rank === "boss") return { kanji: runBoss, rank: "boss" };
+  if (rank === "boss") {
+    if (defeated.includes(runBoss)) return null;
+    return { kanji: runBoss, rank: "boss" };
+  }
 
   const stageDef = STAGE_SIGNS[state.sign] || {};
   const stageFoes = stageDef.foes || [];
 
   // Mid-to-late run: chance to stumble upon the run's Boss early if it haunts this stage (or risky stage)!
-  if (state.step >= 4 && !state.defeatedEnemies.includes(runBoss)) {
+  if (state.step >= 4 && !defeated.includes(runBoss)) {
     const bossHauntsStage = stageFoes.includes(runBoss);
     const ambushChance = bossHauntsStage ? 0.45 : (stageDef.risky && state.step >= 5 ? 0.2 : 0);
     if (Math.random() < ambushChance) {
@@ -283,13 +345,18 @@ function pickEnemyForStage(rank, forcedKanji = null) {
   }
 
   const allPool = [...new Set([...roster.normal, ...roster.elite])];
-  const alivePool = allPool.filter(k => !state.defeatedEnemies.includes(k));
+  const alivePool = allPool.filter(k => !defeated.includes(k));
 
   // If every single normal/elite foe in this depth has been slain, the stage is empty!
   if (!alivePool.length) return null;
 
   // Prefer foes that match this stage's theme and are still alive
   const stageMatches = stageFoes.filter(k => alivePool.includes(k));
+  if (!stageMatches.length) {
+    // All native foes of this stage were already slain during this expedition!
+    // Most of the time, the stage is now peaceful / event-driven rather than pulling unrelated stragglers.
+    if (Math.random() < 0.75) return null;
+  }
   const rankMatches = (roster[rank] || roster.normal).filter(k => alivePool.includes(k));
 
   let from = stageMatches.length ? stageMatches : (rankMatches.length ? rankMatches : alivePool);
@@ -313,9 +380,23 @@ function enterPeacefulClearedStage() {
   runEffects([{ hp: 12 }, { scavenge: 5 }]);
 }
 
+function enterConqueredBossSanctum() {
+  state.enemyKanji = state.runBoss || depthRoster(state.depthId).boss;
+  state.phase = "reward";
+  state.stageCards = buildStageCards(state.depthId, state.sign);
+  logBeat("event-log", `🍃 【${state.sign}】 ${t("emptyStageTitle")}`, [
+    t("emptyStageDesc")(state.sign),
+    `🎴 ${t("stageCardsLog")}: ${state.stageCards.join(" · ")}`
+  ]);
+  logBossClearImmediate();
+  runEffects([{ hp: 15 }, { scavenge: 5 }, { bossClear: true }]);
+}
+
 function startBattle(rank, forcedKanji = null) {
   const picked = pickEnemyForStage(rank, forcedKanji);
   if (!picked) {
+    if (rank === "boss") return enterConqueredBossSanctum();
+    if (Math.random() < 0.55) return startEvent("*");
     return enterPeacefulClearedStage();
   }
 
@@ -405,5 +486,9 @@ function promptAbandonRun() {
   playClickSfx();
   closeDropdowns();
   if (!state.active) return;
+  if (state.hasClearedBoss || state.phase === "cleared") {
+    finishExpeditionFromClear();
+    return;
+  }
   openConfirmModal(t("abandonModalTitle"), t("abandonModalDesc"), () => showRunEnd(true));
 }

@@ -214,7 +214,7 @@ const EVENTS = {
       { label: EVT_L("Inscribe a compound — combine 2 kanji in your bag", "제단에 합자(合字)를 새긴다 — 챙긴 두 글자를 하나로 합체", "祭壇に合字を刻む — 袋の二字を一つに合成"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
       { label: EVT_L("Feed the brazier — burn a kanji from your bag", "화로에 넣는다 — 챙긴 글자 하나를 태운다", "火鉢にくべる — 袋の字を一つ焼く"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 },
       { label: EVT_L("Pray — summon cost back to 10, 1 free reroll", "기도한다 — 소환 비용 10, 무료 리롤 1", "祈る — 召喚コスト10、無料引き直し1"), effects: [{ summonReset: true }, { tokens: 1 }] },
-      { label: EVT_L("⛩ 【帰】 Return from this Gaol (keep bag & run)", "⛩ 【帰】 옥문 밖으로 귀환 — 가방과 원정 기록을 유지한 채 퇴각", "⛩ 【帰】 獄門の外へ帰還 — 所持漢字と探索を維持して退く"), effects: [{ returnGaol: true }] }
+      { label: EVT_L("【帰】 Return from this Gaol (keep bag & run)", "【帰】 옥문 밖으로 귀환 — 가방과 원정 기록을 유지한 채 퇴각", "【帰】 獄門の外へ帰還 — 所持漢字と探索を維持して退く"), effects: [{ returnGaol: true }] }
     ]
   },
   forge: {

@@ -383,6 +383,7 @@ function onEnemyDefeated() {
   // Immediately show victory beat (殺) in the log and open the inline enemy/intent harvest in the bottom dock!
   showVictoryBeat();
   if (isRunBoss) {
+    logBossClearImmediate();
     runEffects([
       { foeScavenge: 5 },
       { bossClear: true }

@@ -108,7 +108,7 @@ function enterGaolCinematic(depthId, onReady) {
   $("curtain-title").textContent = `【 ${depthName(depthId)} 】`;
   $("curtain-sub").textContent = depthGloss(depthId);
   if ($("curtain-stages")) {
-    $("curtain-stages").textContent = stageSigns.length ? `⛩ ${stageSigns.join("  ·  ")}` : "";
+    $("curtain-stages").textContent = stageSigns.length ? stageSigns.join("  ·  ") : "";
   }
 
   curtain.className = `active descent tier-${tier}`;
@@ -169,6 +169,10 @@ function handleBrandClick() {
 
 function promptExitGame() {
   if (!hasActiveRun()) return;
+  if (state.hasClearedBoss || state.phase === "cleared") {
+    finishExpeditionFromClear();
+    return;
+  }
   if (typeof playSealStampSfx === "function") playSealStampSfx();
   else playGongSfx();
 
@@ -202,6 +206,10 @@ function promptExitGame() {
 function promptExitFromSelect() {
   playClickSfx();
   if (!hasActiveRun()) return;
+  if (state.hasClearedBoss || state.phase === "cleared") {
+    finishExpeditionFromClear();
+    return;
+  }
   openConfirmModal(t("abandonModalTitle"), t("abandonModalDesc"), () => {
     promptExitGame();
   });

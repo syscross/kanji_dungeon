@@ -19,11 +19,14 @@ function depthPool() {
 
 /* Build the 10 environment cards present in the current stage, strictly within the current Kanken grade or lower. */
 function buildStageCards(depthId, sign) {
-  const maxD = depthNumber(depthId || state.depthId);
+  const targetDepth = depthId || state.depthId;
+  const maxD = depthNumber(targetDepth);
+  const allFoesInDepth = typeof allRosterKanji === "function" ? allRosterKanji(targetDepth) : [];
   const info = STAGE_SIGNS[sign] || STAGE_SIGNS.田;
-  const rawThemed = (info.cards || ["火", "水", "木", "石", "土"]).filter(k => getKanjiDepthNum(k) <= maxD);
-  const themed = sample(rawThemed.length ? rawThemed : ["火", "水", "木", "石", "土"], 5);
-  const pool = depthPool().filter(k => !themed.includes(k));
+  const rawThemed = (info.cards || ["火", "水", "木", "石", "土"])
+    .filter(k => k !== sign && !allFoesInDepth.includes(k) && getKanjiDepthNum(k) <= maxD);
+  const themed = sample(rawThemed.length ? rawThemed : ["火", "水", "土", "風", "光"], 5);
+  const pool = depthPool().filter(k => k !== sign && !themed.includes(k) && !allFoesInDepth.includes(k));
   const localGradeCards = sample(pool, 5);
   return shuffle([...themed, ...localGradeCards]);
 }

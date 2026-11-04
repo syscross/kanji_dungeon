@@ -98,36 +98,25 @@ function triggerFormalReturn() {
     { label: t("selectNextGaolBtn"), onClick: () => transitionToView("select"), gold: true },
     { label: t("titleBtn"), onClick: () => transitionToView("title") }
   ]);
-  setTimeout(() => {
-    if (currentView === "battle" && state.phase === "returned") {
-      transitionToView("select");
-    }
-  }, 650);
 }
 
 function achievementLine() {
   return state.runAchievements.map(id => findAchievement(id)).filter(Boolean).map(a => `${a.icon} ${a.name}`).join(", ") || t("goNone");
 }
 
-function runCleared() {
+/* Called right when the Boss is slain (before Boss Kanji scavenge):
+ * Boss head keeps 【殺】 (.defeated), while 【完】 is immediately logged and recorded! */
+function logBossClearImmediate() {
   const depthId = state.depthId;
   const rec = runSummary();
   addClearRecord(depthId, rec);
   achOnRunCleared({ depthId, fights: state.fights });
-
-  state.active = true;
-  state.phase = "cleared";
-  state.pending = null;
-  state.offer = [];
+  state.hasClearedBoss = true;
   saveRunToStorage();
 
   const bossCard = $("b-boss-card");
-  bossCard.classList.remove("hit", "defeated", "player-dead", "abandoned", "returned");
-  bossCard.classList.add("completed");
-  if (typeof playSealStampSfx === "function") playSealStampSfx();
-  else playGongSfx();
-
-  renderPhase();
+  bossCard.classList.remove("hit", "player-dead", "abandoned", "returned", "completed");
+  bossCard.classList.add("defeated");
 
   logBeat("clear-log", `【完】 ${depthName(depthId)}`, [
     t("clearDesc")(depthName(depthId), depthGloss(depthId)),
@@ -136,10 +125,33 @@ function runCleared() {
     `**${t("goAch")}**: ${achievementLine()}`,
     `*${t("clearHint")}*`
   ]);
+}
+
+function runCleared() {
+  const depthId = state.depthId;
+  if (!state.hasClearedBoss) {
+    logBossClearImmediate();
+  }
+
+  state.active = true;
+  state.phase = "cleared";
+  state.pending = null;
+  state.offer = [];
+  saveRunToStorage();
+
+  const bossCard = $("b-boss-card");
+  bossCard.classList.remove("hit", "player-dead", "abandoned", "returned", "completed");
+  bossCard.classList.add("defeated");
+
+  renderPhase();
   endRunDock(depthId, { cleared: true });
 }
 
 function showRunEnd(wasAbandoned = false) {
+  if (wasAbandoned && (state.hasClearedBoss || state.phase === "cleared")) {
+    finishExpeditionFromClear();
+    return;
+  }
   const depthId = state.depthId;
   const rec = runSummary();
   state.phase = wasAbandoned ? "abandoned" : "dead";
@@ -147,7 +159,9 @@ function showRunEnd(wasAbandoned = false) {
   clearSavedRun();
   const bossCard = $("b-boss-card");
   bossCard.classList.remove("hit", "defeated", "player-dead", "abandoned", "returned", "completed");
-  bossCard.classList.add(wasAbandoned ? "abandoned" : "player-dead");
+  if (wasAbandoned) {
+    bossCard.classList.add("abandoned");
+  }
   if (typeof playSealStampSfx === "function") playSealStampSfx();
   if (!wasAbandoned) playGongSfx();
   renderPhase();
