@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -8,610 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #07080d;
-      --panel: #10121b;
-      --border: #3b2328;
-      --crimson: #d73a49;
-      --gold: #e5c07b;
-      --green: #98c379;
-      --muted: #636b78;
-      --text: #e0dcd3;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%;
-      height: 100dvh;
-      overflow: hidden;
-      background: radial-gradient(circle at 50% 20%, #150d13 0%, #07080d 75%);
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      user-select: none;
-    }
-
-    /* Fullscreen Cinematic Curtain & Damage Vignette */
-    #cinematic-curtain {
-      position: fixed;
-      inset: 0;
-      background: #040508;
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.42s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #cinematic-curtain.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .curtain-title {
-      font-family: 'Noto Serif JP', serif;
-      font-size: clamp(1.8rem, 5vw, 3.2rem);
-      color: var(--crimson);
-      letter-spacing: 0.35rem;
-      text-shadow: 0 0 28px rgba(215, 58, 73, 0.7);
-      transform: scale(0.92);
-      transition: transform 0.45s ease;
-    }
-    #cinematic-curtain.active .curtain-title {
-      transform: scale(1.03);
-    }
-    .curtain-sub {
-      color: var(--gold);
-      font-size: 0.85rem;
-      margin-top: 10px;
-      letter-spacing: 2px;
-      opacity: 0.85;
-    }
-
-    #damage-vignette {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 900;
-      box-shadow: inset 0 0 90px rgba(215, 58, 73, 0);
-      transition: box-shadow 0.25s ease;
-    }
-    #damage-vignette.flash {
-      box-shadow: inset 0 0 120px rgba(215, 58, 73, 0.75);
-    }
-
-    @keyframes screenShake {
-      0%, 100% { transform: translate(0, 0); }
-      20% { transform: translate(-7px, 4px); }
-      40% { transform: translate(7px, -5px); }
-      60% { transform: translate(-5px, -3px); }
-      80% { transform: translate(5px, 4px); }
-    }
-    .shake { animation: screenShake 0.36s ease; }
-
-    /* App Shell */
-    .app-container {
-      width: 100%;
-      max-width: 880px;
-      height: 100dvh;
-      margin: 0 auto;
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Top Bar */
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1.5px solid var(--border);
-      padding-bottom: 8px;
-      flex-shrink: 0;
-      gap: 6px;
-    }
-    .brand {
-      color: var(--crimson);
-      font-weight: 700;
-      font-size: 1rem;
-      letter-spacing: 1px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .top-controls {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .btn {
-      background: var(--panel);
-      color: var(--text);
-      border: 1.5px solid var(--border);
-      padding: 5px 10px;
-      font-family: inherit;
-      font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.16s ease;
-    }
-    .btn:hover {
-      border-color: var(--crimson);
-      color: #fff;
-      box-shadow: 0 0 12px rgba(215, 58, 73, 0.35);
-    }
-    .btn-gold { border-color: #6e5931; color: var(--gold); }
-    .btn-gold:hover { border-color: var(--gold); }
-
-    #global-toast {
-      text-align: center;
-      font-size: 0.76rem;
-      color: var(--gold);
-      min-height: 16px;
-      flex-shrink: 0;
-    }
-
-    /* Views */
-    .view {
-      display: none;
-      flex: 1;
-      min-height: 0;
-      flex-direction: column;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.32s ease, transform 0.32s ease;
-    }
-    .view.active {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* VIEW 1: TITLE SCREEN */
-    #view-title {
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 28px;
-    }
-    .title-seal {
-      border: 2px solid var(--crimson);
-      padding: 26px 36px;
-      background: linear-gradient(180deg, rgba(35,14,20,0.65) 0%, rgba(10,11,17,0.9) 100%);
-      box-shadow: 0 0 50px rgba(215, 58, 73, 0.22), inset 0 0 25px rgba(215, 58, 73, 0.15);
-      position: relative;
-    }
-    .title-kanji {
-      font-family: 'Noto Serif JP', serif;
-      font-size: clamp(2.8rem, 8vw, 4.6rem);
-      color: var(--crimson);
-      letter-spacing: 0.6rem;
-      margin-right: -0.6rem;
-      text-shadow: 0 0 24px rgba(215, 58, 73, 0.55);
-    }
-    .title-eng {
-      font-size: 0.95rem;
-      letter-spacing: 0.35rem;
-      color: var(--text);
-      margin-top: 8px;
-    }
-    .title-sub {
-      color: var(--muted);
-      font-size: 0.78rem;
-      margin-top: 8px;
-    }
-    .title-menu {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      width: 100%;
-      max-width: 280px;
-    }
-    .menu-btn {
-      background: rgba(16, 18, 27, 0.9);
-      border: 1.5px solid var(--border);
-      color: var(--text);
-      padding: 13px 20px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-    .menu-btn:hover {
-      border-color: var(--crimson);
-      color: #fff;
-      transform: scale(1.04);
-      box-shadow: 0 0 20px rgba(215, 58, 73, 0.35);
-      background: linear-gradient(90deg, rgba(215,58,73,0.15), rgba(16,18,27,0.95), rgba(215,58,73,0.15));
-    }
-    .menu-btn.primary {
-      border-color: var(--crimson);
-      color: var(--gold);
-    }
-
-    /* VIEW 2: ABYSSAL DESCENT (01 -> 12 Vertical Spine) */
-    #view-select {
-      gap: 10px;
-    }
-    .select-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px 2px;
-      flex-shrink: 0;
-    }
-    .abyss-scroll {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      padding: 8px 6px 24px 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .abyss-spine {
-      width: 100%;
-      max-width: 640px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      position: relative;
-    }
-    .abyss-spine::before {
-      content: "";
-      position: absolute;
-      left: 34px;
-      top: 20px;
-      bottom: 20px;
-      width: 2px;
-      background: linear-gradient(180deg, var(--crimson) 0%, #8a2be2 100%);
-      opacity: 0.45;
-      z-index: 0;
-    }
-    .abyss-node {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      background: var(--panel);
-      border: 1.5px solid var(--border);
-      padding: 12px 16px;
-      cursor: pointer;
-      position: relative;
-      z-index: 1;
-      transition: all 0.18s ease;
-    }
-    .abyss-node:hover {
-      border-color: var(--crimson);
-      transform: translateX(6px);
-      box-shadow: 0 4px 20px rgba(215, 58, 73, 0.28);
-    }
-    .node-num {
-      width: 42px;
-      height: 42px;
-      border: 2px solid var(--crimson);
-      background: #0b0d14;
-      color: var(--crimson);
-      font-weight: 700;
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 0 10px rgba(215, 58, 73, 0.25);
-    }
-    .node-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .node-title {
-      font-family: 'Noto Serif JP', serif;
-      font-size: 1.02rem;
-      color: #f2ede4;
-      font-weight: 700;
-    }
-    .node-meta {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-    .node-scores {
-      font-size: 0.74rem;
-      color: var(--gold);
-    }
-
-    /* VIEW 3: BATTLE ARENA (Locked 100dvh, Internal Scroll GM Box) */
-    #view-battle {
-      gap: 6px;
-      overflow: hidden;
-    }
-    .status-banner {
-      background: var(--panel);
-      border: 1.5px solid var(--border);
-      padding: 6px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 0.78rem;
-      flex-shrink: 0;
-    }
-    .badge {
-      padding: 1px 6px;
-      background: #1a1d2b;
-      border: 1px solid var(--border);
-      font-size: 0.72rem;
-      color: var(--gold);
-    }
-
-    /* Compact Enemy Stage */
-    .enemy-stage {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(16, 18, 27, 0.65);
-      border: 1px solid #29191e;
-      padding: 8px 12px;
-      gap: 10px;
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    .boss-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .boss-card {
-      width: 72px;
-      height: 84px;
-      background: radial-gradient(circle, #251319 0%, #0b0d14 100%);
-      border: 2px solid var(--crimson);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 18px rgba(215, 58, 73, 0.35);
-      cursor: pointer;
-      position: relative;
-      transition: transform 0.15s ease;
-    }
-    .boss-card:hover { transform: scale(1.06); }
-    .boss-card.hit {
-      animation: bossSlash 0.38s ease;
-    }
-    @keyframes bossSlash {
-      0% { transform: scale(1); filter: brightness(1); }
-      30% { transform: scale(0.9) rotate(-4deg); filter: brightness(2.5) drop-shadow(0 0 16px #fff); }
-      60% { transform: scale(1.06) rotate(3deg); }
-      100% { transform: scale(1); filter: brightness(1); }
-    }
-    .boss-kanji {
-      font-family: 'Noto Serif JP', serif;
-      font-size: 2.8rem;
-      color: var(--crimson);
-      line-height: 1;
-    }
-    .boss-info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 0.78rem;
-    }
-    .hp-bar-wrap {
-      width: 165px;
-      height: 8px;
-      background: #1c1f2b;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-    .hp-bar-fill {
-      height: 100%;
-      background: var(--crimson);
-      transition: width 0.35s ease;
-    }
-    .hp-bar-fill.player { background: var(--green); }
-
-    .enemy-hand-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-    }
-
-    /* Floating Damage Number */
-    .dmg-pop {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: #ff4d5e;
-      text-shadow: 0 0 8px #000;
-      animation: floatUp 0.9s ease forwards;
-      pointer-events: none;
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(0.9); }
-      100% { opacity: 0; transform: translateY(-28px) scale(1.15); }
-    }
-
-    /* Cards & Staggered Deal Animation */
-    .card-row {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: nowrap;
-    }
-    @keyframes cardDeal {
-      from { opacity: 0; transform: translateY(16px) scale(0.92); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .kanji-card {
-      width: 68px;
-      height: 88px;
-      background: linear-gradient(160deg, #1a1d2c 0%, #0d0f17 100%);
-      border: 2px solid #482931;
-      border-radius: 5px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      position: relative;
-      animation: cardDeal 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-      transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
-    }
-    .kanji-card:hover {
-      transform: translateY(-6px) scale(1.05);
-      border-color: var(--crimson);
-      box-shadow: 0 6px 14px rgba(215, 58, 73, 0.35);
-    }
-    .kanji-card.enemy-sm {
-      width: 44px;
-      height: 56px;
-      border-color: #382227;
-    }
-    .kanji-card .char {
-      font-family: 'Noto Serif JP', serif;
-      font-size: 2.2rem;
-      color: #f0ece1;
-      line-height: 1;
-    }
-    .kanji-card.enemy-sm .char {
-      font-size: 1.35rem;
-      color: #e06c75;
-    }
-    .kanji-card .dict-link {
-      position: absolute;
-      top: 2px;
-      right: 4px;
-      font-size: 0.58rem;
-      color: var(--muted);
-      text-decoration: none;
-    }
-    .kanji-card .dict-link:hover { color: var(--gold); }
-
-    /* GM Judgment Log — INTERNAL SCROLLABLE FLEX BOX */
-    .gm-box {
-      flex: 1;
-      min-height: 80px;
-      overflow-y: auto;
-      background: var(--panel);
-      border: 1.5px solid var(--border);
-      padding: 10px 14px;
-      color: #d8d3c8;
-      font-size: 0.84rem;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      user-select: text;
-      scroll-behavior: smooth;
-    }
-    .gm-box strong { color: var(--gold); }
-    .gm-box .hl-cmd { color: var(--crimson); font-weight: 700; }
-
-    /* Player Bottom Dock */
-    .player-dock {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-      padding-top: 2px;
-    }
-    .player-stat-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      font-size: 0.78rem;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .prev-hand-row {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    /* Command Chips & Prompt Input */
-    .cmd-chips {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
-    .chip {
-      background: #151824;
-      border: 1px solid var(--border);
-      color: #abb2bf;
-      padding: 3px 9px;
-      font-size: 0.73rem;
-      cursor: pointer;
-      border-radius: 3px;
-    }
-    .chip:hover { border-color: var(--crimson); color: #fff; }
-    .prompt-row {
-      display: flex;
-      gap: 6px;
-      width: 100%;
-    }
-    .prompt-input {
-      flex: 1;
-      background: #0b0d14;
-      border: 1.5px solid var(--crimson);
-      color: #fff;
-      padding: 9px 11px;
-      font-family: inherit;
-      font-size: 0.88rem;
-      outline: none;
-    }
-    .prompt-input:disabled { opacity: 0.5; }
-
-    /* Settings View */
-    #view-settings {
-      overflow-y: auto;
-    }
-    .panel-box {
-      background: var(--panel);
-      border: 1.5px solid var(--border);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .field-group { display: flex; flex-direction: column; gap: 4px; }
-    .field-group label { font-size: 0.78rem; color: var(--gold); }
-    .input-ctrl, select, textarea {
-      background: #0b0d14;
-      border: 1.5px solid var(--border);
-      color: var(--text);
-      padding: 7px 10px;
-      font-family: inherit;
-      font-size: 0.82rem;
-      width: 100%;
-    }
-    textarea { min-height: 80px; resize: vertical; user-select: text; }
-
-    @media (max-width: 600px) {
-      .app-container { padding: 6px 8px; gap: 5px; }
-      .kanji-card { width: 56px; height: 74px; }
-      .kanji-card .char { font-size: 1.85rem; }
-      .kanji-card.enemy-sm { width: 38px; height: 48px; }
-      .kanji-card.enemy-sm .char { font-size: 1.15rem; }
-      .boss-card { width: 58px; height: 68px; }
-      .boss-kanji { font-size: 2.2rem; }
-      .enemy-stage { padding: 6px 8px; }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
+  <!-- Background Ember Particle Canvas -->
+  <canvas id="ember-canvas"></canvas>
+
   <!-- Fullscreen Cinematic Curtain -->
   <div id="cinematic-curtain">
     <div class="curtain-title" id="curtain-title">漢字地獄</div>
@@ -619,17 +21,51 @@
   </div>
   <div id="damage-vignette"></div>
 
+  <!-- Confirmation Modal (For Exit & Leave Battle) -->
+  <div class="modal-backdrop" id="confirm-modal">
+    <div class="modal-card">
+      <div class="modal-title" id="modal-title">【 閉門 】</div>
+      <div class="modal-desc" id="modal-desc">Are you sure?</div>
+      <div class="modal-actions">
+        <button class="btn btn-gold" data-i18n="confirm" onclick="closeConfirmModal(true)">Confirm</button>
+        <button class="btn" data-i18n="cancel" onclick="closeConfirmModal(false)">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div class="app-container" id="app-root">
     <!-- Top Bar -->
     <div class="topbar">
-      <div class="brand" onclick="transitionToView('title', '漢字地獄', 'RETURN TO GATE')">
-        <span>⛩</span> KANJI DUNGEON
+      <div class="top-left">
+        <button class="btn" id="back-btn" style="display:none;" data-i18n="back" onclick="handleBackButton()">← Back</button>
+        <div class="brand" onclick="handleBackButton()">
+          <span>⛩</span> KANJI DUNGEON
+        </div>
       </div>
+
       <div class="top-controls">
-        <button class="btn" id="lang-btn" onclick="cycleLang()">🌐 EN</button>
+        <button class="btn" id="sound-btn" onclick="toggleSound()" title="Toggle Sound FX">🔊</button>
+
+        <!-- Language Dropdown (EN / JA / KO / ZH ▸ ZH_CN, ZH_TW) -->
+        <div class="lang-dropdown" id="lang-dropdown">
+          <button class="btn" id="lang-current-label" onclick="toggleLangMenu(event)">🌐 KO ▾</button>
+          <div class="lang-menu">
+            <div class="lang-item" onclick="selectLanguage('EN', event)"><span>EN</span><small>English</small></div>
+            <div class="lang-item" onclick="selectLanguage('JA', event)"><span>JA</span><small>日本語</small></div>
+            <div class="lang-item" onclick="selectLanguage('KO', event)"><span>KO</span><small>한국어</small></div>
+            <div class="lang-item lang-has-sub">
+              <span>ZH</span><span>▸</span>
+              <div class="lang-submenu">
+                <div class="lang-item" onclick="selectLanguage('ZH_CN', event)"><span>ZH_CN</span><small>简体</small></div>
+                <div class="lang-item" onclick="selectLanguage('ZH_TW', event)"><span>ZH_TW</span><small>繁體</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <button class="btn btn-gold" id="mode-badge" onclick="transitionToView('settings')">⚙ Mode: Default</button>
-        <button class="btn" onclick="testApiKey()">🧪 Test Key</button>
-        <button class="btn" onclick="transitionToView('settings')">🔑 Settings</button>
+        <button class="btn" data-i18n="testKey" onclick="testApiKey()">🧪 Test Key</button>
+        <button class="btn" data-i18n="settings" onclick="transitionToView('settings')">🔑 Settings</button>
       </div>
     </div>
 
@@ -640,44 +76,44 @@
       <div class="title-seal">
         <div class="title-kanji">漢字地獄</div>
         <div class="title-eng">KANJI DUNGEON</div>
-        <div class="title-sub">6,355 Kanji Dark-Fantasy AI TRPG Roguelike</div>
+        <div class="title-sub" data-i18n="titleSub">6,355 Kanji Dark-Fantasy AI TRPG Roguelike</div>
       </div>
 
       <div class="title-menu">
-        <button class="menu-btn primary" onclick="transitionToView('select', '奈落選択', 'CHOOSE YOUR DEPTH (01 — 12)')">⚔ PLAY GAME</button>
-        <button class="menu-btn" onclick="testApiKey()">🧪 TEST KEY</button>
-        <button class="menu-btn" onclick="transitionToView('settings', '環境設定', 'ARCANE CONFIGURATION')">🔑 SETTINGS</button>
-        <button class="menu-btn" onclick="exitGame()">🚪 EXIT</button>
+        <button class="menu-btn primary" data-i18n="playGame" onclick="transitionToView('select', '奈落選択', 'CHOOSE YOUR DEPTH (01 — 12)')">⚔ PLAY GAME</button>
+        <button class="menu-btn" data-i18n="testKey" onclick="testApiKey()">🧪 TEST KEY</button>
+        <button class="menu-btn" data-i18n="settings" onclick="transitionToView('settings', '環境設定', 'ARCANE CONFIGURATION')">🔑 SETTINGS</button>
+        <button class="menu-btn" data-i18n="exit" onclick="promptExitGame()">🚪 EXIT</button>
       </div>
     </div>
 
     <!-- VIEW 2: ABYSSAL DESCENT (01 -> 12 Vertical Spine) -->
     <div id="view-select" class="view">
       <div class="select-header">
-        <span style="color:var(--crimson); font-weight:700; font-size:0.9rem;">【 SELECT ABYSSAL DEPTH : 01 → 12 】</span>
-        <button class="btn" onclick="transitionToView('title')">↩ Title</button>
+        <span style="color:var(--crimson); font-weight:700; font-size:0.9rem;" data-i18n="selectDepth">【 SELECT ABYSSAL DEPTH : 01 → 12 】</span>
       </div>
       <div class="abyss-scroll">
         <div class="abyss-spine" id="depth-spine"></div>
       </div>
     </div>
 
-    <!-- VIEW 3: BATTLE ARENA (100dvh Viewport-Locked) -->
+    <!-- VIEW 3: BATTLE ARENA -->
     <div id="view-battle" class="view">
       <div class="status-banner">
         <div>
           <strong id="b-depth-title" style="color:var(--crimson)">01 — 拾ノ獄</strong>
           <span id="b-turn" style="margin-left:6px; color:var(--muted)">Turn 1</span>
         </div>
-        <div>Field: <span class="badge" id="b-field-state">Pitch-Black Dungeon</span></div>
-        <div>
+        <div><span data-i18n="field">Field</span>: <span class="badge" id="b-field-state">Pitch-Black Dungeon</span></div>
+        <div style="display:flex; gap:4px; align-items:center;">
           <span class="badge" id="b-streak">🔥 0 Kills</span>
-          <button class="btn" style="padding:2px 7px; margin-left:4px;" onclick="exportBattleLog()">📋 Log</button>
-          <button class="btn" style="padding:2px 7px;" onclick="transitionToView('select', '撤退', 'RETREATING FROM FLOOR')">↩ Leave</button>
+          <button class="btn" style="padding:2px 7px;" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy</button>
+          <button class="btn" style="padding:2px 7px;" data-i18n="logClear" onclick="clearGmLog(true)">🧹 Clear</button>
+          <button class="btn" style="padding:2px 7px;" data-i18n="leave" onclick="handleBackButton()">↩ Leave</button>
         </div>
       </div>
 
-      <!-- Compact Enemy Stage -->
+      <!-- Enemy Stage -->
       <div class="enemy-stage">
         <div class="boss-left">
           <div class="boss-card" id="b-boss-card" onclick="insertKanji(state.enemyKanji)" title="Click to insert Boss Kanji">
@@ -692,20 +128,20 @@
         </div>
 
         <div class="enemy-hand-wrap">
-          <div style="font-size:0.7rem; color:var(--muted);">Enemy Hand (Click to use):</div>
+          <div style="font-size:0.72rem; color:var(--muted);" data-i18n="enemyHand">Enemy Hand (Click to reference):</div>
           <div class="card-row" id="b-enemy-hand"></div>
         </div>
       </div>
 
-      <!-- GM Judgment Log (Internal Scroll) -->
+      <!-- Cumulative GM Scroll Log -->
       <div class="gm-box" id="b-gm-log"></div>
 
-      <!-- Player Dock (Always Pinned at Bottom) -->
+      <!-- Player Bottom Dock with Large Cards & Visual Deck -->
       <div class="player-dock">
         <div class="player-stat-row">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span>YOUR HP: <strong id="b-player-hp" style="color:var(--green)">100</strong>/100</span>
-            <div class="hp-bar-wrap" style="width:110px;"><div class="hp-bar-fill player" id="b-player-bar" style="width:100%"></div></div>
+            <span><span data-i18n="yourHp">YOUR HP</span>: <strong id="b-player-hp" style="color:var(--green)">100</strong>/100</span>
+            <div class="hp-bar-wrap" style="width:120px;"><div class="hp-bar-fill player" id="b-player-bar" style="width:100%"></div></div>
             <span class="badge" id="b-player-state">Normal</span>
           </div>
           <div>
@@ -714,18 +150,24 @@
           </div>
         </div>
 
-        <div class="card-row" id="b-player-hand"></div>
+        <div class="hand-table">
+          <div class="deck-pile" onclick="triggerSlash('/reroll')" title="Click Deck to /reroll (-5 HP)">
+            <span>山札</span>
+            <small data-i18n="deck">DRAW</small>
+          </div>
+          <div class="card-row" id="b-player-hand"></div>
+        </div>
 
         <div class="cmd-chips">
-          <span class="chip" onclick="triggerSlash('/hint')">💡 /hint (Brief)</span>
-          <span class="chip" onclick="triggerSlash('/reroll')">🎲 /reroll (-5 HP)</span>
-          <span class="chip" onclick="prefillSlash('/prompt ')">❓ /prompt [Ask]</span>
-          <span class="chip" onclick="prefillSlash('/summon ')">🐉 /summon</span>
+          <span class="chip" data-i18n="hintChip" onclick="triggerSlash('/hint')">💡 /hint (Brief)</span>
+          <span class="chip" data-i18n="rerollChip" onclick="triggerSlash('/reroll')">🎲 /reroll (-5 HP)</span>
+          <span class="chip" data-i18n="promptChip" onclick="prefillSlash('/prompt ')">❓ /prompt [Ask]</span>
+          <span class="chip" data-i18n="summonChip" onclick="prefillSlash('/summon ')">🐉 /summon</span>
         </div>
 
         <form class="prompt-row" onsubmit="handleBattleSubmit(event)">
-          <input type="text" id="b-input" class="prompt-input" placeholder="Click Kanji cards or type spell (/hint, /reroll, /prompt, /summon)..." autocomplete="off" />
-          <button type="submit" class="btn" id="b-send-btn">⚔️ Cast</button>
+          <input type="text" id="b-input" class="prompt-input" placeholder="Click Kanji cards or type spell..." autocomplete="off" />
+          <button type="submit" class="btn btn-gold" id="b-send-btn" data-i18n="castBtn">⚔️ Cast</button>
         </form>
       </div>
     </div>
@@ -734,43 +176,36 @@
     <div id="view-settings" class="view">
       <div class="panel-box">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="color:var(--crimson); font-size:0.95rem;">【 SETTINGS — PROVIDER, MODEL & GM MODE 】</h3>
-          <button class="btn" onclick="transitionToView('title')">↩ Back</button>
+          <h3 style="color:var(--crimson); font-size:0.95rem;" data-i18n="settingsTitle">【 SETTINGS — PROVIDER, MODEL & GM MODE 】</h3>
         </div>
-        <p style="font-size:0.75rem; color:var(--muted);">
-          🔒 Your API Key is stored strictly in your browser's <code>localStorage</code>.
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold); margin-left:6px;">[Get Free Gemini API Key ↗]</a>
+        <p style="font-size:0.76rem; color:var(--muted);">
+          <span data-i18n="keyNotice">🔒 API Keys are saved per-provider in your browser's localStorage only.</span>
+          <a id="s-key-link" href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold); margin-left:6px;">[Get Free Gemini API Key ↗]</a>
         </p>
 
         <div class="field-group">
-          <label>1. AI Provider</label>
-          <select id="s-provider" onchange="onProviderChange()">
-            <option value="gemini">Google Gemini API (Direct Browser CORS)</option>
-            <option value="anthropic">Anthropic Claude API (Haiku 4.5 / Sonnet 4.5 Direct)</option>
-            <option value="openrouter">OpenRouter API (Any Model)</option>
-          </select>
+          <label data-i18n="lblProvider">1. AI Provider (8 Supported)</label>
+          <select id="s-provider" onchange="onProviderChange()"></select>
+        </div>
+
+        <div class="field-group" id="s-endpoint-group" style="display:none;">
+          <label data-i18n="lblEndpoint">Custom OpenAI-Compatible Base URL</label>
+          <input type="text" id="s-endpoint" class="input-ctrl" placeholder="http://localhost:11434/v1/chat/completions" />
         </div>
 
         <div class="field-group">
-          <label>2. API Key</label>
+          <label data-i18n="lblApiKey">2. API Key (Saved per provider)</label>
           <input type="password" id="s-apikey" class="input-ctrl" placeholder="Paste API Key here..." />
         </div>
 
         <div class="field-group">
-          <label>3. Model Preset or Custom Model ID</label>
-          <select id="s-model-preset" onchange="document.getElementById('s-model-custom').value = this.value">
-            <option value="gemini-flash-lite-latest">gemini-flash-lite-latest (Gemini Default)</option>
-            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (Gemini 2.5 Flash-Lite)</option>
-            <option value="gemini-2.5-flash">gemini-2.5-flash (Gemini 2.5 Flash)</option>
-            <option value="claude-haiku-4-5">claude-haiku-4-5 (Anthropic Haiku 4.5)</option>
-            <option value="claude-sonnet-4-5">claude-sonnet-4-5 (Anthropic Sonnet 4.5)</option>
-            <option value="anthropic/claude-haiku-4.5">anthropic/claude-haiku-4.5 (via OpenRouter)</option>
-          </select>
+          <label data-i18n="lblModel">3. Model Preset or Custom Model ID</label>
+          <select id="s-model-preset" onchange="document.getElementById('s-model-custom').value = this.value"></select>
           <input type="text" id="s-model-custom" class="input-ctrl" placeholder="Or type any model ID directly..." />
         </div>
 
         <div class="field-group">
-          <label>4. Instruction Mode (Scores tracked separately per mode!)</label>
+          <label data-i18n="lblInstMode">4. Instruction Mode (Scores tracked separately)</label>
           <select id="s-inst-mode" onchange="onInstModeChange()">
             <option value="Default">🏆 Default (Official Rules — Read-Only)</option>
             <option value="Custom">🛠 Custom (Official Rules + Your Addon Patch)</option>
@@ -779,607 +214,26 @@
         </div>
 
         <div class="field-group">
-          <label>Default Official Instruction (Read-Only Reference)</label>
+          <label data-i18n="lblDefaultInst">Official GM Rules (Read-Only)</label>
           <textarea id="s-default-inst" readonly style="opacity:0.65;"></textarea>
         </div>
 
         <div class="field-group" id="s-custom-group">
-          <label>Custom Addon / Sandbox Instruction</label>
+          <label data-i18n="lblCustomInst">Custom Addon / Sandbox Rules</label>
           <textarea id="s-custom-inst" placeholder="Add extra GM persona rules, generosity tweaks, or custom mechanics..."></textarea>
         </div>
 
         <div style="display:flex; gap:10px;">
-          <button class="btn" onclick="saveSettings()">💾 Save Settings</button>
-          <button class="btn" onclick="testApiKey()">🧪 Test Key Now</button>
+          <button class="btn btn-gold" data-i18n="saveBtn" onclick="saveSettings(false)">💾 Save Settings</button>
+          <button class="btn" data-i18n="testKey" onclick="testApiKey()">🧪 Test Key</button>
         </div>
       </div>
     </div>
   </div>
 
-<script>
-const DEFAULT_GM_RULES = `1. Judge the Player's action using ONLY Kanji present in their 5 Drawn Cards. If they lie about a Kanji's meaning or use unheld Kanji, mock them and deal 0 damage.
-2. Normal attack damage is 15~45. If the player is absurdly greedy without matching Kanji (like 百/千), call out "Too greedy!" and scale damage to 15~38.
-3. Reward clever Kanji combinations, healing (休/水/生/草/林 etc.), defense, or preemptively countering the Enemy's 5 visible cards!
-4. If the enemy survives, the Enemy counterattacks using 1~3 Kanji from the Enemy's current hand.
-5. Keep your narrative punchy and concise (2~4 sentences max).`;
-
-let KANKEN_DATA = {};
-const LANGS = ["EN", "KO", "JA"];
-
-let config = {
-  provider: localStorage.getItem("kd_provider") || "gemini",
-  apiKey: localStorage.getItem("kd_apikey") || "",
-  model: localStorage.getItem("kd_model") || "gemini-flash-lite-latest",
-  instMode: localStorage.getItem("kd_inst_mode") || "Default",
-  customInst: localStorage.getItem("kd_custom_inst") || "",
-  lang: localStorage.getItem("kd_lang") || "EN",
-  scores: JSON.parse(localStorage.getItem("kd_scores") || "{}")
-};
-
-let state = {
-  depthId: "depth_1",
-  turn: 1,
-  streak: 0,
-  summonCost: 10,
-  playerHp: 100,
-  enemyHp: 100,
-  enemyKanji: "犬",
-  fieldState: "Pitch-Black Dungeon",
-  playerState: "Normal",
-  enemyState: "Hostile",
-  playerHand: [],
-  enemyHand: [],
-  prevPlayerHand: [],
-  prevEnemyHand: [],
-  history: []
-};
-
-async function initApp() {
-  document.getElementById("s-default-inst").value = DEFAULT_GM_RULES;
-  syncSettingsUI();
-  const res = await fetch("./kanken_data.json");
-  KANKEN_DATA = await res.json();
-  renderDepthSpine();
-}
-
-function showToast(msg) {
-  document.getElementById("global-toast").textContent = msg;
-}
-
-function cycleLang() {
-  const idx = (LANGS.indexOf(config.lang) + 1) % LANGS.length;
-  config.lang = LANGS[idx];
-  localStorage.setItem("kd_lang", config.lang);
-  document.getElementById("lang-btn").textContent = `🌐 ${config.lang}`;
-}
-
-/* Cinematic Curtain Transition */
-function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
-  const curtain = document.getElementById("cinematic-curtain");
-  if (curtainKanji) {
-    document.getElementById("curtain-title").textContent = curtainKanji;
-    document.getElementById("curtain-sub").textContent = curtainSub;
-    curtain.classList.add("active");
-    setTimeout(() => {
-      switchDomView(viewName);
-      setTimeout(() => curtain.classList.remove("active"), 260);
-    }, 380);
-  } else {
-    switchDomView(viewName);
-  }
-}
-
-function switchDomView(name) {
-  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-  document.getElementById(`view-${name}`).classList.add("active");
-  if (name === "select") renderDepthSpine();
-}
-
-function exitGame() {
-  const curtain = document.getElementById("cinematic-curtain");
-  document.getElementById("curtain-title").textContent = "閉 門";
-  document.getElementById("curtain-sub").textContent = "THE ABYSS GAZES BACK. CLICK ANYWHERE TO AWAKEN.";
-  curtain.classList.add("active");
-  curtain.onclick = () => {
-    curtain.onclick = null;
-    curtain.classList.remove("active");
-    switchDomView("title");
-  };
-}
-
-function getScore(depthId, mode) {
-  return (config.scores[depthId] && config.scores[depthId][mode]) || 0;
-}
-
-function recordKill(depthId) {
-  if (!config.scores[depthId]) config.scores[depthId] = {};
-  const cur = config.scores[depthId][config.instMode] || 0;
-  if (state.streak > cur) {
-    config.scores[depthId][config.instMode] = state.streak;
-    localStorage.setItem("kd_scores", JSON.stringify(config.scores));
-  }
-}
-
-/* Clean 01 -> 12 Vertical Spine Renderer */
-function renderDepthSpine() {
-  const spine = document.getElementById("depth-spine");
-  spine.innerHTML = "";
-  Object.keys(KANKEN_DATA).forEach((did, idx) => {
-    const d = KANKEN_DATA[did];
-    const numStr = String(idx + 1).padStart(2, "0");
-    // Strip leading "01 — " or "Depth 01 — " if present
-    const cleanTitle = d.title.replace(/^(Depth\s*)?\d+\s*—\s*/i, "");
-    const node = document.createElement("div");
-    node.className = "abyss-node";
-    node.onclick = () => startRun(did, numStr, cleanTitle);
-    node.innerHTML = `
-      <div class="node-num">${numStr}</div>
-      <div class="node-body">
-        <div class="node-title">${cleanTitle}</div>
-        <div class="node-meta">${d.count.toLocaleString()} Kanji Pool  |  Bosses: ${d.enemies.slice(0, 8).join(" ")}</div>
-        <div class="node-scores">
-          🏆 Default: ${getScore(did, "Default")}  ·  🛠 Custom: ${getScore(did, "Custom")}  ·  🧪 Sandbox: ${getScore(did, "Sandbox")}
-        </div>
-      </div>
-    `;
-    spine.appendChild(node);
-  });
-}
-
-function sample5(arr) {
-  const copy = [...arr];
-  const out = [];
-  for (let i = 0; i < 5 && copy.length > 0; i++) {
-    const idx = Math.floor(Math.random() * copy.length);
-    out.push(copy.splice(idx, 1)[0]);
-  }
-  return out;
-}
-
-function startRun(depthId, numStr = "01", cleanTitle = "") {
-  if (!config.apiKey) {
-    showToast("⚠ Please set your API Key in Settings first!");
-    transitionToView("settings");
-    return;
-  }
-  state.depthId = depthId;
-  state.streak = 0;
-  state.playerHp = 100;
-  state.playerState = "Normal";
-  state.fieldState = "Pitch-Black Dungeon";
-  state.history = [];
-  spawnNextEnemy(true);
-  transitionToView("battle", `DEPTH ${numStr}`, cleanTitle || KANKEN_DATA[depthId].title);
-}
-
-function spawnNextEnemy(isFirst = false) {
-  const d = KANKEN_DATA[state.depthId];
-  state.enemyKanji = d.enemies[Math.floor(Math.random() * d.enemies.length)];
-  state.enemyHp = 100;
-  state.enemyState = "Hostile";
-  state.turn = 1;
-  state.summonCost = 10;
-  state.prevPlayerHand = [];
-  state.prevEnemyHand = [];
-  dealNewHands();
-  const introMsg = isFirst
-    ? `[ GM ] Descended into **${d.title}**. Boss **【 ${state.enemyKanji} 】** blocks your path!\nClick any Kanji card to insert it, or cast **/hint**, **/reroll**, **/prompt**, **/summon**.`
-    : `🩸 Enemy slain! Streak: **🔥 ${state.streak} Kills** (/summon reset to 10 HP)\nNext Challenger: **【 ${state.enemyKanji} 】** (HP: 100/100) emerges from the dark!`;
-  updateBattleHUD(introMsg);
-}
-
-function dealNewHands() {
-  const pool = KANKEN_DATA[state.depthId].kanji;
-  if (state.playerHand.length) state.prevPlayerHand = [...state.playerHand];
-  if (state.enemyHand.length) state.prevEnemyHand = [...state.enemyHand];
-  state.playerHand = sample5(pool);
-  state.enemyHand = sample5(pool);
-}
-
-function makeCardEl(k, isEnemy = false, idx = 0) {
-  const el = document.createElement("div");
-  el.className = "kanji-card" + (isEnemy ? " enemy-sm" : "");
-  el.style.animationDelay = `${idx * 55}ms`;
-  el.onclick = (e) => {
-    if (e.target.tagName === "A") return;
-    insertKanji(k);
-  };
-  el.innerHTML = `
-    <a class="dict-link" href="https://jisho.org/search/${encodeURIComponent(k)}%20%23kanji" target="_blank" title="Jisho Dictionary">🔍</a>
-    <div class="char">${k}</div>
-  `;
-  return el;
-}
-
-function insertKanji(k) {
-  const inp = document.getElementById("b-input");
-  const start = inp.selectionStart || inp.value.length;
-  const end = inp.selectionEnd || inp.value.length;
-  inp.value = inp.value.slice(0, start) + k + inp.value.slice(end);
-  inp.focus();
-  inp.selectionStart = inp.selectionEnd = start + k.length;
-}
-
-/* Lightweight Markdown Cleaner so /hint & GM logs never show raw ### or ** clutter */
-function formatGmText(raw) {
-  const escaped = String(raw)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-  return escaped
-    .replace(/^#{1,4}\s*(.+)$/gm, "<strong>▸ $1</strong>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, "<strong>[$1]</strong>");
-}
-
-function triggerCombatFX(enemyDmg, playerDmg) {
-  if (enemyDmg > 0) {
-    const bossCard = document.getElementById("b-boss-card");
-    bossCard.classList.remove("hit");
-    void bossCard.offsetWidth;
-    bossCard.classList.add("hit");
-
-    const pop = document.createElement("div");
-    pop.className = "dmg-pop";
-    pop.textContent = `-${enemyDmg}`;
-    bossCard.appendChild(pop);
-    setTimeout(() => pop.remove(), 900);
-  }
-  if (playerDmg > 0) {
-    const appRoot = document.getElementById("app-root");
-    const vig = document.getElementById("damage-vignette");
-    appRoot.classList.remove("shake");
-    void appRoot.offsetWidth;
-    appRoot.classList.add("shake");
-    vig.classList.add("flash");
-    setTimeout(() => vig.classList.remove("flash"), 320);
-  }
-}
-
-function updateBattleHUD(gmText = null) {
-  const d = KANKEN_DATA[state.depthId];
-  document.getElementById("b-depth-title").textContent = `${d.title} [${config.instMode}]`;
-  document.getElementById("b-turn").textContent = `Turn ${state.turn}`;
-  document.getElementById("b-field-state").textContent = state.fieldState;
-  document.getElementById("b-streak").textContent = `🔥 ${state.streak} Kills`;
-
-  document.getElementById("b-boss-kanji").textContent = state.enemyKanji;
-  document.getElementById("b-boss-name").textContent = state.enemyKanji;
-  document.getElementById("b-enemy-hp").textContent = state.enemyHp;
-  document.getElementById("b-enemy-state").textContent = state.enemyState;
-  document.getElementById("b-enemy-bar").style.width = `${Math.max(0, state.enemyHp)}%`;
-
-  document.getElementById("b-player-hp").textContent = state.playerHp;
-  document.getElementById("b-player-state").textContent = state.playerState;
-  document.getElementById("b-summon-cost").textContent = `${state.summonCost} HP`;
-  document.getElementById("b-player-bar").style.width = `${Math.max(0, state.playerHp)}%`;
-
-  document.getElementById("b-enemy-prev").textContent = state.prevEnemyHand.length
-    ? `Prev: ${state.prevEnemyHand.join(" ")}`
-    : "Prev: (None)";
-  document.getElementById("b-player-prev").textContent = state.prevPlayerHand.length
-    ? `Prev: ${state.prevPlayerHand.join(" ")}`
-    : "Prev: (None)";
-
-  const eRow = document.getElementById("b-enemy-hand");
-  eRow.innerHTML = "";
-  state.enemyHand.forEach((k, i) => eRow.appendChild(makeCardEl(k, true, i)));
-
-  const pRow = document.getElementById("b-player-hand");
-  pRow.innerHTML = "";
-  state.playerHand.forEach((k, i) => pRow.appendChild(makeCardEl(k, false, i)));
-
-  if (gmText !== null) {
-    const gmBox = document.getElementById("b-gm-log");
-    gmBox.innerHTML = formatGmText(gmText);
-    gmBox.scrollTop = 0;
-  }
-}
-
-function prefillSlash(prefix) {
-  const inp = document.getElementById("b-input");
-  inp.value = prefix;
-  inp.focus();
-}
-
-function triggerSlash(cmd) {
-  const inp = document.getElementById("b-input");
-  inp.value = cmd;
-  handleBattleSubmit(new Event("submit"));
-}
-
-/* Strict 4-Slash Command Parser */
-function parseInputCommand(raw) {
-  const trimmed = raw.trim();
-  if (!trimmed.startsWith("/")) return { type: "NORMAL", arg: trimmed };
-
-  const parts = trimmed.split(/\s+/);
-  const cmd = parts[0].toLowerCase();
-  const arg = parts.slice(1).join(" ").trim();
-
-  if (cmd === "/hint") return { type: "HINT", arg: "" };
-  if (cmd === "/reroll") return { type: "REROLL", arg: "" };
-  if (cmd === "/prompt") return { type: "PROMPT", arg };
-  if (cmd === "/summon") return { type: "SUMMON", arg };
-  return { type: "UNKNOWN_SLASH", cmd, arg };
-}
-
-async function callLLM(systemPrompt, expectJson = true) {
-  const { provider, apiKey, model } = config;
-  if (provider === "gemini") {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const body = {
-      contents: [{ parts: [{ text: systemPrompt }] }],
-      generationConfig: expectJson ? { responseMimeType: "application/json", temperature: 0.8 } : { temperature: 0.7 }
-    };
-    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    if (!r.ok) throw new Error(`Gemini HTTP ${r.status}: ${await r.text()}`);
-    const data = await r.json();
-    const txt = data.candidates[0].content.parts[0].text;
-    return expectJson ? JSON.parse(txt) : txt;
-  }
-
-  if (provider === "anthropic") {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 1024,
-        messages: [{ role: "user", content: systemPrompt }]
-      })
-    });
-    if (!r.ok) throw new Error(`Anthropic HTTP ${r.status}: ${await r.text()}`);
-    const data = await r.json();
-    const txt = data.content[0].text.trim();
-    if (!expectJson) return txt;
-    const match = txt.match(/\{[\s\S]*\}/);
-    return JSON.parse(match ? match[0] : txt);
-  }
-
-  const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: "user", content: systemPrompt }]
-    })
-  });
-  if (!r.ok) throw new Error(`OpenRouter HTTP ${r.status}: ${await r.text()}`);
-  const data = await r.json();
-  const txt = data.choices[0].message.content.trim();
-  if (!expectJson) return txt;
-  const match = txt.match(/\{[\s\S]*\}/);
-  return JSON.parse(match ? match[0] : txt);
-}
-
-async function handleBattleSubmit(e) {
-  if (e && e.preventDefault) e.preventDefault();
-  const inp = document.getElementById("b-input");
-  const raw = inp.value.trim();
-  if (!raw) return;
-
-  const parsed = parseInputCommand(raw);
-
-  // 1. /reroll (Immediate, -5 HP)
-  if (parsed.type === "REROLL") {
-    if (state.playerHp <= 5) {
-      updateBattleHUD("⚠ **[GM]**: Too weak to **/reroll**! (Requires > 5 HP)");
-      return;
-    }
-    state.playerHp -= 5;
-    triggerCombatFX(0, 5);
-    state.playerHand = sample5(KANKEN_DATA[state.depthId].kanji);
-    inp.value = "";
-    updateBattleHUD("🎲 **[/reroll]**: Paid 5 HP and drew 5 fresh Kanji cards! (Turn continues)");
-    return;
-  }
-
-  // 2. /prompt requires argument
-  if (parsed.type === "PROMPT" && !parsed.arg) {
-    updateBattleHUD("⚠ Usage: **/prompt [Your question]** (Tip: Click any Kanji card to insert it!)");
-    return;
-  }
-
-  if (parsed.type === "UNKNOWN_SLASH") {
-    updateBattleHUD(`⚠ Unknown command "${parsed.cmd}". Use **/hint**, **/reroll**, **/prompt <text>**, **/summon [text]**`);
-    return;
-  }
-
-  inp.disabled = true;
-  document.getElementById("b-send-btn").disabled = true;
-
-  try {
-    // 3. /hint (Compact 8-line briefing!) or /prompt
-    if (parsed.type === "HINT" || parsed.type === "PROMPT") {
-      updateBattleHUD("🔮 **[ GM is reading the Kanji runes... ]**");
-      const qText = parsed.type === "HINT"
-        ? `Provide an ULTRA-CONCISE tactical briefing (max 8 lines total, no filler) in ${config.lang}:
-1. Player Hand ${JSON.stringify(state.playerHand)}: list each Kanji(reading: 1-word meaning) on ONE single compact line.
-2. Enemy Hand ${JSON.stringify(state.enemyHand)}: list each Kanji(reading: 1-word meaning) on ONE single compact line.
-3. Two short, clever 1-line combo ideas against Boss 【${state.enemyKanji}】.`
-        : `Answer the player's question concisely (max 5 lines) in the context of this Kanji battle (Player Hand: ${JSON.stringify(state.playerHand)}, Enemy: ${state.enemyKanji}): "${parsed.arg}"`;
-      const reply = await callLLM(qText, false);
-      inp.value = "";
-      updateBattleHUD(`💡 **[${parsed.type}]**\n${reply}`);
-      return;
-    }
-
-    // 4. /summon (Escalating 10 -> 20 -> 30 HP cost)
-    let summonDirective = "";
-    if (parsed.type === "SUMMON") {
-      if (state.playerHp <= state.summonCost) {
-        updateBattleHUD(`⚠ Not enough HP for **/summon**! Current summon cost this round is **${state.summonCost} HP**.`);
-        return;
-      }
-      state.playerHp -= state.summonCost;
-      const paid = state.summonCost;
-      state.summonCost += 10;
-      summonDirective = `\n[SPECIAL COMMAND: /summon (Player paid ${paid} HP!)] Summon a fitting entity from Player's hand (${JSON.stringify(state.playerHand)}). Direction: "${parsed.arg || "Auto-summon best entity"}". Set it in 'new_player_state' and apply immediate attack/shield!`;
-    }
-
-    updateBattleHUD("⚔️ **[ GM is judging your Kanji spell... ]**");
-    const ruleBody = config.instMode === "Default"
-      ? DEFAULT_GM_RULES
-      : config.instMode === "Custom"
-      ? `${DEFAULT_GM_RULES}\n\n[User Custom Patch Rules]:\n${config.customInst}`
-      : `[Sandbox Rules]:\n${config.customInst || DEFAULT_GM_RULES}`;
-
-    const gmPrompt = `You are the TRPG Game Master of 'KANJI DUNGEON' (Mode: ${config.instMode}, UI Lang: ${config.lang}).
-Battle State:
-- Field State: [${state.fieldState}]
-- Enemy Boss: 【 ${state.enemyKanji} 】 (HP: ${state.enemyHp}/100, State: [${state.enemyState}])
-- Player (HP: ${state.playerHp}/100, State: [${state.playerState}])
-- Player's 5 Drawn Kanji Cards: ${JSON.stringify(state.playerHand)}
-- Enemy's 5 Drawn Kanji Cards: ${JSON.stringify(state.enemyHand)}
-
-Player's Input: "${raw}"${summonDirective}
-
-Rules:
-${ruleBody}
-- Always include reading/meaning in parentheses when mentioning Kanji.
-- Language: Respond in the language the player used (Korean -> Korean, Japanese -> Japanese, otherwise ${config.lang}).
-
-Respond ONLY in valid JSON:
-{
-  "gm_judgment": "string",
-  "enemy_damage_taken": 0,
-  "player_heal": 0,
-  "enemy_action": "string",
-  "player_damage_taken": 0,
-  "new_field_state": "string",
-  "new_player_state": "string",
-  "new_enemy_state": "string"
-}`;
-
-    const res = await callLLM(gmPrompt, true);
-    applyTurnResult(raw, res);
-    inp.value = "";
-  } catch (err) {
-    updateBattleHUD(`⚠ **API Error**: ${err.message}`);
-  } finally {
-    inp.disabled = false;
-    document.getElementById("b-send-btn").disabled = false;
-    inp.focus();
-  }
-}
-
-function applyTurnResult(rawPrompt, res) {
-  const dmgE = Math.max(0, parseInt(res.enemy_damage_taken || 0, 10));
-  const healP = Math.max(0, parseInt(res.player_heal || 0, 10));
-  const dmgP = Math.max(0, parseInt(res.player_damage_taken || 0, 10));
-
-  if (res.new_field_state) state.fieldState = String(res.new_field_state).slice(0, 36);
-  if (res.new_player_state) state.playerState = String(res.new_player_state).slice(0, 36);
-  if (res.new_enemy_state) state.enemyState = String(res.new_enemy_state).slice(0, 36);
-
-  state.enemyHp = Math.max(0, state.enemyHp - dmgE);
-  state.playerHp = Math.min(100, state.playerHp + healP);
-
-  if (state.enemyHp <= 0) {
-    triggerCombatFX(dmgE, 0);
-    state.streak += 1;
-    recordKill(state.depthId);
-    const winLog = `🗣 **[You]**: "${rawPrompt}"\n⚖ **[GM]**: ${res.gm_judgment} (**Enemy -${dmgE} HP**)`;
-    state.history.push(winLog);
-    spawnNextEnemy(false);
-    const gmBox = document.getElementById("b-gm-log");
-    gmBox.innerHTML = formatGmText(`${winLog}\n\n`) + gmBox.innerHTML;
-    return;
-  }
-
-  state.playerHp = Math.max(0, state.playerHp - dmgP);
-  triggerCombatFX(dmgE, dmgP);
-
-  const turnLog = `🗣 **[Turn ${state.turn} — You]**: "${rawPrompt}"\n⚖ **[GM]**: ${res.gm_judgment} (**Enemy -${dmgE} HP**${healP ? `, **You +${healP} HP**` : ""})\n👹 **【${state.enemyKanji}】**: ${res.enemy_action} (**You -${dmgP} HP**)`;
-  state.history.push(turnLog);
-
-  if (state.playerHp <= 0) {
-    updateBattleHUD(`💀 **【 死 — YOU HAVE MET YOUR DEMISE 】**\nFinal Streak in ${KANKEN_DATA[state.depthId].title}: **🔥 ${state.streak} Kills** (Mode: ${config.instMode})\n\n${turnLog}`);
-    return;
-  }
-
-  state.turn += 1;
-  dealNewHands();
-  updateBattleHUD(turnLog);
-}
-
-function exportBattleLog() {
-  const header = `=== KANJI DUNGEON 【漢字地獄】 (${KANKEN_DATA[state.depthId].title}) ===\nMode: ${config.instMode} | Model: ${config.model} | Streak: 🔥 ${state.streak} Kills\n\n`;
-  const body = state.history.length ? state.history.join("\n\n---\n\n") : document.getElementById("b-gm-log").innerText;
-  navigator.clipboard.writeText(header + body);
-  showToast("📋 Battle History copied to clipboard!");
-}
-
-function onProviderChange() {
-  const p = document.getElementById("s-provider").value;
-  const modelInput = document.getElementById("s-model-custom");
-  if (p === "gemini") modelInput.value = "gemini-flash-lite-latest";
-  if (p === "anthropic") modelInput.value = "claude-haiku-4-5";
-  if (p === "openrouter") modelInput.value = "anthropic/claude-haiku-4.5";
-}
-
-function onInstModeChange() {
-  const m = document.getElementById("s-inst-mode").value;
-  document.getElementById("s-custom-group").style.display = m === "Default" ? "none" : "flex";
-}
-
-function syncSettingsUI() {
-  document.getElementById("s-provider").value = config.provider;
-  document.getElementById("s-apikey").value = config.apiKey;
-  document.getElementById("s-model-custom").value = config.model;
-  document.getElementById("s-inst-mode").value = config.instMode;
-  document.getElementById("s-custom-inst").value = config.customInst;
-  document.getElementById("mode-badge").textContent = `⚙ Mode: ${config.instMode}`;
-  document.getElementById("lang-btn").textContent = `🌐 ${config.lang}`;
-  onInstModeChange();
-}
-
-function saveSettings() {
-  config.provider = document.getElementById("s-provider").value;
-  config.apiKey = document.getElementById("s-apikey").value.trim();
-  config.model = document.getElementById("s-model-custom").value.trim() || "gemini-flash-lite-latest";
-  config.instMode = document.getElementById("s-inst-mode").value;
-  config.customInst = document.getElementById("s-custom-inst").value.trim();
-
-  localStorage.setItem("kd_provider", config.provider);
-  localStorage.setItem("kd_apikey", config.apiKey);
-  localStorage.setItem("kd_model", config.model);
-  localStorage.setItem("kd_inst_mode", config.instMode);
-  localStorage.setItem("kd_custom_inst", config.customInst);
-
-  syncSettingsUI();
-  showToast(`✅ Saved! (${config.provider} / ${config.model} / Mode: ${config.instMode})`);
-  transitionToView("title");
-}
-
-async function testApiKey() {
-  if (document.getElementById("view-settings").classList.contains("active")) {
-    saveSettings();
-  }
-  if (!config.apiKey) {
-    showToast("❌ API Key is empty! Opening Settings...");
-    transitionToView("settings");
-    return;
-  }
-  showToast(`⏳ Testing ${config.provider} (${config.model})...`);
-  try {
-    const reply = await callLLM("Reply with the single word: READY", false);
-    showToast(`✅ OK [${config.model}]: "${reply.slice(0, 30).trim()}"`);
-  } catch (err) {
-    showToast(`❌ Error: ${err.message.slice(0, 90)}`);
-  }
-}
-
-initApp();
-</script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/providers.js"></script>
+  <script src="/js/fx.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>

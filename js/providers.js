@@ -1,0 +1,155 @@
+const PROVIDERS = {
+  gemini: {
+    name: "Google Gemini API (Free Tier Available)",
+    keyUrl: "https://aistudio.google.com/app/apikey",
+    keyLabel: "Get Free Gemini API Key ↗",
+    models: [
+      { id: "gemini-flash-lite-latest", label: "gemini-flash-lite-latest (Fast & Free Default)" },
+      { id: "gemini-2.5-flash-lite", label: "gemini-2.5-flash-lite" },
+      { id: "gemini-2.5-flash", label: "gemini-2.5-flash (Balanced)" },
+      { id: "gemini-2.5-pro", label: "gemini-2.5-pro (High Reasoning)" }
+    ]
+  },
+  anthropic: {
+    name: "Anthropic Claude API (Direct CORS)",
+    keyUrl: "https://console.anthropic.com/settings/keys",
+    keyLabel: "Get Anthropic API Key ↗",
+    models: [
+      { id: "claude-haiku-4-5", label: "claude-haiku-4-5 (Ultra Fast & Cheap)" },
+      { id: "claude-sonnet-4-5", label: "claude-sonnet-4-5 (Flagship TRPG GM)" }
+    ]
+  },
+  openai: {
+    name: "OpenAI API (ChatGPT Direct)",
+    keyUrl: "https://platform.openai.com/api-keys",
+    keyLabel: "Get OpenAI API Key ↗",
+    endpoint: "https://api.openai.com/v1/chat/completions",
+    models: [
+      { id: "gpt-4o-mini", label: "gpt-4o-mini (Fast & Affordable)" },
+      { id: "gpt-4.1-mini", label: "gpt-4.1-mini" },
+      { id: "gpt-4.1", label: "gpt-4.1" },
+      { id: "gpt-4o", label: "gpt-4o" }
+    ]
+  },
+  deepseek: {
+    name: "DeepSeek API (Elite Kanji/CJK & Ultra-Low Cost)",
+    keyUrl: "https://platform.deepseek.com/api_keys",
+    keyLabel: "Get DeepSeek API Key ↗",
+    endpoint: "https://api.deepseek.com/chat/completions",
+    models: [
+      { id: "deepseek-chat", label: "deepseek-chat (DeepSeek V3 — Best Value for Kanji)" },
+      { id: "deepseek-reasoner", label: "deepseek-reasoner (DeepSeek R1)" }
+    ]
+  },
+  groq: {
+    name: "Groq Cloud LPU (0.2s Instant Speed)",
+    keyUrl: "https://console.groq.com/keys",
+    keyLabel: "Get Free Groq API Key ↗",
+    endpoint: "https://api.groq.com/openai/v1/chat/completions",
+    models: [
+      { id: "llama-3.3-70b-versatile", label: "llama-3.3-70b-versatile (Instant LPU)" },
+      { id: "qwen-qwq-32b", label: "qwen-qwq-32b (Strong CJK & Kanji)" }
+    ]
+  },
+  xai: {
+    name: "xAI Grok API",
+    keyUrl: "https://console.x.ai/",
+    keyLabel: "Get xAI Grok Key ↗",
+    endpoint: "https://api.x.ai/v1/chat/completions",
+    models: [
+      { id: "grok-3-mini", label: "grok-3-mini (Fast)" },
+      { id: "grok-3", label: "grok-3" }
+    ]
+  },
+  openrouter: {
+    name: "OpenRouter API (200+ Models)",
+    keyUrl: "https://openrouter.ai/keys",
+    keyLabel: "Get OpenRouter Key ↗",
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    models: [
+      { id: "google/gemini-2.5-flash-lite", label: "google/gemini-2.5-flash-lite" },
+      { id: "anthropic/claude-haiku-4.5", label: "anthropic/claude-haiku-4.5" },
+      { id: "deepseek/deepseek-chat-v3-0324:free", label: "deepseek/deepseek-chat-v3 (Free)" },
+      { id: "openai/gpt-4o-mini", label: "openai/gpt-4o-mini" }
+    ]
+  },
+  custom: {
+    name: "Custom OpenAI-Compatible (Ollama / LM Studio / vLLM)",
+    keyUrl: "https://ollama.com/",
+    keyLabel: "Local / Custom Endpoint Info ↗",
+    endpoint: "http://localhost:11434/v1/chat/completions",
+    models: [
+      { id: "qwen2.5:14b", label: "qwen2.5:14b (Ollama Local)" },
+      { id: "llama3.2", label: "llama3.2 (Ollama Local)" }
+    ]
+  }
+};
+
+async function callLLM(systemPrompt, expectJson = true) {
+  const { provider, apiKey, model, customEndpoint } = config;
+  if (!apiKey && provider !== "custom") {
+    throw new Error("API Key is missing. Click Settings to configure.");
+  }
+
+  if (provider === "gemini") {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const body = {
+      contents: [{ parts: [{ text: systemPrompt }] }],
+      generationConfig: expectJson ? { responseMimeType: "application/json", temperature: 0.8 } : { temperature: 0.7 }
+    };
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(`Gemini HTTP ${r.status}: ${await r.text()}`);
+    const data = await r.json();
+    const txt = data.candidates[0].content.parts[0].text;
+    return expectJson ? parseJsonSafe(txt) : txt;
+  }
+
+  if (provider === "anthropic") {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1024,
+        messages: [{ role: "user", content: systemPrompt }]
+      })
+    });
+    if (!r.ok) throw new Error(`Anthropic HTTP ${r.status}: ${await r.text()}`);
+    const data = await r.json();
+    const txt = data.content[0].text.trim();
+    return expectJson ? parseJsonSafe(txt) : txt;
+  }
+
+  // OpenAI-compatible providers (openai, deepseek, groq, xai, openrouter, custom)
+  const pInfo = PROVIDERS[provider] || PROVIDERS.openrouter;
+  const endpoint = provider === "custom" ? (customEndpoint || pInfo.endpoint) : pInfo.endpoint;
+  const headers = { "Content-Type": "application/json" };
+  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
+
+  const payload = {
+    model,
+    messages: [{ role: "user", content: systemPrompt }],
+    temperature: 0.75
+  };
+
+  const r = await fetch(endpoint, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload)
+  });
+  if (!r.ok) throw new Error(`${provider.toUpperCase()} HTTP ${r.status}: ${await r.text()}`);
+  const data = await r.json();
+  const txt = data.choices[0].message.content.trim();
+  return expectJson ? parseJsonSafe(txt) : txt;
+}
+
+function parseJsonSafe(txt) {
+  const cleaned = txt.replace(/```json|```/gi, "").trim();
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  return JSON.parse(match ? match[0] : cleaned);
+}
