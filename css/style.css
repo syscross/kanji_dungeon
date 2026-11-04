@@ -96,7 +96,7 @@ html, body {
   background: #11131d;
   border: 2px solid var(--crimson);
   padding: 24px 28px;
-  max-width: 400px;
+  max-width: 480px;
   width: 90%;
   text-align: center;
   box-shadow: 0 0 40px rgba(215, 58, 73, 0.35);
@@ -106,8 +106,10 @@ html, body {
 }
 .modal-title {
   font-family: 'Noto Serif JP', serif;
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   color: var(--crimson);
+  word-break: keep-all;
+  white-space: nowrap;
 }
 .modal-desc { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
 .modal-actions { display: flex; gap: 10px; justify-content: center; }
@@ -373,8 +375,8 @@ html, body {
 #view-battle {
   display: none;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: center;
+  gap: 12px;
   overflow: hidden;
 }
 #view-battle.active { display: flex; }
@@ -481,7 +483,7 @@ html, body {
 .gm-box {
   flex: 1 1 auto;
   min-height: 95px;
-  max-height: 240px;
+  max-height: 300px;
   overflow-y: auto;
   background: rgba(11, 13, 20, 0.92);
   border: 1.5px solid var(--border);

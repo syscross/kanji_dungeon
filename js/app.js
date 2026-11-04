@@ -66,14 +66,13 @@ async function initApp() {
     if (dd && !dd.contains(e.target)) dd.classList.remove("open");
   });
 
-  // Browser Hardware Back Button Support
-  window.addEventListener("popstate", (e) => {
-    if (e.state && e.state.view) {
-      if (currentView === "battle" && e.state.view !== "battle") {
-        askLeaveBattle(() => switchDomView(e.state.view, false));
-      } else {
-        switchDomView(e.state.view, false);
-      }
+  // Browser Hardware Back Button Support (Never goes back into battle)
+  window.addEventListener("popstate", () => {
+    if (currentView === "battle") {
+      history.pushState({ view: "battle" }, "", "#battle");
+      askLeaveBattle(() => transitionToView("select", "撤退", "RETREATING FROM FLOOR"));
+    } else if (currentView !== "title") {
+      switchDomView("title", false);
     }
   });
 
@@ -102,19 +101,23 @@ function selectLanguage(langCode, e) {
   applyLocalization();
 }
 
-/* Navigation & Back Button */
+/* Deterministic Navigation: Battle -> Select -> Title (Never loops back to Battle) */
+function handleBrandClick() {
+  playClickSfx();
+  if (currentView === "title") return;
+  if (currentView === "battle") {
+    askLeaveBattle(() => transitionToView("title", "漢字地獄", "RETURNING TO MAIN GATE"));
+  } else {
+    transitionToView("title");
+  }
+}
+
 function handleBackButton() {
   playClickSfx();
   if (currentView === "battle") {
     askLeaveBattle(() => transitionToView("select", "撤退", "RETREATING FROM FLOOR"));
-    return;
-  }
-  if (viewStack.length > 1) {
-    viewStack.pop();
-    const prev = viewStack[viewStack.length - 1] || "title";
-    switchDomView(prev, false);
   } else {
-    switchDomView("title", false);
+    transitionToView("title");
   }
 }
 
@@ -129,7 +132,7 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
     setTimeout(() => {
       switchDomView(viewName, true);
       setTimeout(() => curtain.classList.remove("active"), 260);
-    }, 380);
+    }, 340);
   } else {
     switchDomView(viewName, true);
   }
@@ -138,8 +141,7 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
 function switchDomView(name, pushHist = true) {
   currentView = name;
   if (pushHist) {
-    viewStack.push(name);
-    history.pushState({ view: name }, "", `#${name}`);
+    history.replaceState({ view: name }, "", name === "title" ? window.location.pathname : `#${name}`);
   }
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById(`view-${name}`).classList.add("active");
