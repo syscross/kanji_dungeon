@@ -9,7 +9,7 @@ function parseInputCommand(raw) {
   if (cmd === "/hint") return { type: "HINT", arg: "" };
   if (cmd === "/reroll") return { type: "REROLL", arg: "" };
   if (cmd === "/prompt") return { type: "PROMPT", arg };
-  if (cmd === "/summon") return { type: "SUMMON", arg };
+  if (cmd === "/summon" || cmd === "/소환") return { type: "SUMMON", arg };
   if (cmd === "/flee" || cmd === "/escape" || cmd === "/도주") return { type: "FLEE", arg };
   return { type: "UNKNOWN_SLASH", cmd, arg };
 }
@@ -24,6 +24,24 @@ function prefillSlash(prefix) {
 function triggerSlash(cmd) {
   playClickSfx();
   $("b-input").value = cmd;
+  handleBattleSubmit(null);
+}
+
+/*
+ * Clicking the Ancient God Summon chip:
+ * - If the input box is empty, summons the Ancient God immediately with no argument (autonomous play).
+ * - If the input box has text (e.g. "회복 위주로" or "/summon 방어"), uses that text as the tactical direction!
+ */
+function triggerSummonChip() {
+  playClickSfx();
+  if (!canAct()) return;
+  const inp = $("b-input");
+  const cur = inp.value.trim();
+  if (!cur || cur === "/summon") {
+    inp.value = "/summon";
+  } else if (!cur.toLowerCase().startsWith("/summon")) {
+    inp.value = `/summon ${cur}`;
+  }
   handleBattleSubmit(null);
 }
 
@@ -80,7 +98,7 @@ async function handleBattleSubmit(e) {
   if (parsed.type === "HINT" || parsed.type === "PROMPT") {
     achOnCommand(parsed.type);
     setInputBusy(true);
-    const stopJudging = startJudgingIndicator();
+    const stopJudging = startJudgingIndicator(parsed.type);
     try {
       const prompt = parsed.type === "HINT" ? buildHintPrompt() : buildQuestionPrompt(parsed.arg);
       const reply = await callLLM(prompt, false);
@@ -119,15 +137,19 @@ async function handleBattleSubmit(e) {
     fleeDirective = buildFleeDirective(parsed.arg);
   }
 
-  const moveText = flee ? (parsed.arg || t("defaultFleeMove")) : raw;
+  const moveText = summon
+    ? (parsed.arg || t("summonDefaultMove"))
+    : flee
+      ? (parsed.arg || t("defaultFleeMove"))
+      : raw;
 
   setInputBusy(true);
-  const stopJudging = startJudgingIndicator();
+  const stopJudging = startJudgingIndicator(summon ? "SUMMON" : flee ? "FLEE" : "JUDGE");
   try {
     const res = await callLLM(buildJudgePrompt(moveText, summonDirective, fleeDirective), true, { summon, flee });
     const sec = stopJudging();
     inp.value = "";
-    applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee });
+    applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee, summonArg: parsed.arg });
   } catch (err) {
     stopJudging();
     if (summonPaid) {
@@ -196,7 +218,7 @@ function applySpecialEvent(j) {
   }
 }
 
-function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = false } = {}) {
+function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = false, summonArg = "" } = {}) {
   state.fieldState = j.fieldState;
   state.playerState = j.playerState;
   state.enemyState = j.enemyState;
@@ -206,6 +228,21 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
 
   const n = resolveTurnNumbers(j);
   const specialNote = applySpecialEvent(j);
+
+  // Record a 2-kanji combo on MASTERFUL or CLEVER (with 2+ used single-char kanji) so it can appear in post-battle scavenge!
+  if ((j.verdict === "MASTERFUL" || j.verdict === "CLEVER") && j.used.length >= 2) {
+    const singleUsed = j.used.filter(k => [...k].length === 1);
+    if (singleUsed.length >= 2) {
+      state.lastComboKanji = j.forgedKanji || singleUsed.slice(0, 2).join("");
+    }
+  }
+
+  // Reward countering enemy intent with full defense or MASTERFUL play with +1 free reroll token
+  let bonusNote = "";
+  if (j.verdict === "MASTERFUL" || (j.verdict === "CLEVER" && n.defense === "full")) {
+    state.rerollTokens += 1;
+    bonusNote = `\n⚡ **${t("counterBonusLog")}**`;
+  }
 
   state.enemyHp = Math.max(0, state.enemyHp - n.enemyDamage);
   const hpBefore = state.playerHp;
@@ -217,11 +254,16 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   const gains = [];
   if (n.enemyDamage > 0) gains.push(`**${t("dmgEnemy")(n.enemyDamage)}**`);
   if (healed > 0) gains.push(`**${t("healYou")(healed)}**`);
+
   const who = summon ? "🐉" : flee ? "🏃" : "🗣";
-  const youLine = `${who} **[T${state.turn} · ${t("logYou")}]** "${rawInput}" *(${state.playerHand.join(" ")})*`;
+  const actorLabel = summon ? t("logGod") : t("logYou");
+  const displayMove = summon
+    ? `${j.godChant || rawInput}${summonArg ? ` *(${t("summonDirLabel")}: ${summonArg})*` : ""}`
+    : `"${rawInput}"`;
+  const youLine = `${who} **[T${state.turn} · ${actorLabel}]** ${displayMove} *(${state.playerHand.join(" ")})*`;
   const judgeTag = j.offline ? `🔌 ${t("offlineTag")}` : `⏱ ${sec}s`;
   const gainsStr = gains.length ? `${usedTxt}${gains.join(", ")}` : usedTxt;
-  const gmLine = `⚖ **[${VERDICT_LABELS[j.verdict]} · ${judgeTag}]** ${j.judgment}${gainsStr ? `\n   ${gainsStr}` : ""}${specialNote}`;
+  const gmLine = `⚖ **[${VERDICT_LABELS[j.verdict]} · ${judgeTag}]** ${j.judgment}${gainsStr ? `\n   ${gainsStr}` : ""}${specialNote}${bonusNote}`;
   const verdictClass = `verdict-${j.verdict.toLowerCase()}`;
 
   if (state.enemyHp <= 0) {
@@ -232,7 +274,7 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
     return;
   }
 
-  // Handle successful or costly escape!
+  // Handle PLAYER's successful or costly escape!
   if (j.escape === "success" || j.escape === "costly") {
     state.playerHp = Math.max(0, state.playerHp - n.playerDamage);
     state.dmgTakenThisEnemy += n.playerDamage;
@@ -261,6 +303,42 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
     return;
   }
 
+  // Handle ENEMY's telegraphed escape attempt (when state.enemyEscapeIntent was active this turn!)
+  if (state.enemyEscapeIntent) {
+    if (n.defense === "full" || n.defense === "partial") {
+      // Player successfully chased/blocked the enemy's escape!
+      const staggerDmg = Math.min(state.enemyHp - 1, 6);
+      if (staggerDmg > 0) state.enemyHp -= staggerDmg;
+      triggerCombatFX(n.enemyDamage + staggerDmg, 0, healed);
+      const foilLine = `🛑 **${t("enemyEscapeFoiledLog")(state.enemyKanji)}**${staggerDmg > 0 ? ` (**${t("dmgEnemy")(staggerDmg)}**)` : ""}`;
+      logMd(`${youLine}\n${gmLine}\n${foilLine}`, verdictClass);
+      maybeShowTrialNudge(j);
+    } else {
+      // Player failed to stop the enemy from fleeing! The enemy escapes with its remaining HP!
+      triggerCombatFX(n.enemyDamage, 0, healed);
+      const fledLine = `💨 **【${state.enemyKanji}】** *(${t("enemyHandLog")}: ${state.enemyHand.join(" ")})* ${j.enemyAction}\n   **${t("enemyEscapedLog")(state.enemyKanji, state.enemyHp, state.enemyMaxHp)}**`;
+      logMd(`${youLine}\n${gmLine}\n${fledLine}`, verdictClass);
+      maybeShowTrialNudge(j);
+
+      state.woundedEnemies = state.woundedEnemies || {};
+      state.woundedEnemies[state.enemyKanji] = state.enemyHp;
+      state.enemyKanji = "";
+      state.phase = "reward";
+      updateBattleHUD(false);
+      saveRunToStorage();
+      // Enemy fled: no spoils, only scavenge up to 3 stage cards left behind!
+      setTimeout(() => runEffects([{ scavenge: 3 }]), 400);
+      return;
+    }
+
+    state.turn += 1;
+    drawHand();
+    dealEnemyHand();
+    updateBattleHUD(true);
+    saveRunToStorage();
+    return;
+  }
+
   const escapeFailNote = (j.escape === "failed" || flee)
     ? `\n🚫 **${t("escapeFailedLog")}**`
     : "";
@@ -283,6 +361,9 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   state.turn += 1;
   drawHand();
   dealEnemyHand();
+  if (state.enemyEscapeIntent) {
+    logMd(`⚠️ **${t("enemyEscapeOmenLog")(state.enemyKanji, state.enemyHand.join(" · "))}**`, "hint-log");
+  }
   updateBattleHUD(true);
   saveRunToStorage();
 }
@@ -315,14 +396,13 @@ function onEnemyDefeated() {
   state.offer = [];
   updateBattleHUD(false);
   saveRunToStorage();
-  setTimeout(() => {
-    showVictoryBeat();
-    // First offer up to 5 stage/foe cards to scavenge into your bag, then offer spoils!
-    runEffects([
-      { scavenge: 5 },
-      { offerSpoils: rank === "elite" ? "elite" : "normal" }
-    ]);
-  }, 450);
+
+  // Immediately show victory beat in the log and open the inline 5-card scavenge in the bottom dock!
+  showVictoryBeat();
+  runEffects([
+    { scavenge: 5 },
+    { offerSpoils: rank === "elite" ? "elite" : "normal" }
+  ]);
 }
 
 function exportBattleLog() {

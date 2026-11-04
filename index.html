@@ -310,7 +310,7 @@
           <button class="chip" title="/reroll" onclick="triggerSlash('/reroll')"><span id="b-reroll-label">🎲 Reroll</span></button>
           <button class="chip" title="/flee" onclick="prefillSlash('/flee ')"><span data-i18n="fleeChip">🏃 Flee</span></button>
           <button class="chip" title="/prompt" onclick="prefillSlash('/prompt ')"><span data-i18n="promptChip">❓ Ask</span></button>
-          <button class="chip" title="/summon" onclick="prefillSlash('/summon ')"><span data-i18n="summonChip">🐉 Summon</span> <span class="chip-cost">−<span id="b-summon-cost">10</span></span></button>
+          <button class="chip" title="/summon" onclick="triggerSummonChip()"><span data-i18n="summonChip">🐉 Summon</span> <span class="chip-cost">−<span id="b-summon-cost">10</span></span></button>
         </div>
 
         <div class="dock-action" id="b-dock-action"></div>

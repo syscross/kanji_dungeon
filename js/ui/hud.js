@@ -31,7 +31,7 @@ function stageCardContent() {
     const ev = typeof getActiveEventDef === "function" ? getActiveEventDef() : EVENTS[state.eventId];
     if (ev) return { kanji: ev.kanji, neutral: true };
   }
-  return { kanji: state.sign || "道", neutral: true };
+  return { kanji: state.sign || "門", neutral: true };
 }
 
 /* Top bar showing this run's encountered/slain foes (left) and the run's boss as ?/gray/red (right). */
@@ -76,9 +76,9 @@ function updateBattleHUD(animateCards = false) {
   $("b-depth-title").title = `${depthGloss(state.depthId)} · ${kankenLabel(state.depthId)} · ${config.instMode}`;
   $("b-step").textContent = `${Math.max(1, state.step)}/${PATH_STEPS}`;
   $("b-kills").textContent = `⚔ ${state.kills}`;
-  const signInfo = STAGE_SIGNS[state.sign];
-  $("b-sign").textContent = state.sign || "道";
-  $("b-sign").title = signInfo ? pickLang(signInfo.omen) : "";
+  const signInfo = state.sign ? STAGE_SIGNS[state.sign] : null;
+  $("b-sign").textContent = state.sign || "門";
+  $("b-sign").title = signInfo ? pickLang(signInfo.omen) : t("forkFieldState");
   updateTimerBadge();
   renderRunRosterBar();
 
@@ -122,11 +122,6 @@ function renderCardRow(rowId, cards, isEnemy, animate) {
   });
 }
 
-function dictUrlFor(k) {
-  if (config.lang === "KO") return `https://hanja.dict.naver.com/#/search?query=${encodeURIComponent(k)}`;
-  return `https://jisho.org/search/${encodeURIComponent(k)}%20%23kanji`;
-}
-
 function makeCardEl(k, isEnemy = false, idx = 0, animate = true, source = null) {
   const el = document.createElement("div");
   const tier = typeof getKanjiTier === "function" ? getKanjiTier(k) : "edu";
@@ -139,17 +134,15 @@ function makeCardEl(k, isEnemy = false, idx = 0, animate = true, source = null) 
   const keepFocus = (e) => { if (document.activeElement === $("b-input")) e.preventDefault(); };
   el.addEventListener("pointerdown", keepFocus);
   el.addEventListener("mousedown", keepFocus);
-  el.onclick = (e) => {
-    if (e.target.closest(".dict-link")) return;
+  el.onclick = () => {
     playClickSfx();
     insertKanji(k);
   };
 
   const srcBadge = !isEnemy
-    ? `<span class="src-badge" title="${source === "bag" ? t("bagCardTip") : t("stageCardTip")(state.sign)}">${source === "bag" ? "★" : escapeHtml(state.sign || "地")}</span>`
+    ? `<span class="src-badge" title="${source === "bag" ? t("bagCardTip") : t("stageCardTip")(state.sign || "門")}">${source === "bag" ? "★" : escapeHtml(state.sign || "地")}</span>`
     : "";
-  const dictLink = `<a class="dict-link" href="${dictUrlFor(k)}" target="_blank" rel="noopener" title="🔍">${!isEnemy ? "🔍" : ""}</a>`;
-  el.innerHTML = `${srcBadge}${dictLink}<div class="char">${escapeHtml(k)}</div>${!isEnemy ? `<span class="key-hint">Alt+${idx + 1}</span>` : ""}`;
+  el.innerHTML = `${srcBadge}<div class="char">${escapeHtml(k)}</div>${!isEnemy ? `<span class="key-hint">Alt+${idx + 1}</span>` : ""}`;
   return el;
 }
 
@@ -282,12 +275,19 @@ function triggerCombatFX(enemyDmg, playerDmg, playerHeal = 0) {
   }
 }
 
-/* Shows a live "judging…" entry; returns a stop() that removes it and yields elapsed seconds. */
-function startJudgingIndicator() {
+/* Shows a live context-aware indicator; returns a stop() that removes it and yields elapsed seconds. */
+function startJudgingIndicator(kind = "JUDGE") {
   const sendBtn = $("b-send-btn");
   const entry = document.createElement("div");
   entry.className = "log-entry pending-log";
-  const label = t("judgingMsg");
+  const keyMap = {
+    HINT: "judgingHintMsg",
+    PROMPT: "judgingPromptMsg",
+    SUMMON: "judgingSummonMsg",
+    FLEE: "judgingFleeMsg",
+    JUDGE: "judgingMsg"
+  };
+  const label = t(keyMap[kind] || "judgingMsg");
   entry.innerHTML = `<span class="rune-spinner"></span><span class="judge-txt">${label} (0.0s)</span>`;
   pushLogNode(entry);
 
@@ -306,3 +306,4 @@ function startJudgingIndicator() {
     return ((performance.now() - t0) / 1000).toFixed(1);
   };
 }
+

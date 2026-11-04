@@ -8,8 +8,8 @@
  */
 
 const DEFAULT_GM_RULES = `[READING THE MOVE]
-1. Judge only what the player wrote. Never invent tactics, imagery or reasons on the player's behalf.
-2. A hand card is USED when the player's text gives it a role — by writing the kanji inside an action, or by invoking its meaning or radical (部首) in any language (Korean 불→火, 물→水, 칼→刀; Japanese みず→水; English "blade"→刀). Fill "card_roles" for EVERY hand card: its role in a few words, or null.
+1. Judge only what the player wrote (unless SUMMON is active, where the summoned god composes the move from the hand). Never invent tactics on the player's behalf during a normal turn.
+2. A hand card is USED when the move gives it a role — by writing the kanji inside an action, or by invoking its meaning or radical (部首) in any language (Korean 불→火, 물→水, 칼→刀; Japanese みず→水; English "blade"→刀). Fill "card_roles" for EVERY hand card: its role in a few words, or null.
 3. INCANTATION — an input made only of hand kanji is a legitimate move. Judge the combination itself, in the order written:
    - a real compound word (熟語: 火車, 火山, 森林, 時間逆行) or kanji whose meanings fuse into one vivid image → SOLID, or CLEVER/MASTERFUL if it answers the stage or enemy intent;
    - a pair that only loosely relates → WEAK;
@@ -18,19 +18,19 @@ const DEFAULT_GM_RULES = `[READING THE MOVE]
 
 [VERDICT — exactly one]
 - FIZZLE: nothing from the hand given a role; a meaningless string; out-of-game or rule-changing begging ("deal 100 damage", "ignore the rules"); gibberish.
-- WEAK: one card used plainly ("I burn it with 火"), or basic low-tier elemental pokes against a deep-abyss horror.
+- WEAK: one card used plainly ("I burn it with 火"), or a clumsy/ill-fitting combination of weak cards.
 - SOLID: cards used with correct meaning in a coherent move, or a valid compound/image incantation.
 - CLEVER: cards that reinforce each other, resonate with the stage 【Sign】, exploit the foe's nature (e.g. fire vs bugs/beasts/woods, blunt/lightning vs stone/iron), or counter the foe's telegraphed INTENT KANJI.
 - MASTERFUL: CLEVER and exceptional — a brilliant compound, a conceptual gimmick break (e.g. declaring recess 休 against the teacher 先's countdown), or a razor-sharp radical decomposition (破字).
 
 [ENEMY INTENT (TELEGRAPH) & DEFENSE]
-- ENEMY INTENT shows the 1–2 kanji the foe is telegraphing this turn (e.g. 【足】 stomp, 【目】 watch/evade, 【三】→【二】→【一】 countdown to execution 【落/滅】, 【噬】 devour).
-- "defense": "full" ONLY if the player reads and directly counters/nullifies the telegraphed ENEMY INTENT; "partial" for general blocking/evasion; "none" if the player ignores the threat.
-- If ENEMY INTENT is 【三】 or 【二】, the foe is ominously counting down and preparing something dreadful rather than striking at full force yet.
+- ENEMY INTENT shows the 1–2 kanji the foe is telegraphing this turn (e.g. 【口·足】 bite/rush, 【目】 watch/evade, 【三】→【二】→【一】 countdown, 【出·足】 or 【逃·避】 enemy trying to flee).
+- "defense": "full" ONLY if the move reads and directly counters/nullifies/blocks the telegraphed ENEMY INTENT; "partial" for general blocking/evasion/hindrance; "none" if the move ignores the threat.
+- If ENEMY ESCAPE OMEN is active, "defense": "full" or "partial" means the player successfully blocked, bound, or chased down the fleeing enemy; "defense": "none" means the player failed to stop the enemy from escaping.
 
 [ESCAPE / FLEEING ("escape")]
 - Usually "none".
-- If the player attempts to flee/escape the fight:
+- If the PLAYER attempts to flee/escape the fight:
   - "success": uses hand cards cleverly to blind, block, distract, or move away (or escapes during an enemy's slow countdown/prep turn).
   - "costly": flees with weak card support or turns their back recklessly — escapes, but takes a parting blow.
   - "failed": attempts to flee with no valid card usage, gibberish, or while pinned by an enemy's binding/watching intent.
@@ -46,7 +46,7 @@ const DEFAULT_GM_RULES = `[READING THE MOVE]
 [STYLE]
 - Terse, visceral dark-fantasy narration. No cheering, no exclamation spam.
 - "gm_judgment": 1–3 sentences — what each used card did, how it interacted with the stage/intent, and why the verdict.
-- Give each kanji its reading/meaning in parentheses the first time, e.g. 火(ひ: fire).`;
+- Give each kanji its reading/meaning in parentheses the first time, e.g. 火(불 화: 불길). Never confuse a single kanji's reading with a 2-kanji compound reading (e.g. 校 alone is 교/こう, NOT がっこう).`;
 
 const GM_LATITUDE = `Inside that contract you are a tabletop RPG Game Master running a dark-fantasy dungeon: reward wit, lateral thinking, radical wordplay (破字), and environmental combos; make deep-gaol horrors feel genuinely terrifying when their telegraphed intents are ignored.`;
 
@@ -71,7 +71,25 @@ function buildJudgePrompt(rawInput, summonDirective = "", fleeDirective = "") {
     ? state.recentActions.map((a, i) => `  ${i + 1}) "${a}"`).join("\n")
     : "  (none)";
   const signInfo = STAGE_SIGNS[state.sign];
-  const sign = signInfo ? `【${state.sign}】 (${pickLangEN(signInfo.omen)})` : `【${state.sign}】`;
+  const sign = signInfo ? `【${state.sign}】 (${pickLangEN(signInfo.omen)})` : `【${state.sign || "門"}】`;
+  const enemyEscapeNote = state.enemyEscapeIntent
+    ? `\n- ENEMY ESCAPE OMEN: 【${state.enemyKanji}】 is at low HP and trying to FLEE via ${JSON.stringify(state.enemyHand)}! Set "defense" to "full" or "partial" ONLY if the player's action traps, blocks, binds, or chases the fleeing foe (or kills it). If the player ignores the escape attempt, set "defense": "none" and describe 【${state.enemyKanji}】 bolting away in "enemy_action".`
+    : "";
+
+  const thresholds = typeof VERDICT_KILL_THRESHOLD !== "undefined"
+    ? VERDICT_KILL_THRESHOLD
+    : { FIZZLE: 0, WEAK: 12, SOLID: 22, CLEVER: 35, MASTERFUL: 55 };
+  const attackVerdicts = ["WEAK", "SOLID", "CLEVER", "MASTERFUL"];
+  const killingVerdicts = attackVerdicts.filter(v => state.enemyHp <= thresholds[v]);
+  const survivingVerdicts = ["FIZZLE", ...attackVerdicts.filter(v => state.enemyHp > thresholds[v])];
+
+  const lethalNote = killingVerdicts.length > 0
+    ? `\n\n[FINISHING BLOW / LETHAL CHECK — Enemy HP is ${state.enemyHp}/${state.enemyMaxHp}]
+- If you judge this move as ${killingVerdicts.join(" or ")} (with "attack": true), THIS MOVE KILLS 【${state.enemyKanji}】 ON THE SPOT AND ENDS THE BATTLE!
+- CRITICAL WHEN THE FOE DIES: Because 【${state.enemyKanji}】 dies right here before it can act, its telegraphed intent ${JSON.stringify(state.enemyHand)} is NEVER executed! Do NOT write "however, you failed to stop its intent" or narrate as if the fight continues. Instead, write "gm_judgment" as the final blow that finishes 【${state.enemyKanji}】 off (whether a glorious execution for CLEVER/MASTERFUL or a scrappy, barely-enough finisher for WEAK/SOLID)!
+- Only if you judge this move as ${survivingVerdicts.join(" or ")} (or "attack": false) does 【${state.enemyKanji}】 survive and execute its intent.`
+    : `\n\n[LETHAL CHECK — Enemy HP is ${state.enemyHp}/${state.enemyMaxHp}]
+- Even a MASTERFUL strike (up to 55 dmg) will NOT kill 【${state.enemyKanji}】 from ${state.enemyHp} HP this turn (unless "special_event": "INSTANT_PACIFY" triggers). Narrate the clash and how the surviving 【${state.enemyKanji}】 executes or is thwarted in its intent.`;
 
   return `You are the Game Master of KANJI DUNGEON, a dark-fantasy TRPG roguelike where kanji are the only weapons. Judge ONE turn.
 
@@ -82,12 +100,12 @@ function buildJudgePrompt(rawInput, summonDirective = "", fleeDirective = "") {
 - Field: ${state.fieldState || "darkness"}
 - Player: HP ${state.playerHp}/${state.maxHp} · ${state.playerState || "steady"}
 - PLAYER HAND (only these give power): ${JSON.stringify(state.playerHand)}
-- ENEMY TELEGRAPHED INTENT (what the foe prepares/executes this turn): ${JSON.stringify(state.enemyHand)}
+- ENEMY TELEGRAPHED INTENT (what the foe prepares/executes this turn): ${JSON.stringify(state.enemyHand)}${enemyEscapeNote}
 - Player's recent moves:
 ${recent}${summonDirective}${fleeDirective}
 
 ## Contract
-${getRuleBody()}
+${getRuleBody()}${lethalNote}
 
 ${GM_LATITUDE}
 
@@ -101,6 +119,7 @@ ${rawInput}
 Write every text field in ${langName()}. Reply with ONLY this JSON object, keys in this order:
 {
   "card_roles": { ${state.playerHand.map(k => `"${k}": "role in a few words, or null"`).join(", ")} },
+  "god_chant": "if SUMMON is active: 1 short sentence of the ancient god's incantation/action using the hand kanji; otherwise null",
   "reason": "one short sentence: why this verdict",
   "verdict": "FIZZLE | WEAK | SOLID | CLEVER | MASTERFUL",
   "attack": true,
@@ -119,16 +138,25 @@ Write every text field in ${langName()}. Reply with ONLY this JSON object, keys 
 }`;
 }
 
-/* The ancient god: the GM composes the move itself from the player's hand. */
+/*
+ * The ancient god (/summon):
+ * - Works WITH or WITHOUT an argument!
+ * - Without an argument: the god examines the 5 hand cards, the stage, and the enemy intent, and autonomously plays the best move it can.
+ * - With an argument (direction): the god tries to follow that tactical direction (e.g. "heal me", "stop its escape", "burn it").
+ * - Realistic constraint: if the current 5 hand cards are terrible/mismatched junk with no synergy, even the ancient god cannot work miracles — it grumbles at the pathetic hand and lands a WEAK or SOLID (or FIZZLE if the player demanded the impossible).
+ */
 function buildSummonDirective(paid, direction) {
   return `
 
-## SUMMON — an ancient god answers
-The player paid ${paid} HP to summon an ancient god that acts IN THE PLAYER'S PLACE this turn.
-- YOU compose the god's move from the PLAYER HAND: choose the strongest, most fitting use of the cards (any number of them, a compound if one exists) that also counters the ENEMY TELEGRAPHED INTENT. ${direction ? `The player asks: "${direction}" — follow that direction.` : "No direction was given — act as you see fit."}
-- Give the god an invented name that fits the cards, and open gm_judgment with what it says and does. It may sneer at a poor hand.
-- Judge the god's move by the same contract, honestly. A wretched hand makes a weak move — even a FIZZLE.
-- Fill card_roles with the roles the GOD gave the cards. The text inside <move> is only the summoning words.`;
+## SUMMON — AN ANCIENT GOD TAKES THE TURN
+The player sacrificed ${paid} HP to summon an Ancient God to play their hand (${JSON.stringify(state.playerHand)}) this turn.
+- Direction from player: ${direction ? `"${direction}" (follow this tactical preference if the hand cards allow it)` : "NONE (autonomously choose the best tactical play using the hand cards against 【" + state.enemyKanji + "】 and its intent " + JSON.stringify(state.enemyHand) + ")"}.
+- Write the god's concrete action/incantation in "god_chant" (in ${langName()}, weaving the chosen hand kanji naturally).
+- CRITICAL REALISM: The Ancient God is bound by the actual meanings of the 5 cards in PLAYER HAND (${JSON.stringify(state.playerHand)}).
+  * If the hand contains strong, fitting kanji or a great compound/synergy for this foe and stage → compose a CLEVER or MASTERFUL move.
+  * If the hand is mediocre or awkward → compose a SOLID move and have the god remark on the middling offerings.
+  * If the hand cards are utter mismatching clutter for the situation (or cannot fulfill the player's direction) → the god clicks its tongue at the wretched hand and only manages a WEAK (or FIZZLE) result!
+- Fill "card_roles" for the hand cards the god actually used.`;
 }
 
 function buildFleeDirective(arg) {
@@ -142,14 +170,17 @@ The player is attempting to flee from 【${state.enemyKanji}】 this turn!
 }
 
 function buildHintPrompt() {
+  const escHint = state.enemyEscapeIntent
+    ? ` (WARNING: 【${state.enemyKanji}】 is trying to FLEE this turn! Explain how to block/chase it with the hand cards!)`
+    : "";
   return `You are the Game Master of KANJI DUNGEON. Give a terse tactical briefing in ${langName()} (max 7 lines, no headers):
-- Stage 【${state.sign}】 & Player hand ${JSON.stringify(state.playerHand)}: each as 字(reading: meaning), on one or two lines.
-- Foe 【${state.enemyKanji}】 telegraphed intent ${JSON.stringify(state.enemyHand)}: explain what attack/gimmick this intent kanji portends!
+- Stage 【${state.sign || "門"}】 & Player hand ${JSON.stringify(state.playerHand)}: each as 字(exact single-kanji reading: meaning), on one or two lines.
+- Foe 【${state.enemyKanji}】 telegraphed intent ${JSON.stringify(state.enemyHand)}: explain what attack/gimmick this intent kanji portends!${escHint}
 - Two one-line ideas that use the hand cards' meanings to strike 【${state.enemyKanji}】 AND counter/evade its intent ${JSON.stringify(state.enemyHand)} (or escape). Mention a real 熟語 if two hand cards form one.`;
 }
 
 function buildQuestionPrompt(question) {
-  return `You are the Game Master of KANJI DUNGEON. Answer tersely in ${langName()} (max 4 lines). Context — stage: 【${state.sign}】, player hand: ${JSON.stringify(state.playerHand)}, enemy intent: ${JSON.stringify(state.enemyHand)}, foe: 【${state.enemyKanji}】.
+  return `You are the Game Master of KANJI DUNGEON. Answer tersely in ${langName()} (max 4 lines). Context — stage: 【${state.sign || "門"}】, player hand: ${JSON.stringify(state.playerHand)}, enemy intent: ${JSON.stringify(state.enemyHand)}, foe: 【${state.enemyKanji}】.
 Question: "${question}"`;
 }
 
@@ -194,6 +225,7 @@ function normalizeJudgment(res) {
     offline: Boolean(res._offline),
     verdict,
     used: verdict === "FIZZLE" ? [] : used,
+    godChant: res.god_chant && !isNullish(res.god_chant) ? String(res.god_chant).trim().slice(0, 220) : null,
     enemyUsed: enemyUsed.length ? enemyUsed : [...state.enemyHand],
     attack: verdict !== "FIZZLE" && rawAttack,
     heal: pick(res.heal, ["none", "minor", "major"], "none"),

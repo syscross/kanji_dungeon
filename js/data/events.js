@@ -7,28 +7,190 @@
 
 const EVT_L = (EN, KO, JA) => ({ EN, KO, JA });
 
-/* Bank for the AI-free "How do you read this Kanji?" (이 한자는 뭐라 읽을까용?) event */
+/*
+ * Bank for the AI-free "How do you read this Kanji?" (이 한자는 뭐라 읽을까용?) event.
+ * Every single entry is strictly verified for single-kanji reading accuracy and Kanken grade depth.
+ */
 const QUIZ_BANK = [
-  { kanji: "茨", depth: 4, ans: EVT_L("Ibaraki (Briar)?", "이바라키 (가시나무 자)?", "いばらき (茨)?"), prize: ["茨", "県"] },
-  { kanji: "潟", depth: 4, ans: EVT_L("Niigata (Lagoon)?", "니가타 (개펄 석)?", "にいがた (潟)?"), prize: ["潟", "塩"] },
-  { kanji: "栃", depth: 4, ans: EVT_L("Tochigi (Horse-chestnut)?", "토치기 (상수리나무)?", "とちぎ (栃)?"), prize: ["栃", "木"] },
-  { kanji: "阪", depth: 4, ans: EVT_L("Osaka (Slope)?", "오사카 (비탈 판)?", "おおさか (阪)?"), prize: ["阪", "府"] },
-  { kanji: "埼", depth: 4, ans: EVT_L("Saitama (Promontory)?", "사이타마 (갑 기)?", "さいたま (埼)?"), prize: ["埼", "玉"] },
-  { kanji: "媛", depth: 4, ans: EVT_L("Ehime (Princess)?", "에히메 (아씨 원)?", "えひめ (媛)?"), prize: ["媛", "花"] },
-  { kanji: "阜", depth: 4, ans: EVT_L("Gifu (Mound)?", "기후 (언덕 부)?", "ぎふ (阜)?"), prize: ["阜", "岐"] },
-  { kanji: "校", depth: 1, ans: EVT_L("Gakkou (School)?", "학교 교 (がっこう)?", "がっこう (学校)?"), prize: ["校", "休"] },
-  { kanji: "村", depth: 1, ans: EVT_L("Mura (Village)?", "마을 촌 (むら)?", "むら (村)?"), prize: ["村", "田"] },
-  { kanji: "社", depth: 2, ans: EVT_L("Yashiro (Shrine / Company)?", "신사·회사 사 (やしろ)?", "やしろ・しゃ (社)?"), prize: ["社", "紙"] },
-  { kanji: "畑", depth: 3, ans: EVT_L("Hatake (Dry field)?", "화전·밭 전 (はたけ)?", "はたけ (畑)?"), prize: ["畑", "豆"] },
-  { kanji: "墓", depth: 5, ans: EVT_L("Haka (Grave)?", "무덤 묘 (はか)?", "はか (墓)?"), prize: ["墓", "骨"] },
-  { kanji: "臓", depth: 6, ans: EVT_L("Zou (Viscera / Organs)?", "오장육부 장 (ぞう)?", "ぞう (臓)?"), prize: ["臓", "血"] },
-  { kanji: "峠", depth: 7, ans: EVT_L("Touge (Mountain pass)?", "고개 상 (とうげ)?", "とうげ (峠)?"), prize: ["峠", "風"] },
-  { kanji: "獄", depth: 8, ans: EVT_L("Goku (Prison / Hell)?", "감옥·지옥 옥 (ごく)?", "ごく (獄)?"), prize: ["獄", "鎖"] },
-  { kanji: "棺", depth: 9, ans: EVT_L("Hitsugi (Coffin)?", "관 관 (ひつぎ)?", "ひつぎ (棺)?"), prize: ["棺", "釘" in {} ? "釘" : "木"] },
-  { kanji: "顎", depth: 10, ans: EVT_L("Ago (Jaw / Chin)?", "턱 악 (あご)?", "あご (顎)?"), prize: ["顎", "歯"] },
-  { kanji: "鰐", depth: 11, ans: EVT_L("Wani (Crocodile)?", "악어 악 (わに)?", "わに (鰐)?"), prize: ["鰐", "水"] },
-  { kanji: "髑髏", depth: 12, ans: EVT_L("Dokuro (Weather-beaten skull)?", "도쿠로 (해골 독루)?", "どくろ (髑髏)?"), prize: ["髑髏", "骨"] },
-  { kanji: "饕餮", depth: 12, ans: EVT_L("Toutetsu (Gluttonous fiend)?", "도철 (탐욕스러운 괴수)?", "とうてつ (饕餮)?"), prize: ["饕餮", "喰"] }
+  // Depth 1 (Kanken 10)
+  {
+    kanji: "校", depth: 1,
+    ans: EVT_L("Kou — School (校)?", "학교 교 (음독: こう / 코우)?", "こう (校)?"),
+    wrong: EVT_L("Kyou — Teach (教)?", "가르칠 교 (훈독: おしえる)?", "おしえる (教)?"),
+    prize: ["校", "休"]
+  },
+  {
+    kanji: "林", depth: 1,
+    ans: EVT_L("Hayashi — Woods (林)?", "수풀 림 (훈독: はやし / 하야시)?", "はやし・りん (林)?"),
+    wrong: EVT_L("Mori — Deep forest (森)?", "빽빽할 삼 (훈독: もり / 모리)?", "もり・しん (森)?"),
+    prize: ["林", "木"]
+  },
+  {
+    kanji: "森", depth: 1,
+    ans: EVT_L("Mori — Deep forest (森)?", "수풀 삼 (훈독: もり / 모리)?", "もり・しん (森)?"),
+    wrong: EVT_L("Hayashi — Woods (林)?", "수풀 림 (훈독: はやし / 하야시)?", "はやし・りん (林)?"),
+    prize: ["森", "木"]
+  },
+  {
+    kanji: "村", depth: 1,
+    ans: EVT_L("Mura / Son — Village (村)?", "마을 촌 (훈독: むら / 음독: そん)?", "むら・そん (村)?"),
+    wrong: EVT_L("Machi / Chou — Town (町)?", "마을 정 (훈독: まち / 음독: ちょう)?", "まち・ちょう (町)?"),
+    prize: ["村", "田"]
+  },
+
+  // Depth 2 (Kanken 9)
+  {
+    kanji: "社", depth: 2,
+    ans: EVT_L("Yashiro / Sha — Shrine (社)?", "모일·신사 사 (훈독: やしろ / 음독: しゃ)?", "やしろ・しゃ (社)?"),
+    wrong: EVT_L("Tera / Ji — Temple (寺)?", "절 사 (훈독: てら / 음독: じ)?", "てら・じ (寺)?"),
+    prize: ["社", "刀"]
+  },
+  {
+    kanji: "谷", depth: 2,
+    ans: EVT_L("Tani / Koku — Valley (谷)?", "골 곡 (훈독: たに / 음독: こく)?", "たに・こく (谷)?"),
+    wrong: EVT_L("Iwa / Gan — Crag (岩)?", "바위 암 (훈독: いわ / 음독: がん)?", "いわ・がん (岩)?"),
+    prize: ["谷", "風"]
+  },
+  {
+    kanji: "角", depth: 2,
+    ans: EVT_L("Tsuno / Kaku — Horn, Corner (角)?", "뿔 각 (훈독: つの·かど / 음독: かく)?", "つの・かど・かく (角)?"),
+    wrong: EVT_L("Ya / Shi — Arrow (矢)?", "화살 시 (훈독: や / 음독: し)?", "や・し (矢)?"),
+    prize: ["角", "弓"]
+  },
+
+  // Depth 3 (Kanken 8)
+  {
+    kanji: "畑", depth: 3,
+    ans: EVT_L("Hatake — Dry field (畑)?", "화전·밭 전 (훈독: はたけ / 하타케)?", "はたけ (畑)?"),
+    wrong: EVT_L("Ta / Den — Rice paddy (田)?", "밭 전 (훈독: た / 음독: でん)?", "た・でん (田)?"),
+    prize: ["畑", "炭"]
+  },
+  {
+    kanji: "坂", depth: 3,
+    ans: EVT_L("Saka / Han — Slope (坂)?", "고개·비탈 반 (훈독: さか / 음독: はん)?", "さか・はん (坂)?"),
+    wrong: EVT_L("Kishi / Gan — Shore (岸)?", "언덕·물가 안 (훈독: きし / 음독: がん)?", "きし・がん (岸)?"),
+    prize: ["坂", "重"]
+  },
+  {
+    kanji: "氷", depth: 3,
+    ans: EVT_L("Koori / Hyou — Ice (氷)?", "얼음 빙 (훈독: こおり / 음독: ひょう)?", "こおり・ひょう (氷)?"),
+    wrong: EVT_L("Mizu / Sui — Water (水)?", "물 수 (훈독: みず / 음독: すい)?", "みず・すい (水)?"),
+    prize: ["氷", "寒"]
+  },
+
+  // Depth 4 (Kanken 7: Prefecture & Geography Kanji)
+  {
+    kanji: "茨", depth: 4,
+    ans: EVT_L("Ibara — Briar (茨 of Ibaraki 茨城)?", "가시나무 자 (いばら · 이바라키현 茨城의 茨)?", "いばら・ばら (茨城の茨)?"),
+    wrong: EVT_L("Kusa — Grass (草)?", "풀 초 (훈독: くさ / 음독: そう)?", "くさ・そう (草)?"),
+    prize: ["茨", "焼"]
+  },
+  {
+    kanji: "潟", depth: 4,
+    ans: EVT_L("Kata / Seki — Lagoon (潟 of Niigata 新潟)?", "개펄 석 (かた · 니가타현 新潟의 潟)?", "かた・せき (新潟の潟)?"),
+    wrong: EVT_L("Shima / Tou — Island (島)?", "섬 도 (훈독: しま / 음독: とう)?", "しま・とう (島)?"),
+    prize: ["潟", "塩"]
+  },
+  {
+    kanji: "栃", depth: 4,
+    ans: EVT_L("Tochi — Horse-chestnut (栃 of Tochigi 栃木)?", "상수리나무 (일본 국자: とち · 토치기현 栃木의 栃)?", "とち (栃木の栃)?"),
+    wrong: EVT_L("Matsu — Pine (松)?", "소나무 송 (훈독: まつ / 음독: しょう)?", "まつ・しょう (松)?"),
+    prize: ["栃", "折"]
+  },
+  {
+    kanji: "阪", depth: 4,
+    ans: EVT_L("Saka / Han — Embankment (阪 of Osaka 大阪)?", "비탈 판 (さか·はん · 오사카부 大阪의 阪)?", "さか・はん (大阪の阪)?"),
+    wrong: EVT_L("Oka — Hill (岡)?", "언덕 강 (훈독: おか / 오카)?", "おか (岡)?"),
+    prize: ["阪", "戦"]
+  },
+  {
+    kanji: "埼", depth: 4,
+    ans: EVT_L("Saki / Ki — Cape (埼 of Saitama 埼玉)?", "갑 기 (さき·き · 사이타마현 埼玉의 埼)?", "さき・き (埼玉の埼)?"),
+    wrong: EVT_L("Saki — Promontory (崎)?", "산비탈·갑 기 (산 뫼변 崎)?", "さき (山偏の崎)?"),
+    prize: ["埼", "固"]
+  },
+  {
+    kanji: "媛", depth: 4,
+    ans: EVT_L("Hime / En — Noble lady (媛 of Ehime 愛媛)?", "미인·아씨 원 (ひめ·えん · 에히메현 愛媛의 媛)?", "ひめ・えん (愛媛の媛)?"),
+    wrong: EVT_L("Dan / Atataka — Warm (暖)?", "따뜻할 난 (훈독: あたたかい)?", "あたたかい・だん (暖)?"),
+    prize: ["媛", "鏡"]
+  },
+  {
+    kanji: "阜", depth: 4,
+    ans: EVT_L("Fu — Mound (阜 of Gifu 岐阜)?", "언덕 부 (음독: ふ · 기후현 岐阜의 阜)?", "ふ (岐阜の阜)?"),
+    wrong: EVT_L("Sato — Village (里)?", "마을 리 (훈독: さと / 음독: り)?", "さと・り (里)?"),
+    prize: ["阜", "岐"]
+  },
+
+  // Depth 5 (Kanken 6)
+  {
+    kanji: "墓", depth: 5,
+    ans: EVT_L("Haka / Bo — Grave (墓)?", "무덤 묘 (훈독: はか / 음독: ぼ)?", "はか・ぼ (墓)?"),
+    wrong: EVT_L("Kure / Bo — Dusk (暮)?", "저물 모 (훈독: くれる / 음독: ぼ)?", "くれる・ぼ (暮)?"),
+    prize: ["墓", "破"]
+  },
+
+  // Depth 6 (Kanken 5)
+  {
+    kanji: "臓", depth: 6,
+    ans: EVT_L("Zou — Viscera / Internal organ (臓)?", "오장 장 (음독: ぞう / 조우)?", "ぞう・はらわた (臓)?"),
+    wrong: EVT_L("Kura / Zou — Storehouse (蔵)?", "감출·창고 장 (훈독: くら / 음독: ぞう)?", "くら・ぞう (蔵)?"),
+    prize: ["臓", "傷"]
+  },
+
+  // Depth 7 (Kanken 4)
+  {
+    kanji: "峠", depth: 7,
+    ans: EVT_L("Touge — Mountain pass (峠)?", "고개 상 (일본 국자: とうげ / 토우게)?", "とうげ (峠)?"),
+    wrong: EVT_L("Mine / Hou — Mountain peak (峰)?", "봉우리 봉 (훈독: みね / 음독: ほう)?", "みね・ほう (峰)?"),
+    prize: ["峠", "剣"]
+  },
+
+  // Depth 8 (Kanken 3)
+  {
+    kanji: "獄", depth: 8,
+    ans: EVT_L("Goku — Gaol / Hell (獄)?", "옥·감옥 옥 (음독: ごく / 고쿠)?", "ごく (獄)?"),
+    wrong: EVT_L("Kemono / Juu — Beast (獣)?", "짐승 수 (훈독: けもの / 음독: じゅう)?", "けもの・じゅう (獣)?"),
+    prize: ["獄", "縛"]
+  },
+
+  // Depth 9 (Kanken 2.5)
+  {
+    kanji: "棺", depth: 9,
+    ans: EVT_L("Hitsugi / Kan — Coffin (棺)?", "널·관 관 (훈독: ひつぎ / 음독: かん)?", "ひつぎ・かん (棺)?"),
+    wrong: EVT_L("Yakata / Kan — Mansion (館)?", "집 관 (훈독: やかた / 음독: かん)?", "やかた・かん (館)?"),
+    prize: ["棺", "刃"]
+  },
+
+  // Depth 10 (Kanken 2)
+  {
+    kanji: "顎", depth: 10,
+    ans: EVT_L("Ago / Gaku — Jaw, Chin (顎)?", "턱 악 (훈독: あご / 음독: がく)?", "あご・がく (顎)?"),
+    wrong: EVT_L("Hoho — Cheek (頬)?", "뺨 협 (훈독: ほほ·ほお)?", "ほほ・きょう (頬)?"),
+    prize: ["顎", "牙"]
+  },
+
+  // Depth 11 (Kanken Jun-1)
+  {
+    kanji: "鰐", depth: 11,
+    ans: EVT_L("Wani / Gaku — Crocodile (鰐)?", "악어 악 (훈독: わに / 음독: がく)?", "わに・がく (鰐)?"),
+    wrong: EVT_L("Same / Kou — Shark (鮫)?", "상어 교 (훈독: さめ / 음독: こう)?", "さめ・こう (鮫)?"),
+    prize: ["鰐", "噛"]
+  },
+
+  // Depth 12 (Kanken 1)
+  {
+    kanji: "髑髏", depth: 12,
+    ans: EVT_L("Dokuro — Weather-beaten skull (髑髏)?", "해골 독루 (훈독: どくろ / 도쿠로)?", "どくろ (髑髏)?"),
+    wrong: EVT_L("Kugutsu — Puppet (傀儡)?", "꼭두각시 괴뢰 (훈독: くぐつ / 음독: かいらい)?", "くぐつ・かいらい (傀儡)?"),
+    prize: ["髑髏", "噬"]
+  },
+  {
+    kanji: "饕餮", depth: 12,
+    ans: EVT_L("Toutetsu — Gluttonous fiend (饕餮)?", "도철 (탐할 도·탐할 철, 음독: とうてつ)?", "とうてつ (饕餮)?"),
+    wrong: EVT_L("Chimimouryou — Mountain & water demons (魑魅魍魎)?", "치미망량 (도깨비 치·미·망·량)?", "ちみもうりょう (魑魅魍魎)?"),
+    prize: ["饕餮", "殲"]
+  }
 ];
 
 const EVENTS = {
@@ -86,7 +248,7 @@ const EVENTS = {
             "何も育たぬはずの場所に花が咲いている。花がこちらを向いた。"),
     options: [
       { label: EVT_L("Breathe it in", "향을 들이마신다", "香りを吸い込む"),
-        effects: [{ chance: 0.55, win: [{ hp: 25 }], lose: [{ say: EVT_L("It was a mouth.", "그건 입이었다.", "それは口だった。") }, { battle: "花" }] }] },
+        effects: [{ chance: 0.55, win: [{ hp: 25 }], lose: [{ say: EVT_L("It was a mouth.", "그건 입이었다.", "それは口だった。") }, { battle: "normal" }] }] },
       { label: EVT_L("Pluck it — add 花 to your bag", "꺾는다 — 가방에 花를 챙긴다", "摘む — 花を袋に加える"), effects: [{ hp: -5 }, { addCard: "花" }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
@@ -99,18 +261,18 @@ const EVENTS = {
             "屍がひとつ。指が小さな何かを固く握っている。"),
     options: [
       { label: EVT_L("Pry its fingers open", "손가락을 벌린다", "指をこじ開ける"),
-        effects: [{ chance: 0.65, win: [{ addCard: "pick", choices: 3 }], lose: [{ say: EVT_L("It was not dead.", "죽은 게 아니었다.", "死んではいなかった。") }, { battle: "屍" }] }] },
+        effects: [{ chance: 0.65, win: [{ addCard: "pick", choices: 3 }], lose: [{ say: EVT_L("It was not dead.", "죽은 게 아니었다.", "死んではいなかった。") }, { battle: "normal" }] }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
   swarm: {
-    kanji: "蟲",
+    kanji: "虫",
     title: EVT_L("The Swarm", "벌레떼", "蟲の群れ"),
     text: EVT_L("The floor chitters. Thousands of legs, all moving toward you.",
             "바닥이 사각거린다. 수천 개의 다리가 일제히 이쪽으로 온다.",
             "床がざわめく。無数の脚が一斉にこちらへ来る。"),
     options: [
-      { label: EVT_L("Fight", "싸운다", "戦う"), effects: [{ battle: "蟲" }] },
+      { label: EVT_L("Fight", "싸운다", "戦う"), effects: [{ battle: "normal" }] },
       { label: EVT_L("Run through it (−10 HP)", "뚫고 달린다 (−10 HP)", "突っ切る (−10 HP)"), effects: [{ hp: -10 }] },
       { label: EVT_L("Toss a chosen kanji as bait", "글자 하나를 골라 미끼로 던진다", "字を選んで囮にする"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 }
     ]

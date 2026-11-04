@@ -17,12 +17,15 @@ function depthPool() {
   return (KANKEN_DATA[state.depthId] && KANKEN_DATA[state.depthId].kanji) || [];
 }
 
-/* Build the 8-10 environment cards present in the current stage. */
+/* Build the 10 environment cards present in the current stage, strictly within the current Kanken grade or lower. */
 function buildStageCards(depthId, sign) {
-  const info = STAGE_SIGNS[sign] || STAGE_SIGNS.道;
-  const themed = info.cards ? sample(info.cards, 6) : ["火", "水", "木", "石", "土", "風"];
-  const localClutter = sample(depthPool().filter(k => !themed.includes(k)), 4);
-  return shuffle([...themed, ...localClutter]);
+  const maxD = depthNumber(depthId || state.depthId);
+  const info = STAGE_SIGNS[sign] || STAGE_SIGNS.田;
+  const rawThemed = (info.cards || ["火", "水", "木", "石", "土"]).filter(k => getKanjiDepthNum(k) <= maxD);
+  const themed = sample(rawThemed.length ? rawThemed : ["火", "水", "木", "石", "土"], 5);
+  const pool = depthPool().filter(k => !themed.includes(k));
+  const localGradeCards = sample(pool, 5);
+  return shuffle([...themed, ...localGradeCards]);
 }
 
 function resetPilesForFight() {
@@ -65,35 +68,61 @@ function drawHand() {
 
 /*
  * Generate the enemy's telegraphed Intent Kanji (1-2 kanji shown on the enemy bar).
- * Bosses and countdown foes (like 先 with 三 -> 二 -> 一 -> 落) follow ominous patterns.
+ * - Strictly uses kanji from the current Kanken grade or lower.
+ * - When a non-final enemy drops to <= 38% HP, it can telegraph an Escape Intent (e.g. 出/足, 走/帰, 逃/避)!
  */
 function dealEnemyHand() {
   const foe = state.enemyKanji;
   const prof = FOE_INTENT_PROFILES[foe];
-  const dNum = depthNumber(state.depthId);
+  const did = state.depthId || "depth_1";
+  const maxD = depthNumber(did);
+
+  state.enemyEscapeIntent = false;
+
+  // Low-HP enemy escape intent (triggers once per fight when HP <= 38%, except final step boss)
+  const isFinalStepBoss = state.step >= PATH_STEPS && state.enemyRank === "boss";
+  if (
+    !isFinalStepBoss &&
+    state.turn > 1 &&
+    state.enemyHp > 0 &&
+    state.enemyHp <= Math.ceil(state.enemyMaxHp * 0.38) &&
+    !state.enemyEscapeTried &&
+    Math.random() < 0.75
+  ) {
+    state.enemyEscapeTried = true;
+    state.enemyEscapeIntent = true;
+    const escPool = DEPTH_ESCAPE_INTENTS[did] || ["出", "足"];
+    state.enemyHand = [...escPool];
+    state.enemyState = t("enemyFleeIntentState");
+    return;
+  }
+
+  const gradePool = (DEPTH_INTENT_POOLS[did] || ["口", "足", "手", "目"]).filter(k => getKanjiDepthNum(k) <= maxD);
 
   if (prof && prof.countdown && prof.countdown.length) {
-    const seq = prof.countdown;
-    const idx = (Math.max(1, state.turn) - 1) % seq.length;
-    const primary = seq[idx];
-    const subPool = (prof.normal || []).filter(k => k !== primary);
-    const secondary = subPool.length ? subPool[Math.floor(Math.random() * subPool.length)] : null;
+    const seq = prof.countdown.filter(k => getKanjiDepthNum(k) <= maxD);
+    const activeSeq = seq.length ? seq : prof.countdown;
+    const idx = (Math.max(1, state.turn) - 1) % activeSeq.length;
+    const primary = activeSeq[idx];
+    const subCandidates = [...new Set([...(prof.normal || []), ...gradePool])]
+      .filter(k => k !== primary && getKanjiDepthNum(k) <= maxD);
+    const secondary = subCandidates.length ? subCandidates[Math.floor(Math.random() * subCandidates.length)] : null;
     state.enemyHand = secondary ? [primary, secondary] : [primary];
     return;
   }
 
   if (prof && prof.normal && prof.normal.length) {
-    state.enemyHand = sample(prof.normal, Math.min(2, prof.normal.length));
+    const validNormal = prof.normal.filter(k => getKanjiDepthNum(k) <= maxD);
+    const primaryPool = validNormal.length ? validNormal : gradePool;
+    const first = primaryPool[Math.floor(Math.random() * primaryPool.length)];
+    // Mix 1 foe-specific intent + 1 depth intent pool kanji for variety within the grade
+    const secondPool = [...new Set([...validNormal, ...gradePool])].filter(k => k !== first);
+    const second = secondPool.length ? secondPool[Math.floor(Math.random() * secondPool.length)] : null;
+    state.enemyHand = second ? [first, second] : [first];
     return;
   }
 
-  // Fallback by depth tier so deep abyss enemies telegraph horrifying kanji
-  const fallbackPool = dNum >= 11
-    ? ["噬", "抉", "蹂", "呪", "祟", "裂", "呑", "睨"]
-    : dNum >= 7
-      ? ["斬", "突", "撃", "呪", "縛", "狂", "刺", "闇"]
-      : ["足", "目", "咬", "固", "突", "毒", "打", "落"];
-  state.enemyHand = sample(fallbackPool, 2);
+  state.enemyHand = sample(gradePool, 2);
 }
 
 function addCardToDeck(k) {
@@ -105,21 +134,24 @@ function removeCardFromDeck(k) {
   if (i >= 0) state.deck.splice(i, 1);
 }
 
-/* Kanji offered by "add a card" effects: mix stage cards and depth pool. */
+/* Kanji offered by "add a card" effects: mix stage cards and current depth's Kanken grade pool. */
 function cardChoices(n) {
   const pool = [...new Set([...(state.stageCards || []), ...depthPool()])];
   const fresh = pool.filter(k => !state.deck.includes(k));
   return sample(fresh.length >= n ? fresh : pool, n);
 }
 
-/* Up to 5 cards offered after clearing a stage/fight (enemy kanji + stage cards). */
+/* Up to 5 cards offered after clearing a stage/fight (combo/enemy kanji + stage cards + depth grade pool). */
 function scavengeChoices(maxCount = 5) {
   const candidates = [];
-  if (state.enemyKanji && !state.deck.includes(state.enemyKanji)) {
+  if (state.lastComboKanji && !state.deck.includes(state.lastComboKanji)) {
+    candidates.push(state.lastComboKanji);
+  }
+  if (state.enemyKanji && !state.deck.includes(state.enemyKanji) && !candidates.includes(state.enemyKanji)) {
     candidates.push(state.enemyKanji);
   }
-  const stagePool = [...new Set([...(state.stageCards || []), ...sample(depthPool(), 3)])]
-    .filter(k => k !== state.enemyKanji);
-  const pickedStage = sample(stagePool, maxCount - candidates.length);
+  const stagePool = [...new Set([...(state.stageCards || []), ...sample(depthPool(), 5)])]
+    .filter(k => !candidates.includes(k));
+  const pickedStage = sample(stagePool, Math.max(0, maxCount - candidates.length));
   return [...candidates, ...pickedStage].slice(0, maxCount);
 }

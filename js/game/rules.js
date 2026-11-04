@@ -16,7 +16,14 @@ const VERDICT_LABELS = {
 };
 
 /* Damage dealt by verdict (only when the move attacks). */
-const VERDICT_DAMAGE = { FIZZLE: [0, 0], WEAK: [7, 13], SOLID: [15, 24], CLEVER: [26, 36], MASTERFUL: [40, 58] };
+const VERDICT_DAMAGE = { FIZZLE: [0, 0], WEAK: [8, 12], SOLID: [16, 22], CLEVER: [27, 35], MASTERFUL: [42, 55] };
+
+/*
+ * Exact Enemy HP threshold at or below which a verdict is GUARANTEED to be a finishing blow (막타).
+ * Shared with buildJudgePrompt() in js/ai/gm.js so the GM always knows 100% whether its chosen
+ * verdict kills the enemy this turn or leaves it alive!
+ */
+const VERDICT_KILL_THRESHOLD = { FIZZLE: 0, WEAK: 12, SOLID: 22, CLEVER: 35, MASTERFUL: 55 };
 
 /* Healing by level; "major" needs at least SOLID, MASTERFUL adds a bonus. */
 const HEAL_RANGE = { none: [0, 0], minor: [7, 12], major: [15, 24] };
@@ -42,6 +49,16 @@ const atLeast = (verdict, floor) => VERDICTS.indexOf(verdict) >= VERDICTS.indexO
 function resolveTurnNumbers(j) {
   const [dMin, dMax] = VERDICT_DAMAGE[j.verdict];
   let enemyDamage = j.attack ? randInt(dMin, dMax) : 0;
+
+  // Synchronize with VERDICT_KILL_THRESHOLD so the GM's finishing-blow narration and the HP math never diverge!
+  if (j.attack && state.enemyHp > 0) {
+    const killCap = VERDICT_KILL_THRESHOLD[j.verdict] || 0;
+    if (state.enemyHp <= killCap) {
+      enemyDamage = Math.max(enemyDamage, state.enemyHp);
+    } else {
+      enemyDamage = Math.min(enemyDamage, state.enemyHp - 1);
+    }
+  }
 
   let healLevel = j.verdict === "FIZZLE" ? "none" : j.heal;
   if (healLevel === "major" && !atLeast(j.verdict, "SOLID")) healLevel = "minor";

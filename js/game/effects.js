@@ -97,10 +97,89 @@ const PICK_PROMPTS = {
 };
 
 function beginPick(mode, choices, rest, thenEffects = []) {
+  if (mode === "scavenge" && (state.phase === "battle" || state.phase === "path")) {
+    state.phase = "reward";
+  }
   state.pending = { mode, choices, selected: [], rest, thenEffects };
   saveRunToStorage();
+  const view = $("view-battle");
+  if (view) view.classList.add("intermission");
   updateBattleHUD(false);
   openPendingPick();
+}
+
+/* Render post-battle / peaceful stage scavenging directly in the bottom dock (#b-dock-action) so the GM log stays visible! */
+function renderInlineScavenge(p) {
+  closePicker();
+  const box = $("b-dock-action");
+  if (!box) return;
+  box.innerHTML = "";
+
+  const wrap = document.createElement("div");
+  wrap.className = "scavenge-dock";
+
+  const head = document.createElement("div");
+  head.className = "scavenge-dock-head";
+  head.textContent = `🎴 ${t("pickScavengePrompt")} — ${t("pickScavengeDesc")}`;
+  wrap.appendChild(head);
+
+  const grid = document.createElement("div");
+  grid.className = "pick-grid scavenge-inline";
+  const sel = p.selected || [];
+
+  p.choices.forEach((k, idx) => {
+    const tile = document.createElement("button");
+    const tier = typeof getKanjiTier === "function" ? getKanjiTier(k) : "edu";
+    const isSel = sel.includes(idx);
+    tile.className = `pick-tile tier-${tier}${isSel ? " selected" : ""}${[...k].length > 1 ? " multi" : ""}`;
+    tile.textContent = k;
+    tile.onclick = () => {
+      playClickSfx();
+      const cur = p.selected || [];
+      if (cur.includes(idx)) p.selected = cur.filter(x => x !== idx);
+      else p.selected = [...cur, idx];
+      saveRunToStorage();
+      renderInlineScavenge(p);
+    };
+    grid.appendChild(tile);
+  });
+  wrap.appendChild(grid);
+
+  const btnRow = document.createElement("div");
+  btnRow.className = "scavenge-dock-btns";
+
+  if (sel.length > 0) {
+    const takeBtn = document.createElement("button");
+    takeBtn.className = "btn btn-gold";
+    takeBtn.textContent = t("scavengeTakeBtn")(sel.length);
+    takeBtn.onclick = () => {
+      playClickSfx();
+      resolveScavengePick(sel.map(i => p.choices[i]));
+    };
+    btnRow.appendChild(takeBtn);
+  } else {
+    const takeAllBtn = document.createElement("button");
+    takeAllBtn.className = "btn btn-gold";
+    takeAllBtn.textContent = t("scavengeTakeAllBtn")(p.choices.length);
+    takeAllBtn.onclick = () => {
+      playClickSfx();
+      resolveScavengePick([...p.choices]);
+    };
+    btnRow.appendChild(takeAllBtn);
+  }
+
+  const skipBtn = document.createElement("button");
+  skipBtn.className = "btn";
+  skipBtn.textContent = t("scavengeLeaveBtn");
+  skipBtn.onclick = () => {
+    playClickSfx();
+    resolveScavengePick([]);
+  };
+  btnRow.appendChild(skipBtn);
+
+  wrap.appendChild(btnRow);
+  box.appendChild(wrap);
+  scrollLogToBottom();
 }
 
 function openPendingPick() {
@@ -108,41 +187,7 @@ function openPendingPick() {
   if (!p) return;
 
   if (p.mode === "scavenge") {
-    const sel = p.selected || [];
-    const actions = [];
-    if (sel.length > 0) {
-      actions.push({
-        label: t("scavengeTakeBtn")(sel.length),
-        gold: true,
-        onClick: () => resolveScavengePick(sel.map(idx => p.choices[idx]))
-      });
-    } else {
-      actions.push({
-        label: t("scavengeTakeAllBtn")(p.choices.length),
-        onClick: () => resolveScavengePick([...p.choices])
-      });
-    }
-    actions.push({
-      label: t("scavengeLeaveBtn"),
-      onClick: () => resolveScavengePick([])
-    });
-
-    openPicker({
-      title: t("pickScavengePrompt"),
-      desc: t("pickScavengeDesc"),
-      cards: p.choices,
-      multiSelect: true,
-      selectedIndices: sel,
-      locked: true,
-      onCard: (_k, idx) => {
-        const cur = p.selected || [];
-        if (cur.includes(idx)) p.selected = cur.filter(x => x !== idx);
-        else p.selected = [...cur, idx];
-        saveRunToStorage();
-        openPendingPick();
-      },
-      actions
-    });
+    renderInlineScavenge(p);
     return;
   }
 
@@ -163,7 +208,8 @@ function openPendingPick() {
 function resolveScavengePick(pickedList) {
   const { rest } = state.pending;
   state.pending = null;
-  closePicker();
+  state.lastComboKanji = null;
+  setDockActions([]);
   if (pickedList && pickedList.length) {
     pickedList.forEach(k => addCardToDeck(k));
     logMd(t("fxCardAdd")(pickedList.join(" · ")), "fx-log");

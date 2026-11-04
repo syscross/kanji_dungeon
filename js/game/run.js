@@ -26,7 +26,8 @@ function startRun(depthId) {
     playerHp: STARTING_MAX_HP,
     phase: "path",
     step: 1,
-    sign: (DEPTH_STAGE_POOLS[depthId] || ["道"])[0],
+    sign: "", // No stage assigned yet until the player chooses at the first fork!
+    fieldState: t("forkFieldState"),
     runBoss,
     bossEncountered: false,
     deck: []
@@ -82,12 +83,16 @@ function enterNode(node) {
   state.sign = node.sign;
   state.fork = [];
   state.stageCards = buildStageCards(state.depthId, state.sign);
+  const signDef = STAGE_SIGNS[state.sign];
+  state.fieldState = signDef ? pickLang(signDef.omen) : "";
   const o = node.outcome;
   if (o === "battle") return startBattle("normal");
   if (o === "elite") return startBattle("elite");
   if (o === "boss") return startBattle("boss");
   if (o === "treasure") {
-    logMd(`🎁 【${node.sign}】`, "sys-log");
+    state.enemyKanji = "";
+    state.phase = "reward";
+    logBeat("event-log", `🎁 【${node.sign}】 ${t("treasureStageTitle")}`, [t("treasureStageDesc")(node.sign)]);
     return runEffects([{ scavenge: 5 }, { offerSpoils: "elite" }]);
   }
   if (o.startsWith("event:")) return startEvent(o.slice(6));
@@ -122,7 +127,7 @@ function advance() {
 function generateFork(step) {
   const depthPoolSigns = DEPTH_STAGE_POOLS[state.depthId] || Object.keys(STAGE_SIGNS);
   let signs = depthPoolSigns.filter(s => STAGE_SIGNS[s]);
-  if (step > 1 && signs.length > FORK_WIDTH) {
+  if (step > 1 && state.sign && signs.length > FORK_WIDTH) {
     signs = signs.filter(s => s !== state.sign);
   }
   if (step === 1) {
@@ -135,7 +140,7 @@ function generateFork(step) {
     picks[picks.length - 1] = STAGE_SIGNS["寺"] ? "寺" : picks[picks.length - 1];
   }
   return picks.map((sign, idx) => {
-    const def = STAGE_SIGNS[sign] || STAGE_SIGNS.道;
+    const def = STAGE_SIGNS[sign] || STAGE_SIGNS.田;
     let outcome = weightedPick(def.outcomes);
     // Guarantee at least 2 battle opportunities on step 1 so empty-handed players get stage action & cards
     if (step === 1 && idx < 2 && outcome.startsWith("event:")) {
@@ -162,8 +167,10 @@ function renderFork() {
     return;
   }
   setDockActions(state.fork.map((f, i) => {
-    const def = STAGE_SIGNS[f.sign] || STAGE_SIGNS.道;
-    const previewCards = (def.cards || []).slice(0, 4).join(" ");
+    const def = STAGE_SIGNS[f.sign] || STAGE_SIGNS.田;
+    const maxD = depthNumber(state.depthId);
+    const validCards = (def.cards || []).filter(k => getKanjiDepthNum(k) <= maxD);
+    const previewCards = validCards.slice(0, 4).join(" ");
     return {
       html: `<span class="fork-kanji tier-${getKanjiTier(f.sign)}">${escapeHtml(f.sign)}</span>` +
         `<span class="fork-omen">${escapeHtml(pickLang(def.omen))}</span>` +
@@ -227,8 +234,13 @@ function pickEnemyForStage(rank, forcedKanji = null) {
 }
 
 function enterPeacefulClearedStage() {
+  state.enemyKanji = "";
+  state.phase = "reward";
   state.stageCards = buildStageCards(state.depthId, state.sign);
-  logBeat("event-log", `【${state.sign}】 ${t("emptyStageTitle")}`, [t("emptyStageDesc")(state.sign)]);
+  logBeat("event-log", `🍃 【${state.sign}】 ${t("emptyStageTitle")}`, [
+    t("emptyStageDesc")(state.sign),
+    `🎴 ${t("stageCardsLog")}: ${state.stageCards.join(" · ")}`
+  ]);
   runEffects([{ hp: 12 }, { scavenge: 5 }]);
 }
 
@@ -245,7 +257,7 @@ function startBattle(rank, forcedKanji = null) {
 
   const maxHp = ENEMY_HP[actualRank];
   const prevWoundedHp = state.woundedEnemies && state.woundedEnemies[kanji];
-  // If we fled from this foe earlier in the run, it keeps its wounded HP (with a tiny 10% breath recovery)
+  // If we fled from this foe (or it fled from us) earlier in the run, it keeps its wounded HP (+10% breath recovery)
   const startHp = prevWoundedHp
     ? Math.min(maxHp, prevWoundedHp + Math.round(maxHp * 0.1))
     : maxHp;
@@ -257,6 +269,9 @@ function startBattle(rank, forcedKanji = null) {
     enemyHp: startHp,
     enemyMaxHp: maxHp,
     enemyState: prevWoundedHp ? t("woundedState") : "",
+    enemyEscapeIntent: false,
+    enemyEscapeTried: false,
+    lastComboKanji: null,
     turn: 1,
     dmgTakenThisEnemy: 0,
     recentActions: []
