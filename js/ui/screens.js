@@ -169,24 +169,26 @@ function renderDepthSpine() {
     villageNode.onclick = () => openDepthEnterModal("depth_0");
     const villageSubHint = st.unlockedDepth === 0
       ? pickLang({
-          EN: "🕯 Enter your ruined hometown first to learn what happened and discover the First Gaol.",
-          KO: "🕯 먼저 폐허가 된 고향 마을로 들어가 변고의 진상과 첫 옥문의 위치를 확인하세요.",
-          JA: "🕯 まずは廃墟と化した故郷の里へ入り、異変の真相と第一獄のありかを確かめよ。",
-          ZH_CN: "🕯 请先进入化为废墟的故乡，查明异变真相并获知第一狱的位置。",
-          ZH_TW: "🕯 請先進入化為廢墟的故鄉，查明異變真相並獲知第一獄的位置。"
+          EN: "🕯 Enter your ash-covered hometown and search the fog for a flickering light.",
+          KO: "🕯 검은 재와 안개에 잠긴 고향 어귀. 어둠 속에서 아직 꺼지지 않은 기척을 찾아 발걸음을 옮기세요.",
+          JA: "🕯 黒い灰と霧に沈んだ故郷の入り口。闇の中でまだ消えていない気配を探して歩みを進めよ。",
+          ZH_CN: "🕯 沉入黑灰与浓雾的故乡入口。请在黑暗中寻找尚未熄灭的气息。",
+          ZH_TW: "🕯 沉入黑灰與濃霧的故鄉入口。請在黑暗中尋找尚未熄滅的氣息。"
         })
       : t("villageNodeHint");
-    const spotsHtml = ["塾", "炉", "橋", st.catRescued ? "猫" : "家"]
+    const validNpcs = ["先", "老", "友", "猫", "女", "男"];
+    const metNpcs = Array.isArray(st.metNpcs) ? st.metNpcs.filter(k => validNpcs.includes(k)) : [];
+    const npcsHtml = metNpcs
       .map(k => `<span class="encountered">${escapeHtml(k)}</span>`)
       .join("");
     villageNode.innerHTML = `
       <div class="node-num village-seal">里</div>
       <div class="node-body">
         <div class="node-title">${escapeHtml(t("villageNodeTitle"))} <span class="node-gloss">${escapeHtml(t("villageNodeGloss"))}</span></div>
-        <div class="node-meta">故郷 · 4処 (塾 · 炉 · 橋 · 家)</div>
+        <div class="node-meta">故郷 · 燈火之里</div>
         <div class="node-scores">${escapeHtml(villageSubHint)}</div>
       </div>
-      <div class="node-bosses">${spotsHtml}<span class="boss-group"><span class="encountered">先</span></span></div>
+      <div class="node-bosses">${npcsHtml}</div>
     `;
     spine.appendChild(villageNode);
   }
@@ -288,13 +290,13 @@ function openDepthEnterModal(did) {
     });
     zoneEl.className = "depth-modal-zone tier-edu";
     $("dm-title").textContent = `【${t("villageNodeTitle")}】 — ${t("villageNodeGloss")}`;
-    $("dm-meta").textContent = "故郷 · 塾 · 炉 · 橋 · 家";
+    $("dm-meta").textContent = "故郷 · 燈火之里";
     $("dm-lore").textContent = pickLang({
-      EN: "After a long absence, you return to your hometown—only to find it buried in black ash and eerie fog.\nIn the Dying Study (【塾】), your old teacher 【先】 guards the last paper lantern; by the Ash Brazier (【炉】), the blind Elder 【老】 stirs burnt characters; on the Stone Bridge (【橋】), your wounded friend 【友】 keeps watch; and your Ruined Home (【家】) stands silent.",
-      KO: "오랜 타향살이 끝에 돌아온 고향은 검은 재와 기괴한 안개에 파묻혀 무너져 내렸습니다.\n꺼져가는 서당【塾】에서 홀로 등불을 지키는 옛 스승【先】, 화로터【炉】에서 타다 남은 문자의 재를 뒤적이는 눈먼 노인【老】, 끊어진 돌다리【橋】에 기대어 선 옛 벗【友】, 그리고 무너진 본가【家】가 당신의 발걸음을 기다립니다.",
-      JA: "長い旅の果てに戻った故郷は、黒い灰と異様な霧に埋もれ果てていた。\n消えかけの書堂【塾】で灯を守る旧師【先】、火炉跡【炉】で文字の灰をかき混ぜる盲目の老人【老】、崩れた石橋【橋】に凭れる旧友【友】、そして崩れた生家【家】が足を運ぶのを待っている。",
-      ZH_CN: "久别归来的故乡已被黑灰与怪雾吞没。\n消逝书堂【塾】中守护孤灯的旧师【先】、火炉遗迹【炉】旁拨弄文字余烬的盲眼老人【老】、断桥【橋】上负伤倚立的旧友【友】，以及坍塌的老家【家】正等待你的造访。",
-      ZH_TW: "久別歸來的故鄉已被黑灰與怪霧吞沒。\n消逝書堂【塾】中守護孤燈的舊師【先】、火爐遺跡【爐】旁撥弄文字餘燼的盲眼老人【老】、斷橋【橋】上負傷倚立的舊友【友】，以及坍塌的老家【家】正等待你的造訪。"
+      EN: "After years away, you return to your hometown—only to find broken roofs buried under black ash and a suffocating fog.\nThe characters carved into the village signposts have been gouged out as if devoured from below, and only a faint tremor of warmth lingers in the silence.",
+      KO: "오랜 타향살이 끝에 돌아온 고향은 검은 재와 숨 막히는 안개에 파묻혀 적막만이 감돕니다.\n이정표에 새겨져 있던 글자들은 무언가에 뜯어먹힌 듯 흉측하게 파여 있고, 무너진 처마들 너머로 아직 꺼지지 않은 희미한 기척만이 어둠 속에 일렁입니다.",
+      JA: "長い旅の果てに戻った故郷は、黒い灰と息詰まる霧に埋もれ、静寂だけが漂っていた。\n道標に刻まれていた文字は何かに喰い千切られたかのように抉り取られ、崩れた軒並みの向こうに微かな気配だけが揺らいでいる。",
+      ZH_CN: "久别归来的故乡已被黑灰与令人窒息的浓雾吞没，只余死寂。\n路标上的文字仿佛被地底某物啃噬殆尽，坍塌的屋檐深处唯有微弱的气息在黑暗中摇曳。",
+      ZH_TW: "久別歸來的故鄉已被黑灰與令人窒息的濃霧吞沒，只餘死寂。\n路標上的文字彷彿被地底某物啃噬殆盡，坍塌的屋簷深處唯有微弱的氣息在黑暗中搖曳。"
     });
     $("dm-lore").classList.remove("warn-step");
 

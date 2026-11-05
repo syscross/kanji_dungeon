@@ -157,8 +157,8 @@
 
       <div class="field-group">
         <label data-i18n="lblModel">3. Model</label>
-        <select id="s-model-preset" onchange="document.getElementById('s-model-custom').value = this.value"></select>
-        <input type="text" id="s-model-custom" class="input-ctrl" placeholder="Or type any model ID..." />
+        <select id="s-model-preset" onchange="onModelPresetChange()"></select>
+        <input type="text" id="s-model-custom" class="input-ctrl" placeholder="Or type any model ID..." oninput="onCustomModelInput()" />
       </div>
 
       <div class="field-group">

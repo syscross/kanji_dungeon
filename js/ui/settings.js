@@ -23,7 +23,7 @@ function closeSettingsModal() {
   closeModal("settings-modal");
 }
 
-function onProviderChange() {
+function onProviderChange(preferredModel = null) {
   const p = $("s-provider").value;
   const pInfo = PROVIDERS[p] || PROVIDERS.free_keyless;
 
@@ -43,7 +43,49 @@ function onProviderChange() {
     opt.textContent = m.label;
     presetSel.appendChild(opt);
   });
-  $("s-model-custom").value = pInfo.models[0].id;
+  const customOpt = document.createElement("option");
+  customOpt.value = "__custom__";
+  customOpt.textContent = "✍ 직접 입력 (Custom Model ID below)…";
+  presetSel.appendChild(customOpt);
+
+  const defaultModelId = pInfo.models[0].id;
+  const targetModel = (typeof preferredModel === "string" && preferredModel.trim())
+    ? preferredModel.trim()
+    : defaultModelId;
+
+  $("s-model-custom").value = targetModel;
+  const hasPreset = pInfo.models.some(m => m.id === targetModel);
+  presetSel.value = hasPreset ? targetModel : "__custom__";
+}
+
+function onModelPresetChange() {
+  const presetSel = $("s-model-preset");
+  const customInp = $("s-model-custom");
+  if (!presetSel || !customInp) return;
+  if (presetSel.value === "__custom__") {
+    customInp.focus();
+    customInp.select();
+    return;
+  }
+  customInp.value = presetSel.value;
+  // Also persist immediately if provider matches so closing the modal never loses the dropdown choice
+  if ($("s-provider").value === config.provider) {
+    config.model = presetSel.value;
+    persistConfig();
+    if (currentView === "battle") updateBattleHUD(false);
+  }
+}
+
+function onCustomModelInput() {
+  const p = $("s-provider").value;
+  const pInfo = PROVIDERS[p] || PROVIDERS.free_keyless;
+  const presetSel = $("s-model-preset");
+  const customInp = $("s-model-custom");
+  if (!presetSel || !customInp) return;
+  const val = customInp.value.trim();
+  const matched = pInfo.models.find(m => m.id === val);
+  // Switching presetSel to __custom__ whenever the text differs means clicking ANY preset (even the previously selected one) will always fire onchange!
+  presetSel.value = matched ? matched.id : "__custom__";
 }
 
 function onInstModeChange() {
@@ -54,10 +96,9 @@ function onInstModeChange() {
 function syncSettingsUI() {
   $("s-default-inst").value = DEFAULT_GM_RULES;
   $("s-provider").value = config.provider;
-  onProviderChange();
+  onProviderChange(config.model);
   $("s-apikey").value = savedKeys[config.provider] || "";
   $("s-endpoint").value = config.customEndpoint;
-  $("s-model-custom").value = config.model;
   $("s-inst-mode").value = config.instMode;
   $("s-custom-inst").value = config.customInst;
   syncSoundBtn();
@@ -69,7 +110,10 @@ function saveSettings(silent = false) {
   config.provider = $("s-provider").value;
   config.apiKey = $("s-apikey").value.trim();
   config.customEndpoint = $("s-endpoint").value.trim();
-  config.model = $("s-model-custom").value.trim() || PROVIDERS[config.provider].models[0].id;
+  const presetVal = $("s-model-preset") && $("s-model-preset").value !== "__custom__"
+    ? $("s-model-preset").value
+    : "";
+  config.model = $("s-model-custom").value.trim() || presetVal || PROVIDERS[config.provider].models[0].id;
   config.instMode = $("s-inst-mode").value;
   config.customInst = $("s-custom-inst").value.trim();
 

@@ -58,6 +58,7 @@ function createDefaultStoryState() {
     catRescued: false,
     catBlessedNextRun: false,
     friendGiftClaimed: false,
+    metNpcs: [],
     villageVisits: 0
   };
 }
@@ -69,6 +70,14 @@ function loadStoryStateFromStorage() {
   }
   const def = createDefaultStoryState();
   // Safe migration: preserve any existing player progress (unlocked depths, relics, kills, yen, deck, cat)
+  const validNpcs = ["先", "老", "友", "猫", "女", "男"];
+  const migratedNpcs = Array.isArray(saved.metNpcs)
+    ? saved.metNpcs.filter(k => validNpcs.includes(k))
+    : [];
+  if (saved.introStage > 0 && !migratedNpcs.includes("先")) migratedNpcs.push("先");
+  if (saved.elderRelicClaimed && !migratedNpcs.includes("老")) migratedNpcs.push("老");
+  if (saved.friendGiftClaimed && !migratedNpcs.includes("友")) migratedNpcs.push("友");
+  if (saved.catRescued && !migratedNpcs.includes("猫")) migratedNpcs.push("猫");
   return {
     ...def,
     ...saved,
@@ -78,6 +87,7 @@ function loadStoryStateFromStorage() {
     specialItems: Array.isArray(saved.specialItems) ? saved.specialItems : def.specialItems,
     defeatedFoes: Array.isArray(saved.defeatedFoes) ? saved.defeatedFoes : def.defeatedFoes,
     defeatedBosses: Array.isArray(saved.defeatedBosses) ? saved.defeatedBosses : def.defeatedBosses,
+    metNpcs: migratedNpcs,
     unlockedDepth: typeof saved.unlockedDepth === "number" ? saved.unlockedDepth : def.unlockedDepth
   };
 }

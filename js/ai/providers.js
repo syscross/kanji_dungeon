@@ -12,12 +12,15 @@ const PROVIDERS = {
     keyUrl: "https://aistudio.google.com/app/apikey",
     keyLabel: "aistudio.google.com ↗",
     models: [
-      { id: "gemini-4-argon", label: "gemini-4-argon · flagship reasoning (2026)" },
-      { id: "gemini-3.8-flash", label: "gemini-3.8-flash · standard fast & smart" },
-      { id: "gemini-3.6-flash", label: "gemini-3.6-flash · stable multimodal" },
+      { id: "gemini-flash-lite-latest", label: "gemini-flash-lite-latest · default, fast & light (auto latest)" },
+      { id: "gemini-flash-latest", label: "gemini-flash-latest · balanced standard (auto latest)" },
+      { id: "gemini-3.8-flash", label: "gemini-3.8-flash · next-gen fast & smart" },
+      { id: "gemini-3.7-flash", label: "gemini-3.7-flash · high-speed reasoning" },
       { id: "gemini-3.5-flash-lite", label: "gemini-3.5-flash-lite · ultra fast & light" },
-      { id: "gemini-flash-lite-latest", label: "gemini-flash-lite-latest · auto latest" },
-      { id: "gemini-2.5-flash", label: "gemini-2.5-flash · legacy fallback" }
+      { id: "gemini-4-argon", label: "gemini-4-argon · flagship frontier reasoning" },
+      { id: "gemini-2.5-flash-lite", label: "gemini-2.5-flash-lite · stable lite" },
+      { id: "gemini-2.5-flash", label: "gemini-2.5-flash · stable flash" },
+      { id: "gemini-2.5-pro", label: "gemini-2.5-pro · deep thinking" }
     ]
   },
   anthropic: {
@@ -25,7 +28,7 @@ const PROVIDERS = {
     keyUrl: "https://console.anthropic.com/settings/keys",
     keyLabel: "console.anthropic.com ↗",
     models: [
-      { id: "claude-haiku-5-5", label: "claude-haiku-5-5 · ultra fast & adaptive (2026)" },
+      { id: "claude-haiku-5-5", label: "claude-haiku-5-5 · ultra fast & adaptive" },
       { id: "claude-sonnet-5-5", label: "claude-sonnet-5-5 · flagship balanced" },
       { id: "claude-opus-5-5", label: "claude-opus-5-5 · supreme reasoning" },
       { id: "claude-opus-fable", label: "claude-opus-fable · deep narrative & TRPG persona" },
@@ -81,8 +84,11 @@ const PROVIDERS = {
     keyLabel: "openrouter.ai ↗",
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
     models: [
-      { id: "google/gemini-4-argon", label: "google/gemini-4-argon" },
+      { id: "google/gemini-flash-lite-latest", label: "google/gemini-flash-lite-latest" },
+      { id: "google/gemini-flash-latest", label: "google/gemini-flash-latest" },
       { id: "google/gemini-3.8-flash", label: "google/gemini-3.8-flash" },
+      { id: "google/gemini-3.7-flash", label: "google/gemini-3.7-flash" },
+      { id: "google/gemini-4-argon", label: "google/gemini-4-argon" },
       { id: "anthropic/claude-haiku-5.5", label: "anthropic/claude-haiku-5.5" },
       { id: "anthropic/claude-opus-fable", label: "anthropic/claude-opus-fable" },
       { id: "deepseek/deepseek-chat", label: "deepseek/deepseek-chat" },

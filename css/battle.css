@@ -164,6 +164,35 @@
 }
 .log-entry.hint-log { border-left-color: var(--gold); background: rgba(35, 30, 20, 0.55); }
 .log-entry.sys-log { border-left-color: var(--green); }
+.log-entry.foe-log {
+  border-left: 4px solid #ff243b;
+  background: linear-gradient(90deg, rgba(155, 18, 38, 0.34) 0%, rgba(28, 12, 18, 0.82) 100%);
+  color: #ffd6dc;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  padding: 11px 14px;
+  box-shadow: inset 0 0 18px rgba(215, 30, 56, 0.2);
+}
+.log-entry.foe-log strong {
+  color: #ff4d5e;
+  font-size: 1.05rem;
+  text-shadow: 0 0 12px rgba(255, 36, 59, 0.55);
+}
+.foe-omen-log {
+  border: 1.5px solid #8c1d2e;
+  background: linear-gradient(180deg, rgba(72, 10, 20, 0.65), rgba(16, 8, 12, 0.9));
+  padding: 14px 14px;
+}
+.foe-omen-log .beat-title {
+  color: #ff3b4e;
+  font-size: 1.24rem;
+  text-shadow: 0 0 16px rgba(255, 36, 59, 0.65);
+}
+.foe-omen-log .beat-line {
+  color: #f2c2c8;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
 .log-entry.verdict-fizzle { border-left-color: #555b68; }
 .log-entry.verdict-weak { border-left-color: #8a6a70; }
 .log-entry.verdict-clever { border-left-color: var(--gold); }

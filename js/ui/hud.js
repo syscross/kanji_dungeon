@@ -52,10 +52,10 @@ function renderRunRosterBar() {
   if (!bar) return;
   if (state.depthId === "depth_0") {
     const st = typeof ensureStoryConfig === "function" ? ensureStoryConfig() : (config.story || {});
-    const spots = ["塾", "炉", "橋", st.catRescued ? "猫" : "家"];
-    const mobHtml = spots.map(k => `<span class="rr-chip seen" title="${escapeHtml(k)}">${escapeHtml(k)}</span>`).join("");
-    const bossHtml = `<span class="rr-chip boss seen" title="先">主 先</span>`;
-    bar.innerHTML = `<div class="rr-mobs">${mobHtml}</div>${bossHtml}`;
+    const validNpcs = ["先", "老", "友", "猫", "女", "男"];
+    const met = Array.isArray(st.metNpcs) ? st.metNpcs.filter(k => validNpcs.includes(k)) : [];
+    const npcHtml = met.map(k => `<span class="rr-chip seen" title="${escapeHtml(k)}">${escapeHtml(k)}</span>`).join("");
+    bar.innerHTML = `<div class="rr-mobs">${npcHtml}</div>`;
     return;
   }
   if (!KANKEN_DATA[state.depthId]) return;

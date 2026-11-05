@@ -110,6 +110,45 @@ button { font-family: inherit; }
   text-shadow: 0 0 42px rgba(255, 59, 78, 0.95), 0 0 14px #000;
   animation: abyssGateTremor 0.55s ease;
 }
+/* Enemy Encounter Full-Screen Crimson Reveal */
+#cinematic-curtain.foe-reveal {
+  background: radial-gradient(circle at 50% 45%, #3c0610 0%, #140206 58%, #020204 88%);
+  box-shadow: inset 0 0 200px rgba(220, 20, 48, 0.65);
+  transition: opacity 0.55s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+#cinematic-curtain.foe-reveal .curtain-badge {
+  color: #ff6b7b;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.45rem;
+  text-shadow: 0 0 16px rgba(255, 36, 59, 0.8);
+  margin-bottom: 14px;
+}
+#cinematic-curtain.foe-reveal .curtain-title {
+  color: #ff243b !important;
+  font-size: clamp(5.8rem, 23vw, 10.8rem);
+  font-weight: 900;
+  letter-spacing: 0.2rem;
+  line-height: 1.05;
+  text-shadow: 0 0 48px rgba(255, 36, 59, 0.98), 0 0 96px rgba(215, 20, 48, 0.82), 0 0 18px #000 !important;
+  animation: foeRevealLoom 1.65s cubic-bezier(0.16, 0.85, 0.25, 1) forwards;
+}
+#cinematic-curtain.foe-reveal .curtain-sub {
+  color: #ff9aa6;
+  font-size: clamp(0.96rem, 2.5vw, 1.16rem);
+  font-weight: 700;
+  line-height: 1.6;
+  max-width: 680px;
+  margin-top: 22px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 2px 14px #000, 0 0 18px rgba(215, 30, 56, 0.65);
+}
+@keyframes foeRevealLoom {
+  0% { transform: scale(1.75); filter: blur(8px) brightness(2.8); opacity: 0; }
+  28% { transform: scale(0.96) rotate(-1.5deg); filter: blur(0px) brightness(1.6); opacity: 1; }
+  62% { transform: scale(1.08) rotate(0.8deg); filter: brightness(1.2); opacity: 1; }
+  100% { transform: scale(1.14) rotate(0deg); filter: none; opacity: 1; }
+}
 @keyframes abyssGateTremor {
   0% { transform: scale(1.45); filter: blur(6px) brightness(2.5); }
   45% { transform: scale(0.95) rotate(-1.5deg); filter: none; }
