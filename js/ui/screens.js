@@ -169,11 +169,11 @@ function renderDepthSpine() {
     villageNode.onclick = () => openDepthEnterModal("depth_0");
     const villageSubHint = st.unlockedDepth === 0
       ? pickLang({
-          EN: "🕯 Enter your ash-covered hometown and search the fog for a flickering light.",
-          KO: "🕯 검은 재와 안개에 잠긴 고향 어귀. 어둠 속에서 아직 꺼지지 않은 기척을 찾아 발걸음을 옮기세요.",
-          JA: "🕯 黒い灰と霧に沈んだ故郷の入り口。闇の中でまだ消えていない気配を探して歩みを進めよ。",
-          ZH_CN: "🕯 沉入黑灰与浓雾的故乡入口。请在黑暗中寻找尚未熄灭的气息。",
-          ZH_TW: "🕯 沉入黑灰與濃霧的故鄉入口。請在黑暗中尋找尚未熄滅的氣息。"
+          EN: "🕯 Ash-covered hometown.",
+          KO: "🕯 검은 재와 안개에 잠긴 고향.",
+          JA: "🕯 黒い灰と霧に沈んだ故郷。",
+          ZH_CN: "🕯 沉入黑灰与浓雾的故乡。",
+          ZH_TW: "🕯 沉入黑灰與濃霧的故鄉。"
         })
       : t("villageNodeHint");
     const validNpcs = ["先", "老", "友", "猫", "女", "男"];
@@ -292,11 +292,11 @@ function openDepthEnterModal(did) {
     $("dm-title").textContent = `【${t("villageNodeTitle")}】 — ${t("villageNodeGloss")}`;
     $("dm-meta").textContent = "故郷 · 燈火之里";
     $("dm-lore").textContent = pickLang({
-      EN: "After years away, you return to your hometown—only to find broken roofs buried under black ash and a suffocating fog.\nThe characters carved into the village signposts have been gouged out as if devoured from below, and only a faint tremor of warmth lingers in the silence.",
-      KO: "오랜 타향살이 끝에 돌아온 고향은 검은 재와 숨 막히는 안개에 파묻혀 적막만이 감돕니다.\n이정표에 새겨져 있던 글자들은 무언가에 뜯어먹힌 듯 흉측하게 파여 있고, 무너진 처마들 너머로 아직 꺼지지 않은 희미한 기척만이 어둠 속에 일렁입니다.",
-      JA: "長い旅の果てに戻った故郷は、黒い灰と息詰まる霧に埋もれ、静寂だけが漂っていた。\n道標に刻まれていた文字は何かに喰い千切られたかのように抉り取られ、崩れた軒並みの向こうに微かな気配だけが揺らいでいる。",
-      ZH_CN: "久别归来的故乡已被黑灰与令人窒息的浓雾吞没，只余死寂。\n路标上的文字仿佛被地底某物啃噬殆尽，坍塌的屋檐深处唯有微弱的气息在黑暗中摇曳。",
-      ZH_TW: "久別歸來的故鄉已被黑灰與令人窒息的濃霧吞沒，只餘死寂。\n路標上的文字彷彿被地底某物啃噬殆盡，坍塌的屋簷深處唯有微弱的氣息在黑暗中搖曳。"
+      EN: "Broken roofs lie buried under black ash, and the characters on the signposts have been gouged out.",
+      KO: "검은 재에 파묻힌 처마들 너머로, 글자가 흉측하게 파여 나간 이정표와 희미한 불빛만이 어둠 속에 남아 있습니다.",
+      JA: "黒い灰に埋もれた軒並みの向こうに、文字の抉り取られた道標と仄かな灯だけが残っている。",
+      ZH_CN: "坍塌的屋檐埋在黑灰之下，唯余字迹被挖去的路标与微弱灯火。",
+      ZH_TW: "坍塌的屋簷埋在黑灰之下，唯餘字跡被挖去的路標與微弱燈火。"
     });
     $("dm-lore").classList.remove("warn-step");
 
