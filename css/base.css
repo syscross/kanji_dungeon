@@ -118,36 +118,39 @@ button { font-family: inherit; }
 }
 #cinematic-curtain.foe-reveal .curtain-badge {
   color: #ff6b7b;
-  font-size: 1.05rem;
+  font-size: 0.96rem;
   font-weight: 700;
-  letter-spacing: 0.45rem;
+  letter-spacing: 0.28rem;
   text-shadow: 0 0 16px rgba(255, 36, 59, 0.8);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  word-break: keep-all;
 }
 #cinematic-curtain.foe-reveal .curtain-title {
   color: #ff243b !important;
-  font-size: clamp(5.8rem, 23vw, 10.8rem);
+  font-size: clamp(4.2rem, 18vw, 9.2rem);
   font-weight: 900;
-  letter-spacing: 0.2rem;
+  letter-spacing: 0.12rem;
   line-height: 1.05;
   text-shadow: 0 0 48px rgba(255, 36, 59, 0.98), 0 0 96px rgba(215, 20, 48, 0.82), 0 0 18px #000 !important;
-  animation: foeRevealLoom 1.65s cubic-bezier(0.16, 0.85, 0.25, 1) forwards;
+  animation: foeRevealLoom 1.5s cubic-bezier(0.16, 0.85, 0.25, 1) forwards;
 }
 #cinematic-curtain.foe-reveal .curtain-sub {
   color: #ff9aa6;
-  font-size: clamp(0.96rem, 2.5vw, 1.16rem);
+  font-size: clamp(0.88rem, 2.3vw, 1.08rem);
   font-weight: 700;
-  line-height: 1.6;
-  max-width: 680px;
-  margin-top: 22px;
-  letter-spacing: 1.5px;
+  line-height: 1.55;
+  max-width: 92vw;
+  margin-top: 18px;
+  letter-spacing: 0.5px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
   text-shadow: 0 2px 14px #000, 0 0 18px rgba(215, 30, 56, 0.65);
 }
 @keyframes foeRevealLoom {
-  0% { transform: scale(1.75); filter: blur(8px) brightness(2.8); opacity: 0; }
-  28% { transform: scale(0.96) rotate(-1.5deg); filter: blur(0px) brightness(1.6); opacity: 1; }
-  62% { transform: scale(1.08) rotate(0.8deg); filter: brightness(1.2); opacity: 1; }
-  100% { transform: scale(1.14) rotate(0deg); filter: none; opacity: 1; }
+  0% { transform: scale(1.55); filter: blur(8px) brightness(2.8); opacity: 0; }
+  28% { transform: scale(0.96) rotate(-1deg); filter: blur(0px) brightness(1.6); opacity: 1; }
+  62% { transform: scale(1.04) rotate(0.5deg); filter: brightness(1.2); opacity: 1; }
+  100% { transform: scale(1.06) rotate(0deg); filter: none; opacity: 1; }
 }
 @keyframes abyssGateTremor {
   0% { transform: scale(1.45); filter: blur(6px) brightness(2.5); }
@@ -159,9 +162,11 @@ button { font-family: inherit; }
   color: var(--gold);
   font-size: 0.92rem;
   margin-top: 12px;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   text-align: center;
   padding: 0 16px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 .curtain-stages {
   font-family: 'Noto Serif JP', serif;
@@ -217,6 +222,7 @@ button { font-family: inherit; }
   font-weight: 700;
   line-height: 1.6;
   white-space: pre-line;
+  word-break: keep-all;
   box-shadow: 0 8px 30px rgba(0,0,0,0.85), 0 0 20px rgba(229, 192, 123, 0.35);
 }
 #global-toast {
@@ -226,6 +232,7 @@ button { font-family: inherit; }
   color: var(--gold);
   padding: 7px 14px;
   font-size: 0.78rem;
+  word-break: keep-all;
 }
 #ach-toast.show, #global-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 #ach-toast.show ~ #global-toast.show { top: calc(var(--app-top) + 110px); }
@@ -240,6 +247,7 @@ button { font-family: inherit; }
   cursor: pointer;
   transition: all 0.16s ease;
   white-space: nowrap;
+  word-break: keep-all;
 }
 .btn:hover, .btn.kb-focus {
   border-color: var(--crimson);

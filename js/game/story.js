@@ -477,7 +477,7 @@ function startVillageStage() {
 
   resetBattleChrome();
   const titleName = pickLang(ST_L("Village of the Lantern", "등불의 마을", "灯の里"));
-  logMd(`── 🏮 00 【里】 ${titleName} · 故郷 ──`, "sep-log");
+  logMd(`── 🏮 【里】 ${titleName} ──`, "sep-log");
 
   const nPhase = getStoryNarrativePhase();
   if (st.introStage === 0) {
@@ -511,15 +511,15 @@ function startVillageStage() {
 
 function enterVillageCinematic(onReady) {
   const titleName = pickLang(ST_L("Village of the Lantern", "등불의 마을", "灯の里"));
-  const titleGloss = pickLang(ST_L("Ruined Hometown · 故郷", "안개에 잠긴 고향 · 故郷", "霧に沈んだ故郷 · 故郷"));
+  const titleGloss = pickLang(ST_L("Ruined Hometown", "안개에 잠긴 고향", "霧に沈んだ故郷"));
   transitionToView("battle", titleName, titleGloss);
   const seal = $("seal-overlay");
   if (!seal) {
     if (onReady) onReady();
     return;
   }
-  $("seal-num").textContent = "故郷 · 00";
-  $("seal-kanji").textContent = "燈火之里";
+  $("seal-num").textContent = "00";
+  $("seal-kanji").textContent = "里";
   $("seal-gloss").textContent = titleName;
   seal.classList.remove("active");
   void seal.offsetWidth;

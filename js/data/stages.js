@@ -40,13 +40,13 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 55], ["elite", 20], ["event:flower", 15], ["event:quiz", 10]]
   },
   町: {
-    omen: STG_L("silent town streets", "적막한 읍내 골목", "静まり返った町", "死寂街町", "死寂街町"),
+    omen: STG_L("silent town streets", "적막한 골목길", "静まり返った町", "死寂街町", "死寂街町"),
     cards: ["火", "金", "手", "足", "力", "円", "百", "糸", "音"],
     foes: ["人", "車", "犬", "目", "石"],
     outcomes: [["battle", 60], ["event:quiz", 20], ["treasure", 20]]
   },
   校: {
-    omen: STG_L("charred schoolhouse", "종소리 멈춘 폐교", "鐘の止まった廃校", "荒废学堂", "荒廢學堂"),
+    omen: STG_L("charred schoolhouse", "종 멈춘 폐교", "鐘の止まった廃校", "荒废学堂", "荒廢學堂"),
     cards: ["本", "文", "字", "学", "音", "休", "火", "一", "二", "三"],
     foes: ["目", "人", "虫", "車", "月"],
     outcomes: [["battle", 55], ["elite", 25], ["event:quiz", 20]],
@@ -55,7 +55,7 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 2 (Kanken 9 + 10) ---- */
   道: {
-    omen: STG_L("a beaten path", "다져진 길", "踏み固められた道", "踩实的路", "踩實的路"),
+    omen: STG_L("a beaten path", "다져진 옛길", "踏み固められた道", "踩实的路", "踩實的路"),
     cards: ["土", "石", "風", "足", "走", "車", "刀", "弓", "矢"],
     foes: ["馬", "牛", "頭", "鳥", "黒"],
     outcomes: [["battle", 70], ["event:*", 30]]
@@ -74,7 +74,7 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 60], ["event:well", 25], ["event:quiz", 15]]
   },
   谷: {
-    omen: STG_L("howling wind gorge", "칼바람 부는 계곡", "風唸る谷", "呼啸风谷", "呼嘯風谷"),
+    omen: STG_L("howling wind gorge", "칼바람 계곡", "風唸る谷", "呼啸风谷", "呼嘯風谷"),
     cards: ["風", "刀", "石", "弓", "矢", "木", "走", "強", "高"],
     foes: ["鳥", "岩", "雪", "雲", "電"],
     outcomes: [["battle", 55], ["elite", 30], ["treasure", 15]],
@@ -114,7 +114,7 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 3 (Kanken 8) ---- */
   湖: {
-    omen: STG_L("blood-tinted lake", "핏빛으로 물든 호수", "血に染まる湖", "血色湖泊", "血色湖泊"),
+    omen: STG_L("blood-tinted lake", "핏빛에 잠긴 호수", "血に染まる湖", "血色湖泊", "血色湖泊"),
     cards: ["水", "波", "深", "流", "寒", "石", "鉄", "風", "打"],
     foes: ["氷", "血", "羊", "暗", "死"],
     outcomes: [["battle", 60], ["elite", 25], ["event:well", 15]],
@@ -134,7 +134,7 @@ const STAGE_SIGNS = {
     risky: true
   },
   坂: {
-    omen: STG_L("muddy uphill slope", "진흙탕 오르막길", "ぬかるむ坂", "泥泞坡道", "泥濘坡道"),
+    omen: STG_L("muddy uphill slope", "진흙탕 비탈길", "ぬかるむ坂", "泥泞坡道", "泥濘坡道"),
     cards: ["土", "石", "重", "落", "転", "足", "風", "打", "投"],
     foes: ["羊", "暗", "客", "者"],
     outcomes: [["battle", 70], ["event:quiz", 15], ["event:*", 15]]
@@ -173,7 +173,7 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 55], ["event:quiz", 25], ["event:flower", 20]]
   },
   潟: {
-    omen: STG_L("black mudflats", "검은 개펄과 석호", "黒い干潟", "黑泥泻湖", "黑泥潟湖"),
+    omen: STG_L("black mudflats", "검은 개펄 석호", "黒い干潟", "黑泥泻湖", "黑泥潟湖"),
     cards: ["潟", "水", "塩", "浅", "冷", "漁", "氷", "土", "石", "県"],
     foes: ["兵", "熊", "徒", "隊", "官"],
     outcomes: [["battle", 55], ["event:quiz", 25], ["event:well", 20]]
@@ -185,7 +185,7 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 60], ["event:quiz", 20], ["elite", 20]]
   },
   阪: {
-    omen: STG_L("blood-soaked embankment", "피로 물든 비탈길", "血塗られた坂", "染血坡道", "染血坡道"),
+    omen: STG_L("blood-soaked embankment", "피로 물든 언덕", "血塗られた坂", "染血坡道", "染血坡道"),
     cards: ["阪", "石", "土", "戦", "刀", "火", "熱", "旗", "輪", "囲"],
     foes: ["兵", "隊", "官", "臣", "軍", "勇"],
     outcomes: [["battle", 55], ["elite", 30], ["event:quiz", 15]],
@@ -205,7 +205,7 @@ const STAGE_SIGNS = {
     risky: true
   },
   街: {
-    omen: STG_L("ruined garrison street", "폐허가 된 병영 거리", "廃墟の街", "废墟街道", "廢墟街道"),
+    omen: STG_L("ruined garrison street", "무너진 병영 거리", "廃墟の街", "废墟街道", "廢墟街道"),
     cards: ["街", "火", "灯", "鏡", "器", "衣", "飯", "塩", "鉄", "械"],
     foes: ["卒", "徒", "隊", "機", "官"],
     outcomes: [["battle", 55], ["treasure", 25], ["event:quiz", 20]]
@@ -213,7 +213,7 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 5 (Kanken 6: Sinners' Mound) ---- */
   墓: {
-    omen: STG_L("freshly dug graves", "죄인들의 무덤가", "罪人の墓場", "罪人墓地", "罪人墓地"),
+    omen: STG_L("freshly dug graves", "죄인들의 무덤", "罪人の墓場", "罪人墓地", "罪人墓地"),
     cards: ["墓", "土", "石", "死", "血", "燃", "火", "殺", "破", "術"],
     foes: ["迷", "犯", "毒", "罪", "武", "災"],
     outcomes: [["battle", 50], ["event:corpse", 35], ["elite", 15]],
@@ -232,7 +232,7 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 65], ["event:well", 20], ["event:quiz", 15]]
   },
   鉱: {
-    omen: STG_L("collapsed toxic mine", "독가스가 새는 폐광", "毒ガスの廃鉱", "毒气废矿", "毒氣廢礦"),
+    omen: STG_L("collapsed toxic mine", "독가스 폐광", "毒ガスの廃鉱", "毒气废矿", "毒氣廢礦"),
     cards: ["鉱", "銅", "鉄", "石", "火", "燃", "破", "圧", "粉", "酸"],
     foes: ["犯", "像", "毒", "士", "武", "罪"],
     outcomes: [["battle", 55], ["treasure", 30], ["elite", 15]]
@@ -253,26 +253,26 @@ const STAGE_SIGNS = {
     outcomes: [["treasure", 55], ["battle", 30], ["elite", 15]]
   },
   穴: {
-    omen: STG_L("bottomless bone pit", "해골이 쌓인 굴", "白骨の穴", "白骨洞穴", "白骨洞穴"),
+    omen: STG_L("bottomless bone pit", "해골 쌓인 굴", "白骨の穴", "白骨洞穴", "白骨洞穴"),
     cards: ["穴", "脳", "傷", "痛", "石", "土", "吸", "針", "暗"],
     foes: ["骨", "亡", "従", "蚕", "異"],
     outcomes: [["battle", 60], ["event:corpse", 25], ["elite", 15]],
     risky: true
   },
   泉: {
-    omen: STG_L("steaming blood spring", "김이 피어오르는 피의 샘", "湯気立つ血の泉", "沸血之泉", "沸血之泉"),
+    omen: STG_L("steaming blood spring", "끓어오르는 혈천", "湯気立つ血の泉", "沸血之泉", "沸血之泉"),
     cards: ["水", "泉", "蒸", "潮", "血", "洗", "氷", "液", "紅", "吸"],
     foes: ["従", "警", "衆", "異", "聖"],
     outcomes: [["event:well", 45], ["battle", 40], ["event:rest", 15]]
   },
   砂: {
-    omen: STG_L("ashen bone desert", "뼛가루 날리는 사막", "骨灰の砂漠", "骨灰沙漠", "骨灰沙漠"),
+    omen: STG_L("ashen bone desert", "뼛가루 사막", "骨灰の砂漠", "骨灰沙漠", "骨灰沙漠"),
     cards: ["砂", "灰", "干", "風", "火", "石", "射", "棒", "熱"],
     foes: ["骨", "亡", "衆", "警", "敵", "将"],
     outcomes: [["battle", 65], ["event:quiz", 20], ["elite", 15]]
   },
   樹: {
-    omen: STG_L("flesh-bearing great tree", "살점이 열린 거목", "肉実る大樹", "血肉巨树", "血肉巨樹"),
+    omen: STG_L("flesh-bearing great tree", "살점 열린 거목", "肉実る大樹", "血肉巨树", "血肉巨樹"),
     cards: ["樹", "木", "紅", "血", "臓", "脳", "舌", "枝", "針", "卵"],
     foes: ["蚕", "従", "亡", "異", "敵"],
     outcomes: [["battle", 55], ["event:flower", 25], ["elite", 20]]
@@ -287,7 +287,7 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 7 (Kanken 4: Valley of Wailing) ---- */
   殿: {
-    omen: STG_L("echoing demon hall", "곡성이 울리는 전당", "鬼哭の殿", "鬼哭大殿", "鬼哭大殿"),
+    omen: STG_L("echoing demon hall", "곡성 울리는 전당", "鬼哭の殿", "鬼哭大殿", "鬼哭大殿"),
     cards: ["剣", "撃", "突", "刺", "盾", "矛", "鎖", "火", "血", "壊"],
     foes: ["盗", "影", "凶", "巨", "鬼"],
     outcomes: [["elite", 50], ["battle", 40], ["treasure", 10]],
@@ -307,13 +307,13 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 60], ["event:well", 20], ["event:*", 20]]
   },
   峰: {
-    omen: STG_L("jagged beast peak", "짐승 울부짖는 봉우리", "獣咆える峰", "群兽险峰", "群獸險峰"),
+    omen: STG_L("jagged beast peak", "짐승 우는 봉우리", "獣咆える峰", "群兽险峰", "群獸險峰"),
     cards: ["石", "岩", "風", "襲", "駆", "跳", "剣", "火", "鋭"],
     foes: ["獣", "狩", "凶", "巨", "狂", "雷"],
     outcomes: [["battle", 60], ["elite", 25], ["event:*", 15]]
   },
   陣: {
-    omen: STG_L("abandoned siege camp", "피로 그려진 진영", "血の陣営", "血之阵营", "血之陣營"),
+    omen: STG_L("abandoned siege camp", "피로 물든 진영", "血の陣営", "血之阵营", "血之陣營"),
     cards: ["剣", "矛", "盾", "砲", "弾", "爆", "鎖", "火", "薪", "攻"],
     foes: ["狩", "盗", "僧", "巨", "雄"],
     outcomes: [["battle", 55], ["treasure", 25], ["elite", 20]]
@@ -321,14 +321,14 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 8 (Kanken 3: Demon Wilds) ---- */
   獄: {
-    omen: STG_L("iron torture gaol", "절규하는 지하 감옥", "絶叫の牢獄", "绝叫牢狱", "絕叫牢獄"),
+    omen: STG_L("iron torture gaol", "절규하는 뇌옥", "絶叫の牢獄", "绝叫牢狱", "絕叫牢獄"),
     cards: ["獄", "縛", "絞", "鎖", "鉄", "刑", "炎", "血", "魂", "奪"],
     foes: ["賊", "偶", "邪", "侍", "魔"],
     outcomes: [["elite", 50], ["battle", 40], ["event:quiz", 10]],
     risky: true
   },
   炉: {
-    omen: STG_L("hellfire smelting furnace", "영혼을 녹이는 용광로", "魂溶かす炉", "炼魂熔炉", "煉魂熔爐"),
+    omen: STG_L("hellfire smelting furnace", "영혼 태우는 화로", "魂溶かす炉", "炼魂熔炉", "煉魂熔爐"),
     cards: ["炎", "火", "焦", "鍛", "鋳", "鉄", "煙", "滅", "爆", "塊"],
     foes: ["怪", "蛮", "賊", "侍", "魔"],
     outcomes: [["battle", 55], ["treasure", 25], ["elite", 20]]
@@ -346,7 +346,7 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 55], ["event:corpse", 30], ["treasure", 15]]
   },
   峡: {
-    omen: STG_L("phantom-haunted gorge", "원귀가 떠도는 협곡", "亡霊の峡谷", "亡灵峡谷", "亡靈峽谷"),
+    omen: STG_L("phantom-haunted gorge", "원귀 서린 협곡", "亡霊の峡谷", "亡灵峡谷", "亡靈峽谷"),
     cards: ["風", "凍", "零", "氷", "崩", "裂", "岩", "貫", "殴", "幻"],
     foes: ["怪", "猟", "蛮", "鯨", "騎", "魔"],
     outcomes: [["battle", 65], ["event:*", 20], ["elite", 15]]
@@ -354,7 +354,7 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 9 (Kanken 2.5: Road of Tyrants) ---- */
   洞: {
-    omen: STG_L("wyrm's cavern", "화룡이 잠든 동굴", "竜眠る洞", "恶龙洞窟", "惡龍洞窟"),
+    omen: STG_L("wyrm's cavern", "화룡 잠든 동굴", "竜眠る洞", "恶龙洞窟", "惡龍洞窟"),
     cards: ["火", "炎", "岩", "砕", "剛", "珠", "硝", "硫", "煙", "渦"],
     foes: ["蛇", "猿", "仙", "竜", "覇"],
     outcomes: [["elite", 50], ["battle", 35], ["treasure", 15]],
@@ -367,19 +367,19 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 60], ["event:quiz", 20], ["event:*", 20]]
   },
   塚: {
-    omen: STG_L("mound of executed blades", "처형당한 칼들의 무덤", "処刑刀の塚", "刑刀之冢", "刑刀之塚"),
+    omen: STG_L("mound of executed blades", "처형된 칼의 무덤", "処刑刀の塚", "刑刀之冢", "刑刀之塚"),
     cards: ["刃", "刀", "剣", "棺", "弔", "骨", "血", "漆", "縛", "拷"],
     foes: ["忍", "偵", "曹", "傑", "帥", "覇"],
     outcomes: [["battle", 55], ["event:corpse", 25], ["elite", 20]]
   },
   堀: {
-    omen: STG_L("black moat of warships", "철갑선이 가라앉은 해자", "鉄艦沈む堀", "沉舰护城河", "沉艦護城河"),
+    omen: STG_L("black moat of warships", "가라앉은 검은 해자", "鉄艦沈む堀", "沉舰护城河", "沉艦護城河"),
     cards: ["水", "渦", "泥", "泡", "銃", "艦", "鉄", "氷", "雷", "津"],
     foes: ["蛇", "蚊", "偵", "曹", "帥", "竜"],
     outcomes: [["battle", 60], ["elite", 25], ["treasure", 15]]
   },
   窯: {
-    omen: STG_L("ash-choked kiln", "인골을 굽는 가마", "人骨を焼く窯", "焚骨窑炉", "焚骨窯爐"),
+    omen: STG_L("ash-choked kiln", "인골 굽는 가마", "人骨を焼く窯", "焚骨窑炉", "焚骨窯爐"),
     cards: ["火", "炎", "沸", "融", "硝", "硫", "灰", "炭", "瓶", "癒"],
     foes: ["猫", "猿", "曹", "仙", "傑"],
     outcomes: [["event:rest", 45], ["battle", 40], ["event:quiz", 15]]
@@ -387,34 +387,34 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 10 (Kanken 2: The Underworld) ---- */
   麓: {
-    omen: STG_L("lightless netherworld foothills", "칠흑에 잠긴 저승 산기슭", "闇に沈む冥府の麓", "暗黑山麓", "闇黑山麓"),
+    omen: STG_L("lightless netherworld foothills", "어둠 잠긴 산기슭", "闇に沈む冥府の麓", "暗黑山麓", "闇黑山麓"),
     cards: ["呪", "斬", "火", "光", "血", "刃", "風", "石", "氷"],
     foes: ["妖", "顎", "骸", "怨", "闇"],
     outcomes: [["battle", 45], ["elite", 35], ["event:*", 20]],
     risky: true
   },
   窟: {
-    omen: STG_L("den of fangs and claws", "어금니와 발톱의 마굴", "牙と爪の魔窟", "牙爪魔窟", "牙爪魔窟"),
+    omen: STG_L("den of fangs and claws", "발톱과 어금니 마굴", "牙と爪の魔窟", "牙爪魔窟", "牙爪魔窟"),
     cards: ["牙", "爪", "拳", "蹴", "潰", "骨", "血", "肉", "剥"],
     foes: ["虎", "亀", "蜂", "駒", "顎", "骸"],
     outcomes: [["battle", 60], ["elite", 25], ["event:corpse", 15]]
   },
   崖: {
-    omen: STG_L("storm-lashed cliff", "폭풍 몰아치는 절벽", "嵐吹き荒れる崖", "风暴断崖", "風暴斷崖"),
+    omen: STG_L("storm-lashed cliff", "폭풍 치는 절벽", "嵐吹き荒れる崖", "风暴断崖", "風暴斷崖"),
     cards: ["嵐", "風", "雷", "石", "蹴", "落", "鎌", "斬", "氷"],
     foes: ["鶴", "虎", "蜂", "怨", "鬱"],
     outcomes: [["battle", 55], ["elite", 30], ["event:quiz", 15]],
     risky: true
   },
   柵: {
-    omen: STG_L("palisade of the dead", "망자를 가둔 해골 철책", "亡者を阻む骸の柵", "亡者木栅", "亡者木柵"),
+    omen: STG_L("palisade of the dead", "망자를 가둔 철책", "亡者を阻む骸の柵", "亡者木栅", "亡者木柵"),
     cards: ["呪", "死", "魂", "鎌", "炎", "氷", "鎖", "縛", "骨"],
     foes: ["骸", "怨", "妖", "顎", "冥"],
     outcomes: [["elite", 50], ["battle", 35], ["event:shrine", 15]],
     risky: true
   },
   釜: {
-    omen: STG_L("boiling hell cauldron", "죄인을 삶는 가마솥", "罪人煮る地獄釜", "烹罪地狱釜", "烹罪地獄釜"),
+    omen: STG_L("boiling hell cauldron", "죄인 삶는 가마솥", "罪人煮る地獄釜", "烹罪地狱釜", "烹罪地獄釜"),
     cards: ["火", "炎", "煎", "湯", "水", "油", "血", "毒", "蜜"],
     foes: ["妖", "亀", "蜂", "顎", "骸"],
     outcomes: [["battle", 55], ["event:rest", 25], ["event:quiz", 20]]
@@ -422,27 +422,27 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 11 (Kanken Jun-1: Beast King's Tomb) ---- */
   牢: {
-    omen: STG_L("blood-soaked beast cage", "맹수들의 피투성이 뇌옥", "獣の血牢", "猛兽血牢", "猛獸血牢"),
+    omen: STG_L("blood-soaked beast cage", "피투성이 짐승 뇌옥", "獣の血牢", "猛兽血牢", "猛獸血牢"),
     cards: ["牢", "槍", "斧", "鎧", "薙", "鎖", "鉄", "血", "火", "噛"],
     foes: ["狼", "豹", "猪", "獅", "兇"],
     outcomes: [["battle", 55], ["elite", 30], ["treasure", 15]],
     risky: true
   },
   砦: {
-    omen: STG_L("dragonfire bastion", "화염에 휩싸인 요새", "劫火の砦", "劫火壁垒", "劫火砦壘"),
+    omen: STG_L("dragonfire bastion", "화염 휩싸인 요새", "劫火の砦", "劫火壁垒", "劫火砦壘"),
     cards: ["焔", "火", "炎", "槍", "斧", "鎧", "薙", "轟", "閃", "穿"],
     foes: ["鷲", "狼", "獅", "兇", "龍"],
     outcomes: [["elite", 50], ["battle", 35], ["event:quiz", 15]],
     risky: true
   },
   祠: {
-    omen: STG_L("hungry beast shrine", "살점을 탐하는 사당", "肉を喰らう祠", "噬肉古祠", "噬肉古祠"),
+    omen: STG_L("hungry beast shrine", "살점 탐하는 사당", "肉を喰らう祠", "噬肉古祠", "噬肉古祠"),
     cards: ["呑", "噛", "喰", "血", "骨", "火", "呪", "杖", "焚"],
     foes: ["狐", "屍", "鰐", "鮫", "鳳"],
     outcomes: [["event:shrine", 45], ["battle", 40], ["event:quiz", 15]]
   },
   洲: {
-    omen: STG_L("blood-stained sandbar", "아귀들이 득실대는 물가", "顎門うごめく洲", "恶鳄沙洲", "惡鱷沙洲"),
+    omen: STG_L("blood-stained sandbar", "아귀 들끓는 물가", "顎門うごめく洲", "恶鳄沙洲", "惡鱷沙洲"),
     cards: ["水", "濡", "溢", "雫", "氷", "雷", "槍", "血", "噛", "呑"],
     foes: ["鰐", "鮫", "屍", "鷲", "鷹"],
     outcomes: [["battle", 65], ["event:well", 20], ["elite", 15]]
@@ -450,7 +450,7 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 12 (Kanken 1: The Abyss 奈落) ---- */
   罠: {
-    omen: STG_L("flesh-rending abyssal trap", "살가죽을 찢는 나락의 함정", "肉裂く奈落の罠", "裂肉深渊陷阱", "裂肉深淵陷阱"),
+    omen: STG_L("flesh-rending abyssal trap", "나락의 핏빛 함정", "肉裂く奈落の罠", "裂肉深渊陷阱", "裂肉深淵陷阱"),
     cards: ["罠", "毒", "針", "斬", "血", "火", "焔", "礫", "噬"],
     foes: ["蟲", "蠱", "蝮", "傀儡", "饕餮"],
     outcomes: [["battle", 50], ["elite", 35], ["event:quiz", 15]],
@@ -464,14 +464,14 @@ const STAGE_SIGNS = {
     risky: true
   },
   峙: {
-    omen: STG_L("monolith of the glutton god", "괴신이 도사린 절벽", "怪神聳える峙", "怪神耸立之巅", "怪神聳立之峙"),
+    omen: STG_L("monolith of the glutton god", "괴신 도사린 절벽", "怪神聳える峙", "怪神耸立之巅", "怪神聳立之峙"),
     cards: ["礫", "石", "岩", "雷", "焔", "殲", "咆", "睨", "噬", "抉"],
     foes: ["魃", "蛟", "魑", "傀儡", "饕餮"],
     outcomes: [["elite", 55], ["battle", 35], ["treasure", 10]],
     risky: true
   },
   澪: {
-    omen: STG_L("vein of black venom", "검은 독혈이 흐르는 수맥", "黒毒流れる澪", "黑毒水脉", "黑毒水脈"),
+    omen: STG_L("vein of black venom", "독혈 흐르는 수맥", "黒毒流れる澪", "黑毒水脉", "黑毒水脈"),
     cards: ["水", "淹", "滲", "毒", "氷", "血", "咒", "噬", "詛"],
     foes: ["蟲", "蠱", "巫", "魍", "蛟"],
     outcomes: [["battle", 55], ["event:quiz", 25], ["event:well", 20]]

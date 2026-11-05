@@ -176,7 +176,6 @@ function renderDepthSpine() {
       <div class="node-num village-seal">里</div>
       <div class="node-body">
         <div class="node-title">${escapeHtml(t("villageNodeTitle"))} <span class="node-gloss">${escapeHtml(t("villageNodeGloss"))}</span></div>
-        <div class="node-meta">故郷 · 燈火之里</div>
       </div>
       <div class="node-bosses">${npcsHtml}</div>
     `;
@@ -272,15 +271,16 @@ function openDepthEnterModal(did) {
     seal.className = "depth-modal-seal tier-edu";
     const zoneEl = $("dm-zone");
     zoneEl.textContent = pickLang({
-      EN: "HOMETOWN · 燈火之里",
-      KO: "고향 거점 · 燈火之里",
-      JA: "故郷の拠点 · 燈火之里",
-      ZH_CN: "故乡据点 · 灯火之里",
-      ZH_TW: "故鄉據點 · 燈火之里"
+      EN: "HOMETOWN",
+      KO: "고향 거점",
+      JA: "故郷の拠点",
+      ZH_CN: "故乡据点",
+      ZH_TW: "故鄉據點"
     });
     zoneEl.className = "depth-modal-zone tier-edu";
     $("dm-title").textContent = `【${t("villageNodeTitle")}】 — ${t("villageNodeGloss")}`;
-    $("dm-meta").textContent = "故郷 · 燈火之里";
+    $("dm-meta").textContent = "";
+    $("dm-meta").style.display = "none";
     $("dm-lore").textContent = pickLang({
       EN: "Broken roofs lie buried under black ash, and the characters on the village signposts have been gouged out as if clawed by unseen beasts. Through the suffocating fog, only a faint paper lantern sways in the distance.",
       KO: "오랜만에 돌아온 고향의 처마들은 검은 재에 파묻혀 있고, 어귀의 이정표와 현판은 누군가 후벼 판 듯 글자가 흉측하게 파여 나갔습니다. 숨 막히는 잿빛 안개 너머로 오직 꺼져가는 등불만이 희미하게 흔들리며 돌아온 이를 맞이합니다.",
@@ -347,6 +347,7 @@ function openDepthEnterModal(did) {
   zoneEl.className = `depth-modal-zone tier-${tier}`;
 
   $("dm-title").textContent = `【${depthName(did)}】 — ${depthGloss(did)}`;
+  $("dm-meta").style.display = "";
   $("dm-meta").textContent = `${kankenLabel(did)} · ${(d ? d.count : 0).toLocaleString()}字`;
   $("dm-lore").textContent = typeof depthLore === "function" ? depthLore(did) : "";
   $("dm-lore").classList.remove("warn-step");

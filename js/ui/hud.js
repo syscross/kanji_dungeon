@@ -96,12 +96,14 @@ function updateBattleHUD(animateCards = false) {
   if (state.depthId !== "depth_0" && !KANKEN_DATA[state.depthId]) return;
   if (state.depthId === "depth_0") {
     $("b-depth-title").textContent = t("villageNodeTitle");
-    $("b-depth-title").title = `${t("villageNodeGloss")} · 故郷`;
-    $("b-step").textContent = "故郷";
+    $("b-depth-title").title = t("villageNodeGloss");
+    $("b-step").textContent = "";
+    $("b-step").style.display = "none";
     $("b-kills").textContent = `📿 ${(config.story && config.story.specialItems ? config.story.specialItems.length : 0)}`;
   } else {
     $("b-depth-title").textContent = depthName(state.depthId);
     $("b-depth-title").title = `${depthGloss(state.depthId)} · ${kankenLabel(state.depthId)} · ${config.instMode}`;
+    $("b-step").style.display = "";
     $("b-step").textContent = `${Math.max(1, state.step)}/${PATH_STEPS}`;
     $("b-kills").textContent = `⚔ ${state.kills}`;
   }
@@ -287,11 +289,36 @@ function clearGmLog(toast = true) {
 function setDockActions(buttons) {
   const box = $("b-dock-action");
   box.innerHTML = "";
-  buttons.forEach(({ label, html, onClick, gold, cls }) => {
+  const forkCount = buttons.filter(b => b && b.cls && b.cls.includes("fork-tile")).length;
+  box.classList.toggle("fork-grid-4", forkCount === 4);
+  buttons.forEach(({ label, right, html, onClick, gold, cls }) => {
     const b = document.createElement("button");
     b.className = `btn${gold ? " btn-gold" : ""}${cls ? ` ${cls}` : ""}`;
-    if (html) b.innerHTML = html;
-    else b.textContent = label;
+    if (html) {
+      b.innerHTML = html;
+    } else {
+      let mainTxt = String(label || "");
+      let rightTxt = right ? String(right) : "";
+      if (!rightTxt) {
+        const yenMatch = mainTxt.match(/^(.*?)\s*·\s*([+-]?[\d,]+\s*円)$/);
+        if (yenMatch) {
+          mainTxt = yenMatch[1];
+          rightTxt = yenMatch[2];
+        } else if (mainTxt.includes(" — ")) {
+          const parts = mainTxt.split(" — ");
+          mainTxt = parts[0].trim();
+          rightTxt = parts.slice(1).join(" · ").trim();
+        }
+      }
+      if (rightTxt) {
+        b.classList.add("btn-split");
+        b.innerHTML =
+          `<span class="btn-label-main">${escapeHtml(mainTxt)}</span>` +
+          `<span class="btn-label-right">${escapeHtml(rightTxt)}</span>`;
+      } else {
+        b.textContent = mainTxt;
+      }
+    }
     b.onclick = onClick;
     box.appendChild(b);
   });
