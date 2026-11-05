@@ -209,12 +209,12 @@ const EVENTS = {
             "차가운 제단. 향은 오래전에 꺼졌지만 정적만은 아직 남아 있다.",
             "冷えた祭壇。香はとうに燃え尽きたが、静けさだけが残っている。"),
     options: [
-      { label: EVT_L("Rest — recover 30% of max HP", "쉰다 — 최대 HP의 30% 회복", "休む — 最大HPの30%回復"), effects: [{ healPct: 30 }] },
-      { label: EVT_L("Search the temple grounds — scavenge stage kanji", "경내를 탐사한다 — 주변 스테이지 한자 갈무리", "境内を探索する — 周囲のステージ漢字を回収"), effects: [{ scavenge: 4 }] },
-      { label: EVT_L("Inscribe a compound — combine 2 kanji in your bag", "제단에 합자(合字)를 새긴다 — 챙긴 두 글자를 하나로 합체", "祭壇に合字を刻む — 袋の二字を一つに合成"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
-      { label: EVT_L("Feed the brazier — burn a kanji from your bag", "화로에 넣는다 — 챙긴 글자 하나를 태운다", "火鉢にくべる — 袋の字を一つ焼く"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 },
-      { label: EVT_L("Pray — summon cost back to 10, 1 free reroll", "기도한다 — 소환 비용 10, 무료 리롤 1", "祈る — 召喚コスト10、無料引き直し1"), effects: [{ summonReset: true }, { tokens: 1 }] },
-      { label: EVT_L("【帰】 Return from this Gaol (keep bag & run)", "【帰】 옥문 밖으로 귀환 — 가방과 원정 기록을 유지한 채 퇴각", "【帰】 獄門の外へ帰還 — 所持漢字と探索を維持して退く"), effects: [{ returnGaol: true }] }
+      { label: EVT_L("Rest — heal 30% Max HP", "휴식 — 최대 HP 30% 회복", "休む — 最大HP30%回復"), effects: [{ healPct: 30 }] },
+      { label: EVT_L("Explore — claim stage kanji", "경내 탐사 — 스테이지 한자 획득", "境内探索 — ステージ漢字を獲得"), effects: [{ scavenge: 4 }] },
+      { label: EVT_L("Fuse — combine 2 bag kanji", "합자 각인 — 한자 2장 합체", "合字刻印 — 漢字2枚を合体"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
+      { label: EVT_L("Burn — discard 1 bag kanji", "화로 소각 — 한자 1장 버리기", "火鉢で焼く — 漢字を1枚捨てる"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 },
+      { label: EVT_L("Pray — Free God +1 · Free Reroll +1", "기도 — 무료 고신 +1 · 무료 리롤 +1", "祈る — 無料古神+1・無料引き直し+1"), effects: [{ freeSummons: 1 }, { tokens: 1 }] },
+      { label: EVT_L("【帰】 Return from Gaol (keep run)", "【帰】 옥문 귀환 (원정 유지)", "【帰】 獄門帰還 (探索維持)"), effects: [{ returnGaol: true }] }
     ]
   },
   forge: {
@@ -224,9 +224,9 @@ const EVENTS = {
             "푸른 불길이 쇠모루를 핥고 있다. 가방에 있는 두 장의 한자 패를 함께 달구면 하나의 합체 한자로 직접 벼려낼 수 있다.",
             "青い炎が鉄床を舐めている。袋にある二つの札を共に鍛えれば、一つの合字札へと自ら打ち直せそうだ。"),
     options: [
-      { label: EVT_L("Forge a compound — combine 2 kanji from your bag", "합체 연성 — 가방의 두 글자를 직접 골라 하나로 합친다", "熟語錬成 — 袋の二字を選んで一つに合わせる"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
-      { label: EVT_L("Draw from the embers — pick a kanji & 1 free reroll", "불씨에서 글자를 건진다 — 글자 선택 + 무료 리롤 1", "火種から字を拾う — 字を選択 + 無料引き直し1"), effects: [{ addCard: "pick", choices: 4 }, { tokens: 1 }] },
-      { label: EVT_L("Warm your hands — recover 15 HP", "손을 녹인다 — HP +15 회복", "手を温める — HP +15回復"), effects: [{ hp: 15 }] }
+      { label: EVT_L("Fuse — combine 2 bag kanji", "합자 연성 — 한자 2장 합체", "熟語錬成 — 漢字2枚を合体"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
+      { label: EVT_L("Embers — pick kanji · Free Reroll +1", "불씨 탐색 — 한자 선택 · 무료 리롤 +1", "火種を探る — 漢字選択・無料引き直し+1"), effects: [{ addCard: "pick", choices: 4 }, { tokens: 1 }] },
+      { label: EVT_L("Warm hands — HP +15", "온기 쬐기 — HP +15", "手を温める — HP +15"), effects: [{ hp: 15 }] }
     ]
   },
   shrine: {
@@ -236,9 +236,9 @@ const EVENTS = {
             "작은 사당. 돌로 된 얼굴이 웃고 있다. 입가가 젖어 있다.",
             "小さな祠。石の顔が笑っている。口元が濡れている。"),
     options: [
-      { label: EVT_L("Offer blood (−10 HP) — receive a kanji", "피를 바친다 (−10 HP) — 글자를 받는다", "血を捧げる (−10 HP) — 字を授かる"), effects: [{ hp: -10 }, { addCard: "pick", choices: 4 }] },
-      { label: EVT_L("Fuse on theoffering stone — combine 2 bag kanji", "공양석에 글자를 겹친다 — 가방의 두 글자를 하나로 합체", "供養石に字を重ねる — 袋の二字を一つに合成"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
-      { label: EVT_L("Pray — it may bless you, or bite", "기도한다 — 축복일 수도, 저주일 수도", "祈る — 祝福か、祟りか"),
+      { label: EVT_L("Offer blood (−10 HP) — pick kanji", "헌혈 (−10 HP) — 한자 선택", "血を捧げる (−10 HP) — 漢字選択"), effects: [{ hp: -10 }, { addCard: "pick", choices: 4 }] },
+      { label: EVT_L("Fuse — combine 2 bag kanji", "공양석 합자 — 한자 2장 합체", "供養石合字 — 漢字2枚を合体"), effects: [{ fuse: true }], when: s => s.deck.length >= 2 },
+      { label: EVT_L("Pray — blessing or curse", "기도 — 축복 혹은 저주", "祈る — 祝福か祟りか"),
         effects: [{ chance: 0.5, win: [{ maxHp: 6 }], lose: [{ hp: -8 }] }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
@@ -252,8 +252,8 @@ const EVENTS = {
     options: [
       { label: EVT_L("Drink", "마신다", "飲む"),
         effects: [{ chance: 0.6, win: [{ hp: 20 }], lose: [{ say: EVT_L("The water is foul.", "썩은 물이었다.", "腐った水だった。") }, { hp: -10 }] }] },
-      { label: EVT_L("Throw a kanji in — Max HP +6", "챙긴 글자 하나를 던진다 — 최대 HP +6", "字を一つ投げ込む — 最大HP +6"), effects: [{ burn: "pick", then: [{ maxHp: 6 }] }], when: s => s.deck.length > 0 },
-      { label: EVT_L("Search around the well — scavenge stage kanji", "우물가를 수색한다 — 주변 스테이지 한자 갈무리", "井戸の周りを探る — 周囲のステージ漢字を回収"), effects: [{ scavenge: 4 }] },
+      { label: EVT_L("Toss 1 kanji — Max HP +6", "한자 1장 투하 — 최대 HP +6", "漢字1枚投下 — 最大HP +6"), effects: [{ burn: "pick", then: [{ maxHp: 6 }] }], when: s => s.deck.length > 0 },
+      { label: EVT_L("Search well — claim stage kanji", "우물가 수색 — 스테이지 한자 획득", "井戸を調べる — ステージ漢字を獲得"), effects: [{ scavenge: 4 }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
@@ -266,7 +266,7 @@ const EVENTS = {
     options: [
       { label: EVT_L("Breathe it in", "향을 들이마신다", "香りを吸い込む"),
         effects: [{ chance: 0.55, win: [{ hp: 25 }], lose: [{ say: EVT_L("It was a mouth.", "그건 입이었다.", "それは口だった。") }, { battle: "normal" }] }] },
-      { label: EVT_L("Pluck it — add 花 to your bag", "꺾는다 — 가방에 花를 챙긴다", "摘む — 花を袋に加える"), effects: [{ hp: -5 }, { addCard: "花" }] },
+      { label: EVT_L("Pluck (−5 HP) — gain 【花】", "꺾는다 (−5 HP) — 【花】 획득", "摘む (−5 HP) — 【花】を獲得"), effects: [{ hp: -5 }, { addCard: "花" }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
@@ -279,7 +279,7 @@ const EVENTS = {
             "壁にもたれた血塗れの人影が荒い息を吐く。「くっ…袋に治癒や薬草、水にまつわる札を持ってはいないか…？」"),
     options: [
       {
-        label: EVT_L("✨ Offer a healing/water/herb talisman — Max HP +14 & HP +25", "✨ 회생의 부적을 건넨다 (가방의 글자 1장 공양) — 최대 HP +14 · HP +25", "✨ 回生の札を渡す (袋の字を1枚供養) — 最大HP +14・HP +25"),
+        label: EVT_L("✨ Offer healing kanji — Max HP +14 · HP +25", "✨ 회생 부적 건네기 — 최대 HP +14 · HP +25", "✨ 回生札を渡す — 最大HP+14・HP+25"),
         effects: [{
           burn: "pick",
           then: [
@@ -291,7 +291,7 @@ const EVENTS = {
         }],
         when: s => s.deck.some(k => /[薬医水草命活癒回茶救生泉露]/.test(k))
       },
-      { label: EVT_L("Step closer to check their belongings", "다가가서 상태와 유류품을 살핀다", "歩み寄って様子と遺品を確かめる"),
+      { label: EVT_L("Check their belongings", "다가가서 살핀다", "歩み寄って調べる"),
         effects: [{ chance: 0.6, win: [{ say: EVT_L("They press a talisman into your palm before fading away.", "그 자는 고맙다며 품속의 한자 패를 건네고 안개 속으로 사라졌다.", "その者は礼を言って懐の札を渡し、霧の中へと消えた。") }, { addCard: "pick", choices: 3 }], lose: [{ say: EVT_L("It was a trap — their eyes flip crimson and they lunge!", "함정이었다 — 죽어가는 척하던 자의 눈이 핏빛으로 뒤집히며 덮쳐온다!", "罠だった — 死にかけを装っていた者の目が紅く染まり襲いかかる！") }, { ambushNpc: true }] }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
@@ -305,7 +305,7 @@ const EVENTS = {
             "深い霧の中から一人の人影が歩み出て静かに声をかけてくる。味方か、人の皮を被った敵かはまだ分からない。"),
     options: [
       {
-        label: EVT_L("Talk with them and ask the way ahead", "대화를 나누며 앞길의 기척을 묻는다", "言葉を交わして先の気配を尋ねる"),
+        label: EVT_L("Talk with them", "대화를 나눈다", "言葉を交わす"),
         effects: [{
           chance: 0.62,
           win: [
@@ -321,7 +321,7 @@ const EVENTS = {
         }]
       },
       {
-        label: EVT_L("Trade 1 kanji from your bag — Max HP +8 & pick a new kanji", "가방의 글자 1장을 건네고 비전을 교환한다 — 최대 HP +8 · 글자 선택", "袋の字を1枚渡して秘伝と交換する — 最大HP +8・字を選択"),
+        label: EVT_L("Trade 1 kanji — Max HP +8 · pick kanji", "한자 1장 교환 — 최대 HP +8 · 한자 선택", "漢字1枚交換 — 最大HP+8・漢字選択"),
         effects: [{
           burn: "pick",
           then: [
@@ -333,7 +333,7 @@ const EVENTS = {
         when: s => s.deck.length > 0
       },
       {
-        label: EVT_L("Leave without a word", "모른 척 그냥 지나간다", "関わらずに通り過ぎる"),
+        label: EVT_L("Leave", "지나간다", "立ち去る"),
         effects: []
       }
     ]
@@ -346,8 +346,8 @@ const EVENTS = {
             "床がざわめく。無数の影が一斉にこちらへ迫る。"),
     options: [
       { label: EVT_L("Fight", "싸운다", "戦う"), effects: [{ battle: "normal" }] },
-      { label: EVT_L("Run through it (−10 HP)", "뚫고 달린다 (−10 HP)", "突っ切る (−10 HP)"), effects: [{ hp: -10 }] },
-      { label: EVT_L("Toss a chosen kanji as bait", "글자 하나를 골라 미끼로 던진다", "字を選んで囮にする"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 }
+      { label: EVT_L("Run through (−10 HP)", "뚫고 달린다 (−10 HP)", "突っ切る (−10 HP)"), effects: [{ hp: -10 }] },
+      { label: EVT_L("Toss 1 kanji as bait", "한자 1장 미끼로 던지기", "漢字1枚を囮にする"), effects: [{ burn: "pick" }], when: s => s.deck.length > 0 }
     ]
   },
   dice: {
@@ -358,9 +358,9 @@ const EVENTS = {
             "히죽 웃는 자가 뼈 주사위를 흔든다. \"네 피와 내 운을 바꾸지 않겠나?\"",
             "にやつく者が骨の賽を鳴らす。「お前の血と俺の運、賭けないか?」"),
     options: [
-      { label: EVT_L("Bet 15 HP — win: Max HP +12", "15 HP를 건다 — 이기면 최대 HP +12", "15 HPを賭ける — 勝てば最大HP +12"),
+      { label: EVT_L("Bet 15 HP — win: Max HP +12", "15 HP 내기 — 승리 시 최대 HP +12", "15 HP賭け — 勝てば最大HP +12"),
         effects: [{ hp: -15 }, { chance: 0.5, win: [{ maxHp: 12 }, { hp: 12 }], lose: [] }] },
-      { label: EVT_L("Wager 8 HP — win: 3 free rerolls & a kanji", "8 HP를 건다 — 이기면 무료 리롤 3 + 글자 획득", "8 HPを賭ける — 勝てば無料引き直し3 + 字を獲得"),
+      { label: EVT_L("Bet 8 HP — win: Reroll +3 · kanji", "8 HP 내기 — 승리 시 리롤 +3 · 한자 선택", "8 HP賭け — 勝てば引き直し+3・漢字"),
         effects: [{ hp: -8 }, { chance: 0.55, win: [{ tokens: 3 }, { addCard: "pick", choices: 3 }], lose: [] }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
@@ -372,8 +372,8 @@ const EVENTS = {
             "거울 속의 내가 한 박자 늦게 움직인다. 손에 글자를 쥐고 있다.",
             "鏡の自分が一拍遅れて動く。手に字を握っている。"),
     options: [
-      { label: EVT_L("Reach in (Max HP −6) — copy a kanji", "손을 넣는다 (최대 HP −6) — 글자 복제", "手を入れる (最大HP −6) — 字を写す"), effects: [{ dup: "pick", then: [{ maxHp: -6 }] }], when: s => s.deck.length > 0 },
-      { label: EVT_L("Shatter it (−6 HP) — take a shard (鏡) & reset summon", "깨뜨린다 (−6 HP) — 거울 조각(鏡)을 챙기고 소환 비용 10으로", "割る (−6 HP) — 鏡の欠片を拾い召喚コスト10に"), effects: [{ hp: -6 }, { addCard: "鏡" }, { summonReset: true }] },
+      { label: EVT_L("Reach in (Max HP −6) — copy kanji", "손을 넣는다 (최대 HP −6) — 한자 복제", "手を入れる (最大HP −6) — 漢字複製"), effects: [{ dup: "pick", then: [{ maxHp: -6 }] }], when: s => s.deck.length > 0 },
+      { label: EVT_L("Shatter (−6 HP) — 【鏡】 · Free God +1", "깨뜨린다 (−6 HP) — 【鏡】 · 무료 고신 +1", "割る (−6 HP) — 【鏡】・無料古神+1"), effects: [{ hp: -6 }, { addCard: "鏡" }, { freeSummons: 1 }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
@@ -384,9 +384,34 @@ const EVENTS = {
             "종이 등롱 하나. 안에 든 기름에서 피 냄새가 난다.",
             "紙の提灯。中の油は血の匂いがする。"),
     options: [
-      { label: EVT_L("Light it with blood (−6 HP) — see the next fork", "피로 불을 켠다 (−6 HP) — 다음 갈림길을 본다", "血で灯す (−6 HP) — 次の分かれ道を見る"), effects: [{ hp: -6 }, { reveal: true }] },
-      { label: EVT_L("Illuminate surroundings — scavenge stage kanji", "불빛으로 주변을 탐사한다 — 스테이지 한자 갈무리", "灯りで周囲を照らす — ステージ漢字を回収"), effects: [{ scavenge: 4 }] },
-      { label: EVT_L("Take the lantern — add 灯 & 1 free reroll", "등롱을 챙긴다 — 灯 획득 + 무료 리롤 1", "提灯を持ち去る — 灯を獲得 + 無料引き直し1"), effects: [{ addCard: "灯" }, { tokens: 1 }] },
+      { label: EVT_L("Light with blood (−6 HP) — reveal fork", "피로 점화 (−6 HP) — 다음 갈림길 공개", "血で灯す (−6 HP) — 次の分かれ道を見る"), effects: [{ hp: -6 }, { reveal: true }] },
+      { label: EVT_L("Search around — claim stage kanji", "불빛 수색 — 스테이지 한자 획득", "周囲を照らす — ステージ漢字を獲得"), effects: [{ scavenge: 4 }] },
+      { label: EVT_L("Take lantern — 【灯】 · Free Reroll +1", "등롱 챙기기 — 【灯】 · 무료 리롤 +1", "持ち去る — 【灯】・無料引き直し+1"), effects: [{ addCard: "灯" }, { tokens: 1 }] },
+      { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
+    ]
+  },
+  cat_rescue: {
+    kanji: "猫",
+    title: EVT_L("Stray Cat in the Mist", "안개 속에 갇힌 고양이", "霧に囚われた迷い猫"),
+    text: EVT_L(
+      "A small cat 【猫】 trembles inside a tangle of cursed thorns, mewing weakly. If you break the thorns with your bare hands, you can send it safely back to your Village home.",
+      "저주받은 가시덤불 속에 작은 고양이【猫】 한 마리가 갇혀 가냘프게 울고 있다. 맨손으로 가시를 헤치면 다치겠지만, 구출해서 마을의 집으로 돌려보낼 수 있을 것 같다.",
+      "呪われた茨の茂みの中に小さな猫【猫】が閉じ込められ、か細く鳴いている。素手で茨を払えば傷を負うが、救い出して里の家へ帰してやれそうだ。"
+    ),
+    options: [
+      {
+        label: EVT_L("🐱 Rescue 【猫】 (−8 HP) — Send to Village & Max HP +15", "🐱 【猫】 구출 (−8 HP) — 마을로 보호 · 최대 HP +15", "🐱 【猫】を救出 (−8 HP) — 里へ保護・最大HP+15"),
+        effects: [
+          { hp: -8 },
+          { maxHp: 15 },
+          { hp: 15 },
+          { rescueCat: true }
+        ]
+      },
+      {
+        label: EVT_L("Feed rations — Free Reroll +2 · claim stage kanji", "먹이 주기 — 무료 리롤 +2 · 스테이지 한자 획득", "餌を分ける — 無料引き直し+2・ステージ漢字獲得"),
+        effects: [{ tokens: 2 }, { scavenge: 4 }]
+      },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   }

@@ -8,7 +8,8 @@ const HAND_SIZE = 5;
 const STARTING_DECK_SIZE = 0; // Runs start empty-handed; stage cards supply the initial fight
 const STARTING_MAX_HP = 100;
 const REROLL_HP_COST = 5;
-const SUMMON_COST_STEP = 10;
+const SUMMON_HP_COST = 10;
+const SUMMON_COST_STEP = 0;
 
 const VERDICTS = ["FIZZLE", "WEAK", "SOLID", "CLEVER", "MASTERFUL"];
 const VERDICT_LABELS = {

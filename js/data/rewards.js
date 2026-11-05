@@ -23,30 +23,29 @@ const REWARDS = {
   },
   summon: {
     kanji: "召",
-    params: { normal: {}, elite: {} },
-    when: s => s.summonCost > 10,
+    params: { normal: { n: 1 }, elite: { n: 2 } },
     label: {
-      EN: () => "Appease — summon cost back to 10", KO: () => "진혼 — 소환 비용 10으로", JA: () => "鎮魂 — 召喚コストを10に",
-      ZH_CN: () => "镇魂 — 召唤消耗回到 10", ZH_TW: () => "鎮魂 — 召喚消耗回到 10"
+      EN: p => `Summon — Free God +${p.n}`, KO: p => `강림 — 무료 고신 +${p.n}`, JA: p => `降臨 — 無料古神 +${p.n}`,
+      ZH_CN: p => `降临 — 免费古神 +${p.n}`, ZH_TW: p => `降臨 — 免費古神 +${p.n}`
     }
   },
   tokens: {
     kanji: "替",
     params: { normal: { n: 2 }, elite: { n: 3 } },
     label: {
-      EN: p => `Shuffle — ${p.n} free rerolls`, KO: p => `교체 — 무료 리롤 ${p.n}회`, JA: p => `交替 — 無料引き直し${p.n}回`,
-      ZH_CN: p => `交替 — 免费重抽 ${p.n} 次`, ZH_TW: p => `交替 — 免費重抽 ${p.n} 次`
+      EN: p => `Shuffle — Free Reroll +${p.n}`, KO: p => `교체 — 무료 리롤 +${p.n}`, JA: p => `交替 — 無料引き直し +${p.n}`,
+      ZH_CN: p => `交替 — 免费重抽 +${p.n}`, ZH_TW: p => `交替 — 免費重抽 +${p.n}`
     }
   },
   card: {
     kanji: "探",
     params: { normal: { choices: 5 }, elite: { choices: 5 } },
     label: {
-      EN: p => `Explore Stage — scavenge stage kanji (up to ${p.choices})`,
-      KO: p => `주변 추가 탐사 — 스테이지 한자 갈무리 (최대 ${p.choices}장)`,
-      JA: p => `周辺探索 — ステージ漢字を追加回収 (最大${p.choices}枚)`,
-      ZH_CN: p => `探索四周 — 拾取场地汉字 (最多 ${p.choices})`,
-      ZH_TW: p => `探索四周 — 拾取場地漢字 (最多 ${p.choices})`
+      EN: () => "Explore — claim stage kanji",
+      KO: () => "탐사 — 스테이지 한자 획득",
+      JA: () => "探索 — ステージ漢字を獲得",
+      ZH_CN: () => "探索 — 获取场地汉字",
+      ZH_TW: () => "探索 — 獲取場地漢字"
     }
   },
   burn: {
@@ -54,8 +53,8 @@ const REWARDS = {
     params: { normal: {}, elite: {} },
     when: s => s.deck.length > 0,
     label: {
-      EN: () => "Burn — remove a kanji from your bag", KO: () => "소각 — 챙긴 글자 하나 버리기", JA: () => "焚書 — 袋から字を一つ捨てる",
-      ZH_CN: () => "焚字 — 从行囊移除一个字", ZH_TW: () => "焚字 — 從行囊移除一個字"
+      EN: () => "Burn — discard 1 kanji", KO: () => "소각 — 한자 1장 버리기", JA: () => "焚書 — 漢字を1枚捨てる",
+      ZH_CN: () => "焚字 — 舍弃 1 张汉字", ZH_TW: () => "焚字 — 捨棄 1 張漢字"
     }
   },
   fuse: {
@@ -63,8 +62,8 @@ const REWARDS = {
     params: { normal: {}, elite: {} },
     when: s => s.deck.length >= 2,
     label: {
-      EN: () => "Fuse — combine 2 kanji in your bag into 1", KO: () => "합자(合字) — 챙긴 두 글자를 직접 합치기", JA: () => "合字 — 袋の二字を直接一つに合わせる",
-      ZH_CN: () => "合字 — 将行囊中的两个字合二为一", ZH_TW: () => "合字 — 將行囊中的兩個字合二為一"
+      EN: () => "Fuse — combine 2 kanji", KO: () => "합자 — 한자 2장 합체", JA: () => "合字 — 漢字2枚を合体",
+      ZH_CN: () => "合字 — 合并 2 张汉字", ZH_TW: () => "合字 — 合併 2 張漢字"
     }
   }
 };

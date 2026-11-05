@@ -23,7 +23,7 @@ I18N.ZH_CN = {
   hintChip: "💡 提示",
   rerollChip: "🎲 重抽 −5",
   promptChip: "❓ 提问",
-  summonChip: "🐉 召唤古神",
+  summonChip: "🐉 古神 −10",
   inputPlaceholder: "点击卡牌或输入行动…",
   castBtn: "⚔ 施放",
   settingsTitle: "【设置】",
@@ -141,7 +141,8 @@ I18N.ZH_CN = {
   fxDamage: (n) => `HP −${n}`,
   fxMaxHp: (n) => `最大 HP +${n}`,
   fxMaxHpDown: (n) => `最大 HP −${n}`,
-  fxSummonReset: "召唤消耗重置为 10",
+  fxSummonReset: "免费古神 +1",
+  fxFreeSummons: (n) => `免费古神 +${n}`,
   fxTokens: (n) => `免费重抽 +${n}`,
   fxCardAdd: (k) => `【${k}】 加入牌组`,
   fxCardBurn: (k) => `【${k}】 移出牌组`,
@@ -151,6 +152,13 @@ I18N.ZH_CN = {
   fxLuckWin: "成功",
   fxLuckLose: "失败",
   rerollChipFree: (n) => `🎲 重抽 · 免费${n}`,
+  summonChipFree: (n) => `🐉 古神 · 免费${n}`,
   offlineTag: "离线",
-  dClearDesc: (d) => `活着走出${d}。`
+  dClearDesc: (d) => `活着走出${d}。`,
+  playStoryGame: "🏮 故事模式",
+  resumeStoryGame: "🏮 继续故事",
+  exitStoryRun: "🕯 放弃当前故事探索",
+  playArcadeGame: "⚔ 街机模式",
+  resumeArcadeGame: "⚔ 继续街机"
 };
+

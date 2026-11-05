@@ -167,8 +167,33 @@ function handleBrandClick() {
   else transitionToView("title");
 }
 
+function promptExitStoryGame() {
+  playClickSfx();
+  if (!hasActiveStoryDungeonRun()) return;
+  openConfirmModal(t("abandonModalTitle"), t("abandonStoryModalDesc"), () => {
+    const storyRun = (state.active && state.gameMode === "story") ? state : getSavedStoryRun();
+    if (storyRun) {
+      state = { ...createRunState(), ...storyRun, gameMode: "story" };
+    }
+    if (typeof playSealStampSfx === "function") playSealStampSfx();
+    else playGongSfx();
+    if (typeof resolveStoryDeathOrAbandonBag === "function") {
+      resolveStoryDeathOrAbandonBag();
+    }
+    state.phase = "abandoned";
+    state.active = false;
+    clearSavedRun("story");
+    if (currentView === "select") renderDepthSpine();
+    showToast(t("toastRunEnded"));
+  });
+}
+
 function promptExitGame() {
-  if (!hasActiveRun()) return;
+  if (!hasActiveArcadeRun()) return;
+  const arcadeRun = (state.active && state.gameMode === "arcade") ? state : getSavedArcadeRun();
+  if (arcadeRun) {
+    state = { ...createRunState(), ...arcadeRun, gameMode: "arcade" };
+  }
   if (state.hasClearedBoss || state.phase === "cleared") {
     finishExpeditionFromClear();
     return;
@@ -198,14 +223,14 @@ function promptExitGame() {
   }
   state.phase = "abandoned";
   state.deck = [];
-  clearSavedRun();
+  clearSavedRun("arcade");
   if (currentView === "select") renderDepthSpine();
   showToast(t("toastRunEnded"));
 }
 
 function promptExitFromSelect() {
   playClickSfx();
-  if (!hasActiveRun()) return;
+  if (!hasActiveArcadeRun()) return;
   if (state.hasClearedBoss || state.phase === "cleared") {
     finishExpeditionFromClear();
     return;
@@ -214,4 +239,5 @@ function promptExitFromSelect() {
     promptExitGame();
   });
 }
+
 

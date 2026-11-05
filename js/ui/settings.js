@@ -102,16 +102,18 @@ function exportSaveData() {
   playClickSfx();
   const payload = {
     app: "KANJI_DUNGEON",
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     achievements: config.achievements || {},
     seenFoes: config.seenFoes || {},
     stats: config.stats || { kills: 0, flawless: 0, maxStreak: 0, summons: 0 },
     records: config.records || {},
+    story: config.story || createDefaultStoryState(),
     instMode: config.instMode || "Default",
     customInst: config.customInst || "",
     lang: config.lang || "KO",
-    savedRun: readJson(STORAGE.savedRun, null)
+    savedRun: readJson(STORAGE.savedRun, null),
+    savedStoryRun: readJson(STORAGE.savedStoryRun, null)
   };
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: "application/json;charset=utf-8" });
@@ -144,7 +146,7 @@ function handleImportSaveFile(event) {
   reader.onload = () => {
     try {
       const data = JSON.parse(String(reader.result || ""));
-      if (!data || typeof data !== "object" || (data.app && data.app !== "KANJI_DUNGEON" && !data.achievements && !data.records && !data.savedRun)) {
+      if (!data || typeof data !== "object" || (data.app && data.app !== "KANJI_DUNGEON" && !data.achievements && !data.records && !data.savedRun && !data.story)) {
         throw new Error("Invalid format");
       }
       if (data.achievements && typeof data.achievements === "object") {
@@ -164,24 +166,33 @@ function handleImportSaveFile(event) {
       if (data.records && typeof data.records === "object") {
         config.records = data.records;
       }
+      if (data.story && typeof data.story === "object") {
+        config.story = { ...createDefaultStoryState(), ...data.story };
+      }
       if (typeof data.instMode === "string") config.instMode = data.instMode;
       if (typeof data.customInst === "string") config.customInst = data.customInst;
       if (typeof data.lang === "string" && I18N[data.lang]) config.lang = data.lang;
 
       persistConfig();
-      persistProgress();
+      persistAchievements();
+      persistSeenFoes();
+      persistStats();
+      persistRecords();
+      persistStoryState();
 
-      if (data.savedRun && typeof data.savedRun === "object" && data.savedRun.active && KANKEN_DATA[data.savedRun.depthId]) {
-        Object.assign(state, newRunState(), data.savedRun);
-        if (typeof isPureKanjiCard === "function" && Array.isArray(state.deck)) {
-          state.deck = state.deck.filter(k => isPureKanjiCard(k));
-        }
-        saveRunToStorage();
-      } else if ("savedRun" in data && !data.savedRun) {
-        state.active = false;
-        clearSavedRun();
+      if (data.savedStoryRun && typeof data.savedStoryRun === "object") {
+        localStorage.setItem(STORAGE.savedStoryRun, JSON.stringify(data.savedStoryRun));
+      } else if ("savedStoryRun" in data && !data.savedStoryRun) {
+        localStorage.removeItem(STORAGE.savedStoryRun);
       }
 
+      if (data.savedRun && typeof data.savedRun === "object" && data.savedRun.active && KANKEN_DATA[data.savedRun.depthId]) {
+        localStorage.setItem(STORAGE.savedRun, JSON.stringify(data.savedRun));
+      } else if ("savedRun" in data && !data.savedRun) {
+        localStorage.removeItem(STORAGE.savedRun);
+      }
+
+      loadSavedRunFromStorage();
       syncSettingsUI();
       applyLocalization();
       updateSavedRunBanner();

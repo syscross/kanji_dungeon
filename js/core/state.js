@@ -13,7 +13,9 @@ const STORAGE = {
   seenFoes: "kd_seen_foes",
   stats: "kd_stats",
   records: "kd_records",
-  savedRun: "kd_saved_run"
+  savedRun: "kd_saved_run",
+  savedStoryRun: "kd_saved_story_run",
+  storyState: "kd_story_state"
 };
 
 const RUN_VERSION = 3; // bump when the saved-run shape changes; older saves are discarded
@@ -29,6 +31,29 @@ function readJson(key, fallback) {
 
 let KANKEN_DATA = {};
 let currentView = "title";
+let activeGameMode = "arcade"; // "story" | "arcade"
+
+function createDefaultStoryState() {
+  return {
+    started: false,
+    unlockedDepth: 1,
+    yen: 120,
+    deck: [],
+    specialItems: [],
+    defeatedFoes: [],
+    defeatedBosses: [],
+    encounteredFoes: [],
+    gaolBosses: {},
+    humanEndingSeen: false,
+    shuraEndingSeen: false,
+    visitedDepth11: false,
+    visitedDepth12: false,
+    catRescued: false,
+    catBlessedNextRun: false,
+    friendGiftClaimed: false,
+    villageVisits: 0
+  };
+}
 
 let savedKeys = readJson(STORAGE.keys, {});
 // Migrate the pre-multi-provider single key (it was always a Gemini key).
@@ -52,17 +77,19 @@ let config = {
   achievements: readJson(STORAGE.achievements, {}),
   seenFoes: readJson(STORAGE.seenFoes, {}),
   stats: readJson(STORAGE.stats, { kills: 0, runs: 0 }),
-  records: readJson(STORAGE.records, {})
+  records: readJson(STORAGE.records, {}),
+  story: { ...createDefaultStoryState(), ...readJson(STORAGE.storyState, {}) }
 };
 
 /*
- * One descent. Each run is completely isolated and starts empty-handed (`deck: []`).
+ * One descent.
  * `phase` drives what the screen shows:
  *   path ↔ battle → reward | event → boss battle → cleared | dead
  */
 function createRunState() {
   return {
     v: RUN_VERSION,
+    gameMode: activeGameMode || "arcade",
     active: false,
     depthId: "depth_1",
     runNo: 0,
@@ -90,7 +117,8 @@ function createRunState() {
     maxHp: 100,
     playerHp: 100,
     rerollTokens: 1,         // start with 1 free reroll token
-    summonCost: 10,          // escalates for the whole descent; spoils / shrines reset it
+    freeSummons: 0,          // free Ancient God summon tokens
+    summonCost: 10,          // fixed at 10 HP per summon
 
     runBoss: "",             // the boss assigned to this run
     bossEncountered: false,  // true once the player has laid eyes on runBoss this run
@@ -123,6 +151,15 @@ function createRunState() {
 
 let state = createRunState();
 
+function isStoryMode() {
+  return (state && state.active ? state.gameMode : activeGameMode) === "story";
+}
+
+function persistStoryState() {
+  if (!config.story) config.story = createDefaultStoryState();
+  localStorage.setItem(STORAGE.storyState, JSON.stringify(config.story));
+}
+
 function persistConfig() {
   localStorage.setItem(STORAGE.keys, JSON.stringify(savedKeys));
   localStorage.setItem(STORAGE.provider, config.provider);
@@ -146,6 +183,13 @@ function recordFoeEncountered(kanji) {
     config.seenFoes[kanji] = Date.now();
     persistSeenFoes();
   }
+  if (isStoryMode() && config.story) {
+    if (!Array.isArray(config.story.encounteredFoes)) config.story.encounteredFoes = [];
+    if (!config.story.encounteredFoes.includes(kanji)) {
+      config.story.encounteredFoes.push(kanji);
+      persistStoryState();
+    }
+  }
 }
 
 function persistStats() {
@@ -160,24 +204,94 @@ function hasActiveRun() {
   return Boolean(state.active && state.playerHp > 0 && KANKEN_DATA[state.depthId]);
 }
 
+function getSavedArcadeRun() {
+  const parsed = readJson(STORAGE.savedRun, null);
+  if (parsed && parsed.v === RUN_VERSION && parsed.active && parsed.playerHp > 0 && KANKEN_DATA[parsed.depthId]) {
+    return parsed;
+  }
+  return null;
+}
+
+/* Story Mode only treats an UNRETURNED mid-gaol expedition as a resumable/abandonable active dungeon run! */
+function getSavedStoryRun() {
+  const parsed = readJson(STORAGE.savedStoryRun, null);
+  if (
+    parsed &&
+    parsed.v === RUN_VERSION &&
+    parsed.active &&
+    parsed.playerHp > 0 &&
+    !["returned", "cleared", "dead", "abandoned"].includes(parsed.phase) &&
+    KANKEN_DATA[parsed.depthId]
+  ) {
+    return parsed;
+  }
+  return null;
+}
+
+function hasActiveArcadeRun() {
+  if (state.active && state.gameMode === "arcade" && state.playerHp > 0 && KANKEN_DATA[state.depthId]) {
+    return true;
+  }
+  return Boolean(getSavedArcadeRun());
+}
+
+function hasActiveStoryDungeonRun() {
+  if (
+    state.active &&
+    state.gameMode === "story" &&
+    state.playerHp > 0 &&
+    !["returned", "cleared", "dead", "abandoned"].includes(state.phase) &&
+    KANKEN_DATA[state.depthId]
+  ) {
+    return true;
+  }
+  return Boolean(getSavedStoryRun());
+}
+
 function saveRunToStorage() {
-  if (!state.active || state.playerHp <= 0) localStorage.removeItem(STORAGE.savedRun);
-  else localStorage.setItem(STORAGE.savedRun, JSON.stringify(state));
+  const mode = state.gameMode || activeGameMode || "arcade";
+  if (mode === "story") {
+    if (
+      !state.active ||
+      state.playerHp <= 0 ||
+      ["returned", "cleared", "dead", "abandoned"].includes(state.phase)
+    ) {
+      localStorage.removeItem(STORAGE.savedStoryRun);
+    } else {
+      localStorage.setItem(STORAGE.savedStoryRun, JSON.stringify(state));
+    }
+    persistStoryState();
+  } else {
+    if (!state.active || state.playerHp <= 0) localStorage.removeItem(STORAGE.savedRun);
+    else localStorage.setItem(STORAGE.savedRun, JSON.stringify(state));
+  }
   if (typeof updateSavedRunBanner === "function") updateSavedRunBanner();
 }
 
 function loadSavedRunFromStorage() {
-  const parsed = readJson(STORAGE.savedRun, null);
-  if (parsed && parsed.v === RUN_VERSION && parsed.active && parsed.playerHp > 0 && KANKEN_DATA[parsed.depthId]) {
-    state = { ...createRunState(), ...parsed };
-  } else if (parsed) {
-    localStorage.removeItem(STORAGE.savedRun);
+  const storyRun = getSavedStoryRun();
+  const arcadeRun = getSavedArcadeRun();
+  if (storyRun) {
+    activeGameMode = "story";
+    state = { ...createRunState(), ...storyRun, gameMode: "story" };
+  } else if (arcadeRun) {
+    activeGameMode = "arcade";
+    state = { ...createRunState(), ...arcadeRun, gameMode: "arcade" };
+  } else {
+    localStorage.removeItem(STORAGE.savedStoryRun);
   }
 }
 
-function clearSavedRun() {
-  state.active = false;
-  localStorage.removeItem(STORAGE.savedRun);
+function clearSavedRun(targetMode = null) {
+  const mode = targetMode || state.gameMode || activeGameMode || "arcade";
+  if (state.gameMode === mode) {
+    state.active = false;
+  }
+  if (mode === "story") {
+    localStorage.removeItem(STORAGE.savedStoryRun);
+  } else {
+    localStorage.removeItem(STORAGE.savedRun);
+  }
   if (typeof updateSavedRunBanner === "function") updateSavedRunBanner();
 }
 

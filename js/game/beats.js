@@ -43,10 +43,33 @@ function runSummary() {
 }
 
 function endRunDock(depthId, { cleared }) {
+  const storyMode = typeof isStoryMode === "function" && isStoryMode();
   if (cleared) {
+    if (storyMode) {
+      setDockActions([
+        { label: t("storyReturnVillageBtn"), onClick: continueExpeditionFromClear, gold: true },
+        { label: t("titleBtn"), onClick: finishExpeditionFromClear }
+      ]);
+      return;
+    }
     setDockActions([
       { label: t("continueExpeditionBtn"), onClick: continueExpeditionFromClear, gold: true },
       { label: t("finishExpeditionBtn"), onClick: finishExpeditionFromClear }
+    ]);
+    return;
+  }
+  if (storyMode) {
+    setDockActions([
+      {
+        label: t("storyReturnVillageBtn"),
+        onClick: () => {
+          transitionToView("select", "【 灯 の 里 】", t("villageSubTitle"));
+          setTimeout(() => { if (typeof openVillageModal === "function") openVillageModal("sensei"); }, 380);
+        },
+        gold: true
+      },
+      { label: t("retryBtn"), onClick: () => startRun(depthId) },
+      { label: t("titleBtn"), onClick: () => transitionToView("title") }
     ]);
     return;
   }
@@ -58,6 +81,14 @@ function endRunDock(depthId, { cleared }) {
 
 function continueExpeditionFromClear() {
   playClickSfx();
+  if (typeof isStoryMode === "function" && isStoryMode()) {
+    const st = ensureStoryConfig();
+    st.deck = [...state.deck];
+    persistStoryState();
+    clearSavedRun("story");
+    transitionToView("select", "【 帰 還 】", depthName(state.depthId));
+    return;
+  }
   state.active = true;
   state.phase = "returned";
   state.enemyKanji = "";
@@ -70,18 +101,36 @@ function continueExpeditionFromClear() {
 function finishExpeditionFromClear() {
   if (typeof playSealStampSfx === "function") playSealStampSfx();
   else playClickSfx();
-  clearSavedRun();
+  if (typeof isStoryMode === "function" && isStoryMode()) {
+    const st = ensureStoryConfig();
+    st.deck = [...state.deck];
+    persistStoryState();
+    clearSavedRun("story");
+    showToast(t("toastExpeditionFinished"));
+    transitionToView("title");
+    return;
+  }
+  clearSavedRun("arcade");
   showToast(t("toastExpeditionFinished"));
   transitionToView("title");
 }
 
 function triggerFormalReturn() {
-  state.active = true;
+  const storyMode = typeof isStoryMode === "function" && isStoryMode();
+  state.active = !storyMode;
   state.phase = "returned";
   state.enemyKanji = "";
   state.pending = null;
   state.offer = [];
-  saveRunToStorage();
+
+  if (storyMode) {
+    const st = ensureStoryConfig();
+    st.deck = [...state.deck];
+    persistStoryState();
+    clearSavedRun("story");
+  } else {
+    saveRunToStorage();
+  }
 
   const bossCard = $("b-boss-card");
   bossCard.classList.remove("hit", "defeated", "player-dead", "abandoned", "completed");
@@ -95,7 +144,7 @@ function triggerFormalReturn() {
     `*${t("returnSelectHint")}*`
   ]);
   setDockActions([
-    { label: t("selectNextGaolBtn"), onClick: () => transitionToView("select"), gold: true },
+    { label: storyMode ? t("storyReturnVillageBtn") : t("selectNextGaolBtn"), onClick: () => transitionToView("select"), gold: true },
     { label: t("titleBtn"), onClick: () => transitionToView("title") }
   ]);
 }
@@ -108,15 +157,24 @@ function achievementLine() {
  * Boss head keeps 【殺】 (.defeated), while 【完】 is immediately logged and recorded! */
 function logBossClearImmediate() {
   const depthId = state.depthId;
+  const dNum = depthNumber(depthId);
   const rec = runSummary();
   addClearRecord(depthId, rec);
   achOnRunCleared({ depthId, fights: state.fights });
   state.hasClearedBoss = true;
+  if (typeof isStoryMode === "function" && isStoryMode() && typeof syncStoryKillProgress === "function") {
+    syncStoryKillProgress(state.enemyKanji || state.runBoss, true, depthId);
+  }
   saveRunToStorage();
 
   const bossCard = $("b-boss-card");
   bossCard.classList.remove("hit", "player-dead", "abandoned", "returned", "completed");
   bossCard.classList.add("defeated");
+
+  // Depth 10 Boss (2급 구간, 冥府) leaves an ominous dying curse!
+  if (dNum === 10 && typeof getDepth10BossLastWords === "function") {
+    logMd(getDepth10BossLastWords(state.enemyKanji || state.runBoss || "冥"), "verdict-clever");
+  }
 
   logBeat("clear-log", `【完】 ${depthName(depthId)}`, [
     t("clearDesc")(depthName(depthId), depthGloss(depthId)),
@@ -125,6 +183,14 @@ function logBossClearImmediate() {
     `**${t("goAch")}**: ${achievementLine()}`,
     `*${t("clearHint")}*`
   ]);
+
+  if (typeof isStoryMode === "function" && isStoryMode()) {
+    if (dNum === 10 && typeof getHumanWorldHappyEndingLines === "function") {
+      logBeat("clear-log", t("storyHumanEndingTitle"), getHumanWorldHappyEndingLines());
+    } else if (dNum === 12 && typeof getShuraEndingLines === "function") {
+      logBeat("death-log", t("storyShuraEndingTitle"), getShuraEndingLines());
+    }
+  }
 }
 
 function runCleared() {
@@ -133,11 +199,20 @@ function runCleared() {
     logBossClearImmediate();
   }
 
-  state.active = true;
+  const storyMode = typeof isStoryMode === "function" && isStoryMode();
   state.phase = "cleared";
   state.pending = null;
   state.offer = [];
-  saveRunToStorage();
+
+  if (storyMode) {
+    const st = ensureStoryConfig();
+    st.deck = [...state.deck];
+    persistStoryState();
+    clearSavedRun("story");
+  } else {
+    state.active = true;
+    saveRunToStorage();
+  }
 
   const bossCard = $("b-boss-card");
   bossCard.classList.remove("hit", "player-dead", "abandoned", "returned", "completed");
@@ -152,11 +227,28 @@ function showRunEnd(wasAbandoned = false) {
     finishExpeditionFromClear();
     return;
   }
+  const storyMode = typeof isStoryMode === "function" && isStoryMode();
   const depthId = state.depthId;
   const rec = runSummary();
   state.phase = wasAbandoned ? "abandoned" : "dead";
-  state.deck = [];
-  clearSavedRun();
+
+  let storyBagNote = "";
+  if (storyMode && typeof resolveStoryDeathOrAbandonBag === "function") {
+    const res = resolveStoryDeathOrAbandonBag();
+    state.deck = [...res.kept];
+    clearSavedRun("story");
+    if (res.mode === "talisman_return") {
+      storyBagNote = `📿 **${t("storyReturnTalismanSaved")(res.kept.length)}**`;
+    } else if (res.mode === "talisman_keep") {
+      storyBagNote = `📿 **${t("storyKeepTalismanSaved")(res.kept.length, res.lostCount)}**`;
+    } else {
+      storyBagNote = `🕯 ${t("storyDeathPersistedNote")}`;
+    }
+  } else {
+    state.deck = [];
+    clearSavedRun("arcade");
+  }
+
   const bossCard = $("b-boss-card");
   bossCard.classList.remove("hit", "defeated", "player-dead", "abandoned", "returned", "completed");
   if (wasAbandoned) {
@@ -166,13 +258,17 @@ function showRunEnd(wasAbandoned = false) {
   if (!wasAbandoned) playGongSfx();
   renderPhase();
 
-  logBeat("death-log", wasAbandoned ? t("goAbandon") : t("goDead"), [
+  const lines = [
     `**${t("goDepth")}**: ${depthNumStr(depthId)} ${depthName(depthId)} — ${depthGloss(depthId)}`,
     `**${t("goReached")}**: ${Math.max(1, state.step)}/${PATH_STEPS} · ${t("goBoss")} 【${state.enemyKanji || state.sign || "—"}】`,
     `**${t("goStreak")}**: ⚔ ${rec.kills} · ${rec.totalTurns}T · ⏱ ${formatTime(rec.timeSec)}`,
     `**${t("goModel")}**: ${modelTag(rec)}`,
-    `**${t("goAch")}**: ${achievementLine()}`,
-    `*${t("runEndHint")}*`
-  ]);
+    `**${t("goAch")}**: ${achievementLine()}`
+  ];
+  if (storyBagNote) lines.push(storyBagNote);
+  lines.push(`*${t("runEndHint")}*`);
+
+  logBeat("death-log", wasAbandoned ? t("goAbandon") : t("goDead"), lines);
   endRunDock(depthId, { cleared: false });
 }
+

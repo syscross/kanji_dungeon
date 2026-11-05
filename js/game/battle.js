@@ -122,18 +122,23 @@ async function handleBattleSubmit(e) {
   let summonDirective = "";
   let fleeDirective = "";
   let summonPaid = 0;
+  let usedFreeSummon = false;
 
   if (summon) {
-    if (state.playerHp <= state.summonCost) {
-      logMd(t("summonNoHp")(state.summonCost), "hint-log", false);
+    if ((state.freeSummons || 0) > 0) {
+      state.freeSummons -= 1;
+      usedFreeSummon = true;
+      summonPaid = 0;
+    } else if (state.playerHp <= SUMMON_HP_COST) {
+      logMd(t("summonNoHp")(SUMMON_HP_COST), "hint-log", false);
       return;
+    } else {
+      summonPaid = SUMMON_HP_COST;
+      state.playerHp -= summonPaid;
     }
     if (typeof playSummonGodSfx === "function") playSummonGodSfx();
     achOnCommand("SUMMON");
-    summonPaid = state.summonCost;
-    state.playerHp -= summonPaid;
-    state.summonCost += SUMMON_COST_STEP;
-    summonDirective = buildSummonDirective(summonPaid, parsed.arg);
+    summonDirective = buildSummonDirective(summonPaid || SUMMON_HP_COST, parsed.arg);
     updateBattleHUD(false);
   } else if (flee) {
     if (typeof playFootstepSfx === "function") playFootstepSfx();
@@ -157,9 +162,11 @@ async function handleBattleSubmit(e) {
     applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee, summonArg: parsed.arg });
   } catch (err) {
     stopJudging();
-    if (summonPaid) {
+    if (usedFreeSummon) {
+      state.freeSummons = (state.freeSummons || 0) + 1;
+      updateBattleHUD(false);
+    } else if (summonPaid) {
       state.playerHp += summonPaid;
-      state.summonCost -= SUMMON_COST_STEP;
       updateBattleHUD(false);
     }
     logMd(t("apiError")(err.message), "hint-log", false);
@@ -277,9 +284,11 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
     maybeShowTrialNudge(j);
 
     if (state.playerHp <= 0) {
-      updateBattleHUD(false);
-      setTimeout(() => showRunEnd(false), 650);
-      return;
+      if (!tryTriggerLifeTalisman()) {
+        updateBattleHUD(false);
+        setTimeout(() => showRunEnd(false), 650);
+        return;
+      }
     }
 
     // Foe remains alive in this run with its current wounded HP!
@@ -342,9 +351,11 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   maybeShowTrialNudge(j);
 
   if (state.playerHp <= 0) {
-    updateBattleHUD(false);
-    setTimeout(() => showRunEnd(false), 650);
-    return;
+    if (!tryTriggerLifeTalisman()) {
+      updateBattleHUD(false);
+      setTimeout(() => showRunEnd(false), 650);
+      return;
+    }
   }
 
   state.turn += 1;
@@ -357,11 +368,40 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   saveRunToStorage();
 }
 
+function tryTriggerLifeTalisman() {
+  if (typeof isStoryMode === "function" && isStoryMode() && typeof consumeSpecialItem === "function") {
+    if (consumeSpecialItem("talisman_life")) {
+      state.playerHp = Math.min(state.maxHp, 40);
+      if (typeof playHealSfx === "function") playHealSfx();
+      popNumber($("b-player-stat"), "+40", "heal");
+      logMd(`📿 **${t("talismanLifeTriggered")}**`, "fx-log");
+      updateBattleHUD(false);
+      saveRunToStorage();
+      return true;
+    }
+  }
+  return false;
+}
+
 function onEnemyDefeated() {
   state.kills += 1;
   if (!state.defeatedEnemies.includes(state.enemyKanji)) state.defeatedEnemies.push(state.enemyKanji);
   if (!state.seenEnemies.includes(state.enemyKanji)) state.seenEnemies.push(state.enemyKanji);
   if (state.woundedEnemies) delete state.woundedEnemies[state.enemyKanji];
+
+  const rank = state.enemyRank;
+  const isRunBoss = rank === "boss" || state.enemyKanji === state.runBoss;
+
+  if (typeof isStoryMode === "function" && isStoryMode()) {
+    if (typeof syncStoryKillProgress === "function") {
+      syncStoryKillProgress(state.enemyKanji, isRunBoss, state.depthId);
+    }
+    if (state.enemyKanji === "猫" && typeof rescueStoryCat === "function") {
+      if (rescueStoryCat()) {
+        logMd(`🐱 **${t("fxCatRescued")}**`, "fx-log");
+      }
+    }
+  }
 
   achOnEnemyDefeated({
     kanji: state.enemyKanji,
@@ -371,8 +411,6 @@ function onEnemyDefeated() {
     playerHp: state.playerHp,
     kills: state.kills
   });
-  const rank = state.enemyRank;
-  const isRunBoss = rank === "boss" || state.enemyKanji === state.runBoss;
   state.lastKill = { kanji: state.enemyKanji, turns: state.turn, dmgTaken: state.dmgTakenThisEnemy };
 
   state.phase = "reward";
@@ -382,6 +420,13 @@ function onEnemyDefeated() {
 
   // Immediately show victory beat (殺) in the log and open the inline enemy/intent harvest in the bottom dock!
   showVictoryBeat();
+  if (typeof isStoryMode === "function" && isStoryMode() && typeof awardStoryYenForKill === "function") {
+    const yenGained = awardStoryYenForKill(isRunBoss ? "boss" : rank);
+    if (yenGained > 0) {
+      logMd(`🪙 **+${yenGained} 円** (${t("storyYenEarned")})`, "fx-log");
+      updateBattleHUD(false);
+    }
+  }
   if (isRunBoss) {
     logBossClearImmediate();
     runEffects([

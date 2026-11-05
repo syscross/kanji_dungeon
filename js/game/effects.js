@@ -23,12 +23,23 @@ function runEffects(list) {
       changeHp(Math.round(state.maxHp * fx.healPct / 100));
     } else if (fx.maxHp !== undefined) {
       changeMaxHp(fx.maxHp);
-    } else if (fx.summonReset) {
-      state.summonCost = 10;
-      logMd(t("fxSummonReset"), "fx-log");
+    } else if (fx.freeSummons !== undefined || fx.summonReset) {
+      const n = typeof fx.freeSummons === "number" ? fx.freeSummons : 1;
+      state.freeSummons = (state.freeSummons || 0) + n;
+      logMd(t("fxFreeSummons")(n), "fx-log");
     } else if (fx.tokens !== undefined) {
       state.rerollTokens += fx.tokens;
       logMd(t("fxTokens")(fx.tokens), "fx-log");
+    } else if (fx.yen !== undefined) {
+      if (typeof isStoryMode === "function" && isStoryMode()) {
+        const st = ensureStoryConfig();
+        st.yen = Math.max(0, (st.yen || 0) + fx.yen);
+        persistStoryState();
+        logMd(`🪙 ${fx.yen >= 0 ? `+${fx.yen}` : fx.yen} 円`, "fx-log");
+      }
+    } else if (fx.rescueCat) {
+      if (typeof rescueStoryCat === "function") rescueStoryCat();
+      logMd(`🐱 **${t("fxCatRescued")}**`, "fx-log");
     } else if (fx.reveal) {
       state.revealNext = true;
       logMd(t("fxReveal"), "fx-log");
@@ -144,8 +155,8 @@ function renderInlineScavenge(p) {
   head.className = "scavenge-dock-head";
   const isFoe = p.mode === "foeScavenge";
   head.textContent = isFoe
-    ? `🩸 ${t("pickFoeScavengePrompt")} — ${t("pickFoeScavengeDesc")}`
-    : `🎴 ${t("pickScavengePrompt")} — ${t("pickScavengeDesc")}`;
+    ? `🩸 ${t("pickFoeScavengePrompt")}`
+    : `🎴 ${t("pickScavengePrompt")}`;
   wrap.appendChild(head);
 
   const grid = document.createElement("div");

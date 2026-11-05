@@ -89,6 +89,15 @@ function updateBattleHUD(animateCards = false) {
   $("b-depth-title").title = `${depthGloss(state.depthId)} · ${kankenLabel(state.depthId)} · ${config.instMode}`;
   $("b-step").textContent = `${Math.max(1, state.step)}/${PATH_STEPS}`;
   $("b-kills").textContent = `⚔ ${state.kills}`;
+  const yenEl = $("b-yen");
+  if (yenEl) {
+    if (typeof isStoryMode === "function" && isStoryMode() && config.story) {
+      yenEl.style.display = "";
+      yenEl.textContent = `🪙 ${(config.story.yen || 0).toLocaleString()} 円`;
+    } else {
+      yenEl.style.display = "none";
+    }
+  }
   const signInfo = state.sign ? STAGE_SIGNS[state.sign] : null;
   $("b-sign").textContent = state.sign || "門";
   $("b-sign").title = signInfo ? pickLang(signInfo.omen) : t("forkFieldState");
@@ -120,9 +129,9 @@ function updateBattleHUD(animateCards = false) {
 
   $("b-player-state").textContent = state.playerState || "";
   setHpBar("b-player-bar", "b-player-hp", state.playerHp, state.maxHp);
-  $("b-summon-cost").textContent = state.summonCost;
   $("b-deck-count").textContent = state.deck.length;
   updateRerollChip();
+  updateSummonChip();
 
   renderCardRow("b-enemy-hand", inFight ? state.enemyHand : [], true, animateCards);
   renderCardRow("b-player-hand", inFight ? state.playerHand : [], false, animateCards);
@@ -132,6 +141,13 @@ function updateRerollChip() {
   const el = $("b-reroll-label");
   if (!el) return;
   el.textContent = state.rerollTokens > 0 ? t("rerollChipFree")(state.rerollTokens) : t("rerollChip");
+}
+
+function updateSummonChip() {
+  const el = $("b-summon-label");
+  if (!el) return;
+  const free = state.freeSummons || 0;
+  el.textContent = free > 0 ? t("summonChipFree")(free) : t("summonChip");
 }
 
 function renderCardRow(rowId, cards, isEnemy, animate) {

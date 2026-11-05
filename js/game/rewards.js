@@ -30,7 +30,7 @@ function rewardEffects(o) {
   switch (o.id) {
     case "heal": return [{ hp: randInt(p.min, p.max) }];
     case "maxhp": return [{ maxHp: p.n }];
-    case "summon": return [{ summonReset: true }];
+    case "summon": return [{ freeSummons: p.n || 1 }];
     case "tokens": return [{ tokens: p.n }];
     case "card": return [{ scavenge: p.choices || 5 }];
     case "burn": return [{ burn: "pick" }];

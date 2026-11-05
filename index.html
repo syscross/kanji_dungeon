@@ -48,6 +48,25 @@
     </div>
   </div>
 
+  <!-- Story Mode Village Hub Modal (【里】 등불의 마을) -->
+  <div class="modal-backdrop" id="village-modal">
+    <div class="modal-card wide village-modal-card" id="village-modal-card">
+      <div class="modal-head">
+        <div class="modal-title" id="vm-title">🏮 【里】 등불의 마을</div>
+        <button class="btn icon-btn" onclick="closeVillageModal()">✕</button>
+      </div>
+      <div class="vm-status-bar">
+        <span class="vm-stat gold" id="vm-yen">🪙 120 円</span>
+        <button class="btn vm-stat-btn" onclick="openDeckViewer()"><span id="vm-special-count">📿 0</span> · <span id="vm-bag-count">🀄 0</span></button>
+      </div>
+      <div class="vm-tabs" id="vm-tabs"></div>
+      <div class="vm-body" id="vm-body"></div>
+      <div class="modal-actions end">
+        <button class="btn btn-gold" data-i18n="villageToGatesBtn" onclick="closeVillageModal()">⛩ 옥문 선택으로</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Confirm (exit / abandon) -->
   <div class="modal-backdrop" id="confirm-modal">
     <div class="modal-card">
@@ -105,6 +124,7 @@
         <div class="modal-title" id="pick-title"></div>
         <button class="btn icon-btn" id="pick-close" onclick="dismissPicker()">✕</button>
       </div>
+      <div id="pick-special-wrap"></div>
       <p class="modal-desc" id="pick-desc"></p>
       <div class="pick-grid" id="pick-grid"></div>
       <div class="modal-actions" id="pick-actions"></div>
@@ -241,14 +261,19 @@
         <div class="title-sub" data-i18n="titleSub">6,355 Kanji Dark-Fantasy AI TRPG Roguelike</div>
       </div>
 
-      <div class="saved-run-banner" id="saved-run-banner" onclick="handlePlayGameClick()"></div>
+      <div class="saved-banners-wrap">
+        <div class="saved-run-banner story-banner" id="saved-story-banner" onclick="handleStoryModeClick()"></div>
+        <div class="saved-run-banner" id="saved-run-banner" onclick="handlePlayGameClick()"></div>
+      </div>
       <div class="trial-line" id="title-trial" data-i18n="titleTrialLine" onclick="openConnectModal()"></div>
 
       <div class="title-menu">
-        <button class="menu-btn" id="play-btn" onclick="handlePlayGameClick()">⚔ PLAY GAME</button>
+        <button class="menu-btn story-btn" id="story-play-btn" onclick="handleStoryModeClick()">🏮 STORY MODE</button>
+        <button class="menu-btn danger-sub" id="story-exit-btn" data-i18n="exitStoryRun" onclick="promptExitStoryGame()" style="display:none">🕯 스토리 원정 포기</button>
+        <button class="menu-btn" id="play-btn" onclick="handlePlayGameClick()">⚔ ARCADE MODE</button>
+        <button class="menu-btn danger-sub" id="title-exit-btn" data-i18n="exit" onclick="promptExitGame()" style="display:none">🕯 아케이드 원정 끝내기</button>
         <button class="menu-btn" id="install-btn" data-i18n="installBtn" onclick="handleInstallClick()" style="display:none">📲 Install app</button>
         <button class="menu-btn" onclick="openSettingsModal()">⚙ <span data-i18n="settings">Settings</span></button>
-        <button class="menu-btn" id="title-exit-btn" data-i18n="exit" onclick="promptExitGame()" style="display:none">🏳️ Abandon run</button>
       </div>
 
       <button class="corner-btn left" data-i18n-title="guideBtn" onclick="openGuideModal()">📖</button>
@@ -280,6 +305,7 @@
           <strong class="bb-depth" id="b-depth-title">獄門</strong>
           <span class="badge" id="b-step">1/9</span>
           <span class="badge" id="b-kills">⚔ 0</span>
+          <span class="badge yen-badge" id="b-yen" style="display:none">🪙 0 円</span>
           <span class="badge" id="b-timer">⏱ 00:00</span>
           <button class="badge trial-badge" id="b-trial" data-i18n="trialBadge" onclick="openConnectModal()">🔌 Trial</button>
         </div>
@@ -344,7 +370,7 @@
           <button class="chip" title="/reroll" onclick="triggerSlash('/reroll')"><span id="b-reroll-label">🎲 Reroll</span></button>
           <button class="chip" title="/flee" onclick="prefillSlash('/flee ')"><span data-i18n="fleeChip">🏃 Flee</span></button>
           <button class="chip" title="/prompt" onclick="prefillSlash('/prompt ')"><span data-i18n="promptChip">❓ Ask</span></button>
-          <button class="chip" title="/summon" onclick="triggerSummonChip()"><span data-i18n="summonChip">🐉 Summon</span> <span class="chip-cost">−<span id="b-summon-cost">10</span></span></button>
+          <button class="chip" title="/summon" onclick="triggerSummonChip()"><span id="b-summon-label">🐉 Summon −10</span></button>
         </div>
 
         <div class="dock-action" id="b-dock-action"></div>
@@ -391,6 +417,7 @@
   <script src="/js/game/effects.js"></script>
   <script src="/js/game/rewards.js"></script>
   <script src="/js/game/events.js"></script>
+  <script src="/js/game/story.js"></script>
   <script src="/js/game/run.js"></script>
   <script src="/js/game/battle.js"></script>
   <script src="/js/game/beats.js"></script>

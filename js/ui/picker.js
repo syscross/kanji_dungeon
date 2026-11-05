@@ -7,11 +7,16 @@
 
 let pickerOnClose = null;
 
-function openPicker({ title, desc = "", cards, onCard = null, multiSelect = false, selectedIndices = [], showOrderBadge = false, actions = [], locked = false, onClose = null }) {
+function openPicker({ title, desc = "", specialHtml = "", cards, onCard = null, multiSelect = false, selectedIndices = [], showOrderBadge = false, actions = [], locked = false, onClose = null }) {
   const modal = $("pick-modal");
   pickerOnClose = onClose;
   modal.dataset.locked = locked ? "1" : "";
   $("pick-title").textContent = title;
+  const spWrap = $("pick-special-wrap");
+  if (spWrap) {
+    spWrap.innerHTML = specialHtml || "";
+    spWrap.style.display = specialHtml ? "" : "none";
+  }
   $("pick-desc").textContent = desc;
   $("pick-desc").style.display = desc ? "" : "none";
   $("pick-close").style.display = locked ? "none" : "";
@@ -70,14 +75,25 @@ function dismissPicker() {
 function openDeckViewer() {
   playClickSfx();
   closeDropdowns();
-  const sorted = [...state.deck].sort((a, b) => a.localeCompare(b, "ja"));
-  const stagePreview = (state.stageCards || []).join(" · ");
-  const desc = state.deck.length === 0
+  const storyMode = typeof isStoryMode === "function" && isStoryMode();
+  const bagSource = (storyMode && (!state.active || state.gameMode !== "story"))
+    ? ((config.story && config.story.deck) || [])
+    : (state.deck || []);
+  const sorted = [...bagSource].sort((a, b) => a.localeCompare(b, "ja"));
+  const stagePreview = (state.active && state.stageCards && state.stageCards.length)
+    ? state.stageCards.join(" · ")
+    : "—";
+  const desc = sorted.length === 0
     ? t("bagEmptyDesc")(stagePreview)
     : t("bagDesc")(stagePreview);
+  const specialHtml = (storyMode && typeof renderSpecialItemsBannerHtml === "function")
+    ? renderSpecialItemsBannerHtml()
+    : "";
   openPicker({
-    title: t("deckTitle")(state.deck.length),
+    title: t("deckTitle")(sorted.length),
+    specialHtml,
     desc,
     cards: sorted
   });
 }
+

@@ -11,8 +11,94 @@ function startRun(depthId) {
     config.model = "openai";
   }
 
+  const storyMode = activeGameMode === "story";
+  const roster = depthRoster(depthId);
+  const bossPool = roster.bossPool && roster.bossPool.length ? roster.bossPool : [roster.boss];
+
+  if (storyMode) {
+    const st = ensureStoryConfig();
+    st.started = true;
+    const dNum = depthNumber(depthId);
+    if (dNum === 11) st.visitedDepth11 = true;
+    if (dNum === 12) st.visitedDepth12 = true;
+
+    if (!st.gaolBosses[depthId]) {
+      st.gaolBosses[depthId] = bossPool[Math.floor(Math.random() * bossPool.length)];
+    }
+    const runBoss = st.gaolBosses[depthId];
+    const keptDeck = Array.isArray(st.deck)
+      ? st.deck.map(k => String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "")).filter(Boolean)
+      : [];
+    const defeatedEnemies = [...new Set([...(st.defeatedFoes || []), ...(st.defeatedBosses || [])])];
+    const encounteredEnemies = [...new Set([...(st.encounteredFoes || []), ...defeatedEnemies])];
+    const bossEncountered = Boolean(
+      encounteredEnemies.includes(runBoss) || defeatedEnemies.includes(runBoss)
+    );
+
+    const catBonusHp = (countSpecialItem("cat_companion") > 0 ? 15 : 0) + (st.catBlessedNextRun ? 15 : 0);
+    const godStacks = countSpecialItem("talisman_god");
+    const startMaxHp = STARTING_MAX_HP + catBonusHp;
+    const startRerolls = 1 + godStacks + (st.catBlessedNextRun ? 1 : 0);
+    const startFreeSummons = godStacks;
+    const hadCatBless = Boolean(st.catBlessedNextRun);
+    st.catBlessedNextRun = false;
+    persistStoryState();
+
+    config.stats.runs = (config.stats.runs || 0) + 1;
+    persistStats();
+
+    state = createRunState();
+    Object.assign(state, {
+      gameMode: "story",
+      active: true,
+      depthId,
+      runNo: config.stats.runs,
+      maxHp: startMaxHp,
+      playerHp: startMaxHp,
+      rerollTokens: startRerolls,
+      freeSummons: startFreeSummons,
+      phase: "path",
+      step: 1,
+      sign: "",
+      fieldState: t("forkFieldState"),
+      gaolBosses: { ...st.gaolBosses },
+      runBoss,
+      bossEncountered,
+      hasClearedBoss: false,
+      deck: keptDeck,
+      encounteredEnemies,
+      defeatedEnemies,
+      woundedEnemies: {}
+    });
+
+    state.fork = generateFork(1);
+    achOnRunStart(depthId);
+
+    resetBattleChrome();
+    logMd(`── 🏮 ${depthNumStr(depthId)} ${depthName(depthId)} · ${kankenLabel(depthId)} ──`, "sep-log");
+    logMd(t("enteredMsg")(depthName(depthId), depthGloss(depthId)), "sys-log");
+    if (godStacks > 0 || catBonusHp > 0 || hadCatBless) {
+      const buffs = [];
+      if (catBonusHp > 0) buffs.push(`🐱 최대 HP +${catBonusHp}`);
+      if (godStacks > 0) buffs.push(`📿 고신의 부적 (무료 고신 +${godStacks} · 리롤 +${godStacks})`);
+      if (hadCatBless) buffs.push(`🐾 고양이의 축복 (리롤 +1)`);
+      logMd(`✨ **특수 소지 가호**: ${buffs.join(" · ")}`, "fx-log");
+    }
+    if (dNum === 11) {
+      logMd(`🩸 **【금역 침범】** — 인간계의 평화를 뒤로하고 상용 외 금역(第11獄)의 봉인을 찢었습니다. 마을 사람들의 시선이 두려움으로 물듭니다…`, "hint-log");
+    } else if (dNum === 12) {
+      logMd(`💀 **【나락 강림】** — 인간의 이성이 닿지 않는 최심부 나락(第12獄)에 발을 들였습니다. 이제 돌이킬 수 없는 수라(修羅)의 길입니다.`, "hint-log");
+    }
+    logMd(`◆ 1/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
+    saveRunToStorage();
+
+    enterGaolCinematic(depthId, () => renderPhase());
+    return;
+  }
+
   const isContinuing = Boolean(
     state.active &&
+    state.gameMode === "arcade" &&
     state.playerHp > 0 &&
     (state.phase === "returned" || state.phase === "cleared")
   );
@@ -21,9 +107,6 @@ function startRun(depthId) {
     config.stats.runs = (config.stats.runs || 0) + 1;
     persistStats();
   }
-
-  const roster = depthRoster(depthId);
-  const bossPool = roster.bossPool && roster.bossPool.length ? roster.bossPool : [roster.boss];
 
   if (isContinuing) {
     const keptDeck = Array.isArray(state.deck)
@@ -42,6 +125,7 @@ function startRun(depthId) {
     );
 
     Object.assign(state, {
+      gameMode: "arcade",
       active: true,
       depthId,
       phase: "path",
@@ -81,6 +165,7 @@ function startRun(depthId) {
     const runBoss = bossPool[Math.floor(Math.random() * bossPool.length)];
     state = createRunState();
     Object.assign(state, {
+      gameMode: "arcade",
       active: true,
       depthId,
       runNo: config.stats.runs,
@@ -255,7 +340,11 @@ function generateFork(step) {
     }
 
     if (outcome === "event:*") {
-      outcome = `event:${RANDOM_EVENT_POOL[Math.floor(Math.random() * RANDOM_EVENT_POOL.length)]}`;
+      if (isStoryMode() && config.story && !config.story.catRescued && step >= 2 && Math.random() < 0.38) {
+        outcome = "event:cat_rescue";
+      } else {
+        outcome = `event:${RANDOM_EVENT_POOL[Math.floor(Math.random() * RANDOM_EVENT_POOL.length)]}`;
+      }
     }
     return { sign, outcome, revealed: false };
   });
@@ -476,6 +565,7 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
 /* ---- Leaving / resuming ---- */
 
 function resumeSavedRun() {
+  activeGameMode = state.gameMode || activeGameMode || "arcade";
   if (Array.isArray(state.deck)) {
     state.deck = state.deck
       .map(k => String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, ""))
