@@ -369,16 +369,22 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
 }
 
 function tryTriggerLifeTalisman() {
-  if (typeof isStoryMode === "function" && isStoryMode() && typeof consumeSpecialItem === "function") {
-    if (consumeSpecialItem("talisman_life")) {
-      state.playerHp = Math.min(state.maxHp, 40);
-      if (typeof playHealSfx === "function") playHealSfx();
-      popNumber($("b-player-stat"), "+40", "heal");
-      logMd(`📿 **${t("talismanLifeTriggered")}**`, "fx-log");
-      updateBattleHUD(false);
-      saveRunToStorage();
-      return true;
-    }
+  if (
+    typeof isStoryMode === "function" &&
+    isStoryMode() &&
+    typeof countSpecialItem === "function" &&
+    countSpecialItem("talisman_life") > 0 &&
+    !state.lifeTalismanUsedThisRun
+  ) {
+    state.lifeTalismanUsedThisRun = true;
+    const reviveHp = Math.max(20, Math.round((state.maxHp || 100) * 0.2));
+    state.playerHp = Math.min(state.maxHp, reviveHp);
+    if (typeof playHealSfx === "function") playHealSfx();
+    popNumber($("b-player-stat"), `+${reviveHp}`, "heal");
+    logMd(`🕯 **${t("talismanLifeTriggered")}**`, "fx-log");
+    updateBattleHUD(false);
+    saveRunToStorage();
+    return true;
   }
   return false;
 }

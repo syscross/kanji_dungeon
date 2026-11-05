@@ -36,12 +36,15 @@ function startRun(depthId) {
     );
 
     const catBonusHp = (countSpecialItem("cat_companion") > 0 ? 15 : 0) + (st.catBlessedNextRun ? 15 : 0);
+    const senseiBonusHp = st.senseiBlessedNextRun ? 15 : 0;
     const godStacks = countSpecialItem("talisman_god");
-    const startMaxHp = STARTING_MAX_HP + catBonusHp;
-    const startRerolls = 1 + godStacks + (st.catBlessedNextRun ? 1 : 0);
+    const startMaxHp = STARTING_MAX_HP + catBonusHp + senseiBonusHp;
+    const startRerolls = 1 + godStacks + (st.catBlessedNextRun ? 1 : 0) + (st.senseiBlessedNextRun ? 1 : 0);
     const startFreeSummons = godStacks;
     const hadCatBless = Boolean(st.catBlessedNextRun);
+    const hadSenseiBless = Boolean(st.senseiBlessedNextRun);
     st.catBlessedNextRun = false;
+    st.senseiBlessedNextRun = false;
     persistStoryState();
 
     config.stats.runs = (config.stats.runs || 0) + 1;
@@ -57,6 +60,7 @@ function startRun(depthId) {
       playerHp: startMaxHp,
       rerollTokens: startRerolls,
       freeSummons: startFreeSummons,
+      lifeTalismanUsedThisRun: false,
       phase: "path",
       step: 1,
       sign: "",
@@ -77,12 +81,13 @@ function startRun(depthId) {
     resetBattleChrome();
     logMd(`── 🏮 ${depthNumStr(depthId)} ${depthName(depthId)} · ${kankenLabel(depthId)} ──`, "sep-log");
     logMd(t("enteredMsg")(depthName(depthId), depthGloss(depthId)), "sys-log");
-    if (godStacks > 0 || catBonusHp > 0 || hadCatBless) {
+    if (godStacks > 0 || catBonusHp > 0 || hadCatBless || hadSenseiBless) {
       const buffs = [];
-      if (catBonusHp > 0) buffs.push(`🐱 최대 HP +${catBonusHp}`);
-      if (godStacks > 0) buffs.push(`📿 고신의 부적 (무료 고신 +${godStacks} · 리롤 +${godStacks})`);
-      if (hadCatBless) buffs.push(`🐾 고양이의 축복 (리롤 +1)`);
-      logMd(`✨ **특수 소지 가호**: ${buffs.join(" · ")}`, "fx-log");
+      if (catBonusHp + senseiBonusHp > 0) buffs.push(`❤️ 최대 HP +${catBonusHp + senseiBonusHp}`);
+      if (godStacks > 0) buffs.push(`👁 심안의 부적 (무료 고신 +${godStacks} · 리롤 +${godStacks})`);
+      if (hadCatBless) buffs.push(`🐾 고양이의 온기 (리롤 +1)`);
+      if (hadSenseiBless) buffs.push(`🍵 스승의 약차 (리롤 +1)`);
+      logMd(`✨ **특수 소지 및 마을 가호**: ${buffs.join(" · ")}`, "fx-log");
     }
     if (dNum === 11) {
       logMd(`🩸 **【금역 침범】** — 인간계의 평화를 뒤로하고 상용 외 금역(第11獄)의 봉인을 찢었습니다. 마을 사람들의 시선이 두려움으로 물듭니다…`, "hint-log");
@@ -214,6 +219,11 @@ function renderPhase() {
   if (state.phase !== "returned") $("b-boss-card").classList.remove("returned");
   updateBattleHUD(false);
   if (!state.pending) closePicker();
+
+  if (state.depthId === "depth_0" && typeof renderVillagePhase === "function") {
+    renderVillagePhase();
+    return;
+  }
 
   switch (state.phase) {
     case "draft":
@@ -596,6 +606,10 @@ function promptAbandonRun() {
   playClickSfx();
   closeDropdowns();
   if (!state.active) return;
+  if (state.depthId === "depth_0" && typeof leaveVillageToSelect === "function") {
+    leaveVillageToSelect();
+    return;
+  }
   if (state.hasClearedBoss || state.phase === "cleared") {
     finishExpeditionFromClear();
     return;

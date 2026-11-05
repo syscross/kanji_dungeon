@@ -33,11 +33,18 @@ let KANKEN_DATA = {};
 let currentView = "title";
 let activeGameMode = "arcade"; // "story" | "arcade"
 
+const STORY_STATE_VERSION = 2;
+
 function createDefaultStoryState() {
   return {
+    v: STORY_STATE_VERSION,
     started: false,
-    unlockedDepth: 1,
-    yen: 120,
+    unlockedDepth: 0,        // 0 = only Village (里) open; 1 = 01 獄門 (10급) unlocked after village intro
+    introStage: 0,           // 0 = arrived at ruined hometown, 1 = spoke to Sensei, 2 = received 生 talisman & 01 獄門 location
+    senseiOfferingStage: 0,  // 0 -> 1 (持 talisman) -> 2 (帰 bell) -> 3+ (tea/incense blessing)
+    senseiBlessedNextRun: false,
+    elderRelicClaimed: false,
+    yen: 0,
     deck: [],
     specialItems: [],
     defeatedFoes: [],
@@ -53,6 +60,14 @@ function createDefaultStoryState() {
     friendGiftClaimed: false,
     villageVisits: 0
   };
+}
+
+function loadStoryStateFromStorage() {
+  const saved = readJson(STORAGE.storyState, null);
+  if (!saved || saved.v !== STORY_STATE_VERSION) {
+    return createDefaultStoryState();
+  }
+  return { ...createDefaultStoryState(), ...saved };
 }
 
 let savedKeys = readJson(STORAGE.keys, {});
@@ -78,7 +93,7 @@ let config = {
   seenFoes: readJson(STORAGE.seenFoes, {}),
   stats: readJson(STORAGE.stats, { kills: 0, runs: 0 }),
   records: readJson(STORAGE.records, {}),
-  story: { ...createDefaultStoryState(), ...readJson(STORAGE.storyState, {}) }
+  story: loadStoryStateFromStorage()
 };
 
 /*
@@ -201,7 +216,7 @@ function persistRecords() {
 }
 
 function hasActiveRun() {
-  return Boolean(state.active && state.playerHp > 0 && KANKEN_DATA[state.depthId]);
+  return Boolean(state.active && state.playerHp > 0 && (state.depthId === "depth_0" || KANKEN_DATA[state.depthId]));
 }
 
 function getSavedArcadeRun() {
@@ -212,13 +227,14 @@ function getSavedArcadeRun() {
   return null;
 }
 
-/* Story Mode only treats an UNRETURNED mid-gaol expedition as a resumable/abandonable active dungeon run! */
+/* Story Mode only treats an UNRETURNED mid-gaol expedition (depth_1..depth_12) as a resumable/abandonable active dungeon run! */
 function getSavedStoryRun() {
   const parsed = readJson(STORAGE.savedStoryRun, null);
   if (
     parsed &&
     parsed.v === RUN_VERSION &&
     parsed.active &&
+    parsed.depthId !== "depth_0" &&
     parsed.playerHp > 0 &&
     !["returned", "cleared", "dead", "abandoned"].includes(parsed.phase) &&
     KANKEN_DATA[parsed.depthId]
@@ -239,6 +255,7 @@ function hasActiveStoryDungeonRun() {
   if (
     state.active &&
     state.gameMode === "story" &&
+    state.depthId !== "depth_0" &&
     state.playerHp > 0 &&
     !["returned", "cleared", "dead", "abandoned"].includes(state.phase) &&
     KANKEN_DATA[state.depthId]
@@ -253,6 +270,7 @@ function saveRunToStorage() {
   if (mode === "story") {
     if (
       !state.active ||
+      state.depthId === "depth_0" ||
       state.playerHp <= 0 ||
       ["returned", "cleared", "dead", "abandoned"].includes(state.phase)
     ) {
@@ -309,6 +327,7 @@ function bestRecord(depthId) {
 }
 
 function depthNumber(depthId) {
+  if (depthId === "depth_0") return 0;
   return parseInt(String(depthId).replace("depth_", ""), 10) || 1;
 }
 

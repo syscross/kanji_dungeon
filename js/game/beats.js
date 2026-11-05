@@ -47,7 +47,8 @@ function endRunDock(depthId, { cleared }) {
   if (cleared) {
     if (storyMode) {
       setDockActions([
-        { label: t("storyReturnVillageBtn"), onClick: continueExpeditionFromClear, gold: true },
+        { label: `🏮 ${t("villageNodeTitle")}`, onClick: () => startVillageStage(), gold: true },
+        { label: `⛩ ${t("selectNextGaolBtn")}`, onClick: continueExpeditionFromClear },
         { label: t("titleBtn"), onClick: finishExpeditionFromClear }
       ]);
       return;
@@ -61,14 +62,11 @@ function endRunDock(depthId, { cleared }) {
   if (storyMode) {
     setDockActions([
       {
-        label: t("storyReturnVillageBtn"),
-        onClick: () => {
-          transitionToView("select", "【 灯 の 里 】", t("villageSubTitle"));
-          setTimeout(() => { if (typeof openVillageModal === "function") openVillageModal("sensei"); }, 380);
-        },
+        label: `🏮 ${t("storyReturnVillageBtn")}`,
+        onClick: () => startVillageStage(),
         gold: true
       },
-      { label: t("retryBtn"), onClick: () => startRun(depthId) },
+      { label: `⛩ ${t("selectNextGaolBtn")}`, onClick: () => transitionToView("select") },
       { label: t("titleBtn"), onClick: () => transitionToView("title") }
     ]);
     return;
@@ -143,10 +141,18 @@ function triggerFormalReturn() {
     t("returnBeatDesc")(state.deck.length, state.playerHp, state.maxHp),
     `*${t("returnSelectHint")}*`
   ]);
-  setDockActions([
-    { label: storyMode ? t("storyReturnVillageBtn") : t("selectNextGaolBtn"), onClick: () => transitionToView("select"), gold: true },
-    { label: t("titleBtn"), onClick: () => transitionToView("title") }
-  ]);
+  if (storyMode) {
+    setDockActions([
+      { label: `🏮 ${t("villageNodeTitle")}`, onClick: () => startVillageStage(), gold: true },
+      { label: `⛩ ${t("selectNextGaolBtn")}`, onClick: () => transitionToView("select") },
+      { label: t("titleBtn"), onClick: () => transitionToView("title") }
+    ]);
+  } else {
+    setDockActions([
+      { label: t("selectNextGaolBtn"), onClick: () => transitionToView("select"), gold: true },
+      { label: t("titleBtn"), onClick: () => transitionToView("title") }
+    ]);
+  }
 }
 
 function achievementLine() {
@@ -185,6 +191,18 @@ function logBossClearImmediate() {
   ]);
 
   if (typeof isStoryMode === "function" && isStoryMode()) {
+    if (dNum < 12) {
+      const nextDid = `depth_${dNum + 1}`;
+      if (KANKEN_DATA[nextDid]) {
+        logMd(pickLang({
+          EN: `🔓 **【Gaol Unlocked】**: The seal to **【${depthNumStr(nextDid)} ${depthName(nextDid)} (${kankenLabel(nextDid)})】** has been broken!`,
+          KO: `🔓 **【옥문 해금】**: 다음 심연인 **【${depthNumStr(nextDid)} ${depthName(nextDid)} (${kankenLabel(nextDid)})】**로 향하는 봉인이 풀렸습니다!`,
+          JA: `🔓 **【獄門解禁】**: 次の深淵 **【${depthNumStr(nextDid)} ${depthName(nextDid)}（${kankenLabel(nextDid)}）】** への封印が解かれた！`,
+          ZH_CN: `🔓 **【狱门解禁】**: 通往下一深渊 **【${depthNumStr(nextDid)} ${depthName(nextDid)}（${kankenLabel(nextDid)}）】** 的封印已解开！`,
+          ZH_TW: `🔓 **【獄門解禁】**: 通往下一深淵 **【${depthNumStr(nextDid)} ${depthName(nextDid)}（${kankenLabel(nextDid)}）】** 的封印已解開！`
+        }), "fx-log");
+      }
+    }
     if (dNum === 10 && typeof getHumanWorldHappyEndingLines === "function") {
       logBeat("clear-log", t("storyHumanEndingTitle"), getHumanWorldHappyEndingLines());
     } else if (dNum === 12 && typeof getShuraEndingLines === "function") {
@@ -237,13 +255,7 @@ function showRunEnd(wasAbandoned = false) {
     const res = resolveStoryDeathOrAbandonBag();
     state.deck = [...res.kept];
     clearSavedRun("story");
-    if (res.mode === "talisman_return") {
-      storyBagNote = `📿 **${t("storyReturnTalismanSaved")(res.kept.length)}**`;
-    } else if (res.mode === "talisman_keep") {
-      storyBagNote = `📿 **${t("storyKeepTalismanSaved")(res.kept.length, res.lostCount)}**`;
-    } else {
-      storyBagNote = `🕯 ${t("storyDeathPersistedNote")}`;
-    }
+    storyBagNote = res.reason || `🕯 ${t("storyDeathPersistedNote")}`;
   } else {
     state.deck = [];
     clearSavedRun("arcade");

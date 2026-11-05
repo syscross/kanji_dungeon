@@ -48,7 +48,16 @@ function stageCardContent() {
 /* Top bar showing this run's encountered/slain foes (left) and the run's boss as ?/gray/red (right). */
 function renderRunRosterBar() {
   const bar = $("b-run-roster");
-  if (!bar || !KANKEN_DATA[state.depthId]) return;
+  if (!bar) return;
+  if (state.depthId === "depth_0") {
+    const st = typeof ensureStoryConfig === "function" ? ensureStoryConfig() : (config.story || {});
+    const spots = ["塾", "炉", "橋", st.catRescued ? "猫" : "家"];
+    const mobHtml = spots.map(k => `<span class="rr-chip seen" title="${escapeHtml(k)}">${escapeHtml(k)}</span>`).join("");
+    const bossHtml = `<span class="rr-chip boss seen" title="先">主 先</span>`;
+    bar.innerHTML = `<div class="rr-mobs">${mobHtml}</div>${bossHtml}`;
+    return;
+  }
+  if (!KANKEN_DATA[state.depthId]) return;
   const roster = depthRoster(state.depthId);
   const runBoss = state.runBoss || roster.boss;
   const mobs = [...new Set([...roster.normal, ...roster.elite])].filter(k => k !== runBoss);
@@ -84,11 +93,18 @@ function renderRunRosterBar() {
 }
 
 function updateBattleHUD(animateCards = false) {
-  if (!KANKEN_DATA[state.depthId]) return;
-  $("b-depth-title").textContent = depthName(state.depthId);
-  $("b-depth-title").title = `${depthGloss(state.depthId)} · ${kankenLabel(state.depthId)} · ${config.instMode}`;
-  $("b-step").textContent = `${Math.max(1, state.step)}/${PATH_STEPS}`;
-  $("b-kills").textContent = `⚔ ${state.kills}`;
+  if (state.depthId !== "depth_0" && !KANKEN_DATA[state.depthId]) return;
+  if (state.depthId === "depth_0") {
+    $("b-depth-title").textContent = t("villageNodeTitle");
+    $("b-depth-title").title = `${t("villageNodeGloss")} · 故郷`;
+    $("b-step").textContent = "故郷";
+    $("b-kills").textContent = `📿 ${(config.story && config.story.specialItems ? config.story.specialItems.length : 0)}`;
+  } else {
+    $("b-depth-title").textContent = depthName(state.depthId);
+    $("b-depth-title").title = `${depthGloss(state.depthId)} · ${kankenLabel(state.depthId)} · ${config.instMode}`;
+    $("b-step").textContent = `${Math.max(1, state.step)}/${PATH_STEPS}`;
+    $("b-kills").textContent = `⚔ ${state.kills}`;
+  }
   const yenEl = $("b-yen");
   if (yenEl) {
     if (typeof isStoryMode === "function" && isStoryMode() && config.story) {

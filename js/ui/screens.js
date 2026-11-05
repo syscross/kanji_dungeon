@@ -9,7 +9,12 @@ function updateSavedRunBanner() {
   const arcadePlayBtn = $("play-btn");
   const arcadeExitBtn = $("title-exit-btn");
 
-  const storyRun = (state.active && state.gameMode === "story" && !["returned", "cleared", "dead", "abandoned"].includes(state.phase))
+  const storyRun = (
+    state.active &&
+    state.gameMode === "story" &&
+    state.depthId !== "depth_0" &&
+    !["returned", "cleared", "dead", "abandoned"].includes(state.phase)
+  )
     ? state
     : getSavedStoryRun();
   const arcadeRun = (state.active && state.gameMode === "arcade" && state.playerHp > 0)
@@ -50,7 +55,12 @@ function updateSavedRunBanner() {
 function handleStoryModeClick() {
   playClickSfx();
   activeGameMode = "story";
-  const storyRun = (state.active && state.gameMode === "story" && !["returned", "cleared", "dead", "abandoned"].includes(state.phase))
+  const storyRun = (
+    state.active &&
+    state.gameMode === "story" &&
+    state.depthId !== "depth_0" &&
+    !["returned", "cleared", "dead", "abandoned"].includes(state.phase)
+  )
     ? state
     : getSavedStoryRun();
   if (storyRun) {
@@ -58,15 +68,11 @@ function handleStoryModeClick() {
     resumeSavedRun();
     return;
   }
-  const st = typeof ensureStoryConfig === "function" ? ensureStoryConfig() : config.story;
-  const firstTime = !st.started;
+  ensureStoryConfig();
   state = createRunState();
   state.gameMode = "story";
   state.active = false;
-  transitionToView("select", "【 灯 の 里 】", t("villageSubTitle"));
-  if (firstTime && typeof openVillageModal === "function") {
-    setTimeout(() => openVillageModal("sensei"), 420);
-  }
+  transitionToView("select", "漢字地獄", "");
 }
 
 function handlePlayGameClick() {
@@ -109,7 +115,7 @@ function renderGuidePage() {
   $("guide-page-body").innerHTML = formatGmText(p.body);
 }
 
-/* Depth select — supports both Story Mode (Village node + sequential gates + persistent kills) and Arcade Mode. */
+/* Depth select — supports both Story Mode (Village stage + strictly sequential unlocked gates) and Arcade Mode. */
 function renderDepthSpine() {
   const storyMode = activeGameMode === "story";
   const st = storyMode && typeof ensureStoryConfig === "function" ? ensureStoryConfig() : null;
@@ -124,16 +130,15 @@ function renderDepthSpine() {
     if (storyMode && st) {
       expBar.style.display = "flex";
       const infoEl = $("select-exp-info");
-      const aura = typeof getStoryAuraStage === "function" ? getStoryAuraStage() : "early";
-      const auraBadge = aura === "abyss12" ? " · 🩸 修羅(奈落)" : aura === "abyss11" ? " · 🩸 修羅" : aura === "peace" ? " · 🌸 인간계 평정" : "";
+      const nPhase = typeof getStoryNarrativePhase === "function" ? getStoryNarrativePhase() : "early";
+      const auraBadge = nPhase === "shura_12" ? " · 🩸 修羅(奈落)" : nPhase === "abyss_11" ? " · 🩸 修羅" : nPhase === "peace_10" ? " · 🌸 인간계 평정" : "";
       if (infoEl) {
         infoEl.textContent = `🪙 ${st.yen.toLocaleString()} 円 · 📿 ${t("specialBagShort")} ${st.specialItems.length} · 🀄 ${t("normalBagShort")} ${st.deck.length}${auraBadge}`;
       }
       const btnsWrap = expBar.querySelector(".select-exp-btns");
       if (btnsWrap) {
         btnsWrap.innerHTML = `
-          <button class="btn btn-gold" onclick="openVillageModal('sensei')">🏮 ${escapeHtml(t("enterVillageBtn"))}</button>
-          <button class="btn" onclick="openDeckViewer()">📿/🀄 ${escapeHtml(t("deckBtn"))} (${st.deck.length})</button>
+          <button class="btn btn-gold" onclick="openDeckViewer()">📿/🀄 ${escapeHtml(t("deckBtn"))} (${st.deck.length})</button>
         `;
       }
     } else if (!storyMode && hasActiveArcadeRun() && state.phase === "returned") {
@@ -156,25 +161,32 @@ function renderDepthSpine() {
   if (!spine) return;
   spine.innerHTML = "";
 
-  // In Story Mode, place the Village Hub Node 【里】 at the very top of the spine!
+  // In Story Mode, place the Village Stage Node (00 【里】 등불의 마을) at the very top of the spine!
   if (storyMode && st) {
-    const aura = typeof getStoryAuraStage === "function" ? getStoryAuraStage() : "early";
+    const nPhase = typeof getStoryNarrativePhase === "function" ? getStoryNarrativePhase() : "early";
     const villageNode = document.createElement("div");
-    villageNode.className = `abyss-node village-node ${aura === "abyss11" || aura === "abyss12" ? "shura" : ""}`;
-    villageNode.onclick = () => openVillageModal("sensei");
-    const npcs = [
-      `<span class="v-npc">【先】${escapeHtml(t("npcSenseiShort"))}</span>`,
-      `<span class="v-npc">【老】${escapeHtml(t("npcElderShort"))}</span>`,
-      `<span class="v-npc">【友】${escapeHtml(t("npcFriendShort"))}</span>`,
-      st.catRescued ? `<span class="v-npc cat">🐱【猫】</span>` : ""
-    ].filter(Boolean).join(" · ");
+    villageNode.className = `abyss-node village-node ${nPhase === "abyss_11" || nPhase === "shura_12" ? "shura" : ""}`;
+    villageNode.onclick = () => openDepthEnterModal("depth_0");
+    const villageSubHint = st.unlockedDepth === 0
+      ? pickLang({
+          EN: "🕯 Enter your ruined hometown first to learn what happened and discover the First Gaol.",
+          KO: "🕯 먼저 폐허가 된 고향 마을로 들어가 변고의 진상과 첫 옥문의 위치를 확인하세요.",
+          JA: "🕯 まずは廃墟と化した故郷の里へ入り、異変の真相と第一獄のありかを確かめよ。",
+          ZH_CN: "🕯 请先进入化为废墟的故乡，查明异变真相并获知第一狱的位置。",
+          ZH_TW: "🕯 請先進入化為廢墟的故鄉，查明異變真相並獲知第一獄的位置。"
+        })
+      : t("villageNodeHint");
+    const spotsHtml = ["塾", "炉", "橋", st.catRescued ? "猫" : "家"]
+      .map(k => `<span class="encountered">${escapeHtml(k)}</span>`)
+      .join("");
     villageNode.innerHTML = `
       <div class="node-num village-seal">里</div>
       <div class="node-body">
         <div class="node-title">${escapeHtml(t("villageNodeTitle"))} <span class="node-gloss">${escapeHtml(t("villageNodeGloss"))}</span></div>
-        <div class="node-meta">${npcs}</div>
-        <div class="node-scores">${escapeHtml(t("villageNodeHint"))}</div>
+        <div class="node-meta">故郷 · 4処 (塾 · 炉 · 橋 · 家)</div>
+        <div class="node-scores">${escapeHtml(villageSubHint)}</div>
       </div>
+      <div class="node-bosses">${spotsHtml}<span class="boss-group">主 <span class="encountered">先</span></span></div>
     `;
     spine.appendChild(villageNode);
   }
@@ -184,12 +196,12 @@ function renderDepthSpine() {
     const dNum = depthNumber(did);
     const dTier = dNum >= 11 ? "abyss" : dNum >= 7 ? "common" : "edu";
 
-    // In Story Mode, Depth 11 only reveals & opens after clearing Depth 10, and Depth 12 only after clearing Depth 11!
-    if (storyMode && st && dNum >= 11 && dNum > st.unlockedDepth) {
+    // In Story Mode, ONLY unlocked Gaols (dNum <= st.unlockedDepth) appear!
+    // At the start (unlockedDepth === 0), not even 10급 (01 獄門) is shown until discovered in the Village!
+    if (storyMode && st && dNum > st.unlockedDepth) {
       return;
     }
 
-    const isLocked = storyMode && st && dNum > st.unlockedDepth;
     const roster = depthRoster(did);
     const allFoes = allRosterKanji(did);
 
@@ -213,9 +225,7 @@ function renderDepthSpine() {
     const storyConquered = storyMode && st && bosses.some(b => (st.defeatedBosses || []).includes(b));
 
     let recordLine = "";
-    if (isLocked) {
-      recordLine = `<span class="locked-hint">🔒 ${escapeHtml(t("storyLockedHint")(dNum - 1))}</span>`;
-    } else if (storyConquered) {
+    if (storyConquered) {
       recordLine = `🏆 ${escapeHtml(t("storyBossSlainBadge"))}${best ? ` · ★ ${formatTime(best.timeSec)}` : ""}`;
     } else if (best) {
       recordLine = `★ ${t("bestLabel")} ${formatTime(best.timeSec)} · ${escapeHtml(modelTag(best))}`;
@@ -234,17 +244,10 @@ function renderDepthSpine() {
     };
 
     const node = document.createElement("div");
-    node.className = `abyss-node tier-${dTier}` + ((best || storyConquered) ? " cleared" : "") + (isLocked ? " locked" : "");
-    node.onclick = () => {
-      if (isLocked) {
-        playClickSfx();
-        showToast(`🔒 ${t("storyLockedHint")(dNum - 1)}`);
-        return;
-      }
-      openDepthEnterModal(did);
-    };
+    node.className = `abyss-node tier-${dTier}` + ((best || storyConquered) ? " cleared" : "");
+    node.onclick = () => openDepthEnterModal(did);
     node.innerHTML = `
-      <div class="node-num tier-${dTier}">${isLocked ? "封" : depthNumStr(did)}</div>
+      <div class="node-num tier-${dTier}">${depthNumStr(did)}</div>
       <div class="node-body">
         <div class="node-title">${escapeHtml(depthName(did))} <span class="node-gloss">${escapeHtml(depthGloss(did))}</span></div>
         <div class="node-meta">${kankenLabel(did)} · ${d.count.toLocaleString()}字 · ${t("depthBestiary")(discoveredCount, allFoes.length)}</div>
@@ -256,7 +259,7 @@ function renderDepthSpine() {
   });
 }
 
-/* Pre-Entry Gate Lore & Stage Briefing Modal (with double-confirmation for Red Zone Depths 11 & 12) */
+/* Pre-Entry Gate Lore & Stage Briefing Modal (supports depth_0 Village stage + Depths 1..12) */
 function openDepthEnterModal(did) {
   if (activeGameMode === "arcade" && hasActiveArcadeRun() && state.phase !== "returned" && state.phase !== "cleared") {
     resumeSavedRun();
@@ -268,6 +271,70 @@ function openDepthEnterModal(did) {
   }
   if (typeof playGateSlideSfx === "function") playGateSlideSfx();
   else playClickSfx();
+
+  if (did === "depth_0") {
+    const card = $("depth-modal-card");
+    card.className = "modal-card depth-modal-card tier-edu";
+    const seal = $("dm-seal");
+    seal.textContent = "里";
+    seal.className = "depth-modal-seal tier-edu";
+    const zoneEl = $("dm-zone");
+    zoneEl.textContent = pickLang({
+      EN: "HOMETOWN · 燈火之里",
+      KO: "고향 거점 · 燈火之里",
+      JA: "故郷の拠点 · 燈火之里",
+      ZH_CN: "故乡据点 · 灯火之里",
+      ZH_TW: "故鄉據點 · 燈火之里"
+    });
+    zoneEl.className = "depth-modal-zone tier-edu";
+    $("dm-title").textContent = `【${t("villageNodeTitle")}】 — ${t("villageNodeGloss")}`;
+    $("dm-meta").textContent = "故郷 · 塾 · 炉 · 橋 · 家";
+    $("dm-lore").textContent = pickLang({
+      EN: "After a long absence, you return to your hometown—only to find it buried in black ash and eerie fog.\nIn the Dying Study (【塾】), your old teacher 【先】 guards the last paper lantern; by the Ash Brazier (【炉】), the blind Elder 【老】 stirs burnt characters; on the Stone Bridge (【橋】), your wounded friend 【友】 keeps watch; and your Ruined Home (【家】) stands silent.",
+      KO: "오랜 타향살이 끝에 돌아온 고향은 검은 재와 기괴한 안개에 파묻혀 무너져 내렸습니다.\n꺼져가는 서당【塾】에서 홀로 등불을 지키는 옛 스승【先】, 화로터【炉】에서 타다 남은 문자의 재를 뒤적이는 눈먼 노인【老】, 끊어진 돌다리【橋】에 기대어 선 옛 벗【友】, 그리고 무너진 본가【家】가 당신의 발걸음을 기다립니다.",
+      JA: "長い旅の果てに戻った故郷は、黒い灰と異様な霧に埋もれ果てていた。\n消えかけの書堂【塾】で灯を守る旧師【先】、火炉跡【炉】で文字の灰をかき混ぜる盲目の老人【老】、崩れた石橋【橋】に凭れる旧友【友】、そして崩れた生家【家】が足を運ぶのを待っている。",
+      ZH_CN: "久别归来的故乡已被黑灰与怪雾吞没。\n消逝书堂【塾】中守护孤灯的旧师【先】、火炉遗迹【炉】旁拨弄文字余烬的盲眼老人【老】、断桥【橋】上负伤倚立的旧友【友】，以及坍塌的老家【家】正等待你的造访。",
+      ZH_TW: "久別歸來的故鄉已被黑灰與怪霧吞沒。\n消逝書堂【塾】中守護孤燈的舊師【先】、火爐遺跡【爐】旁撥弄文字餘燼的盲眼老人【老】、斷橋【橋】上負傷倚立的舊友【友】，以及坍塌的老家【家】正等待你的造訪。"
+    });
+    $("dm-lore").classList.remove("warn-step");
+
+    const stageWrap = $("dm-stages-wrap");
+    stageWrap.style.display = "";
+    $("dm-stages-label").textContent = t("dmStagesLabel");
+    const stagesEl = $("dm-stages");
+    const vSpots = typeof VILLAGE_SPOTS !== "undefined" ? Object.keys(VILLAGE_SPOTS) : ["塾", "炉", "橋", "家"];
+    stagesEl.innerHTML = vSpots.map((s) => {
+      const sDef = typeof VILLAGE_SPOTS !== "undefined" ? VILLAGE_SPOTS[s] : null;
+      const omen = sDef ? pickLang(sDef.title) : s;
+      return `<div class="dm-stage-chip tier-edu"><span class="dm-stage-kanji">${escapeHtml(s)}</span><span class="dm-stage-omen">${escapeHtml(omen)}</span></div>`;
+    }).join("");
+
+    const actions = $("dm-actions");
+    actions.innerHTML = "";
+    const enterBtn = document.createElement("button");
+    enterBtn.className = "btn btn-gold";
+    enterBtn.textContent = pickLang({
+      EN: "Enter the Village",
+      KO: "마을로 들어서기",
+      JA: "里へ足を踏み入れる",
+      ZH_CN: "踏入村落",
+      ZH_TW: "踏入村落"
+    });
+    enterBtn.onclick = () => confirmEnterDepth("depth_0");
+
+    const backBtn = document.createElement("button");
+    backBtn.className = "btn";
+    backBtn.textContent = t("stepBackBtn");
+    backBtn.onclick = () => {
+      playClickSfx();
+      closeModal("depth-enter-modal");
+    };
+    actions.appendChild(enterBtn);
+    actions.appendChild(backBtn);
+    openModal("depth-enter-modal");
+    return;
+  }
+
   const d = KANKEN_DATA[did];
   const dNum = depthNumber(did);
   const tier = typeof depthTier === "function" ? depthTier(did) : (dNum >= 11 ? "abyss" : dNum >= 7 ? "common" : "edu");
@@ -364,6 +431,9 @@ function openAbyssSecondConfirm(did) {
 
 function confirmEnterDepth(did) {
   closeModal("depth-enter-modal");
-  requestStartRun(did);
+  if (did === "depth_0") {
+    startVillageStage();
+    return;
+  }
+  startRun(did);
 }
-
