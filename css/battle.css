@@ -54,11 +54,6 @@
   position: relative;
   overflow: visible;
   transition: transform 0.16s ease, width 0.2s ease, height 0.2s ease;
-  animation: bossAuraBreath 3.6s ease-in-out infinite;
-}
-@keyframes bossAuraBreath {
-  0%, 100% { box-shadow: 0 0 22px rgba(215, 58, 73, 0.35), inset 0 0 14px rgba(215, 58, 73, 0.15); }
-  50% { box-shadow: 0 0 36px rgba(215, 58, 73, 0.62), inset 0 0 24px rgba(215, 58, 73, 0.32); }
 }
 .boss-card:hover { transform: scale(1.04); }
 .boss-card.hit { animation: bossSlash 0.44s cubic-bezier(0.16, 0.85, 0.3, 1); }
@@ -165,6 +160,7 @@
   white-space: pre-wrap;
   word-break: keep-all;
   overflow-wrap: break-word;
+  contain: content;
   animation: logSlideIn 0.24s ease;
 }
 .log-entry.hint-log { border-left-color: var(--gold); background: rgba(35, 30, 20, 0.55); }

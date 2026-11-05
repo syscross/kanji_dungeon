@@ -15,58 +15,72 @@ function startEmberCanvas() {
   });
 
   const AMBIENT_KANJI = ["獄", "斬", "鬼", "魂", "影", "血", "呪", "封", "闇", "骨", "滅", "業", "淵", "夜", "刃"];
+  const GHOST_FONTS = [
+    '900 48px "Noto Serif JP", serif',
+    '900 64px "Noto Serif JP", serif',
+    '900 80px "Noto Serif JP", serif'
+  ];
 
   function pickGhostKanji() {
-    if (typeof state !== "undefined" && state && state.active && typeof KANKEN_DATA !== "undefined" && KANKEN_DATA[state.depthId]) {
-      const pool = KANKEN_DATA[state.depthId].kanji;
-      if (pool && pool.length) return pool[Math.floor(Math.random() * pool.length)];
-    }
     return AMBIENT_KANJI[Math.floor(Math.random() * AMBIENT_KANJI.length)];
   }
 
-  const embers = Array.from({ length: 44 }, () => ({
+  const embers = Array.from({ length: 28 }, () => ({
     x: Math.random() * w,
     y: Math.random() * h,
-    r: Math.random() * 2.2 + 0.5,
-    vy: -(Math.random() * 0.42 + 0.12),
-    vx: (Math.random() - 0.5) * 0.25,
+    r: Math.random() * 2.1 + 0.5,
+    vy: -(Math.random() * 0.55 + 0.18),
+    vx: (Math.random() - 0.5) * 0.3,
     phase: Math.random() * Math.PI * 2,
-    swaySpeed: Math.random() * 0.018 + 0.006,
-    alpha: Math.random() * 0.5 + 0.12,
+    swaySpeed: Math.random() * 0.025 + 0.01,
+    alpha: Math.random() * 0.48 + 0.12,
     tone: Math.random() > 0.72 ? "gold" : Math.random() > 0.35 ? "crimson" : "ash"
   }));
 
-  const ghosts = Array.from({ length: 7 }, () => ({
+  const ghosts = Array.from({ length: 5 }, (_, i) => ({
     x: Math.random() * w,
     y: Math.random() * h,
-    vy: -(Math.random() * 0.18 + 0.06),
-    size: Math.floor(Math.random() * 54 + 44),
-    alpha: Math.random() * 0.032 + 0.012,
+    vy: -(Math.random() * 0.25 + 0.1),
+    font: GHOST_FONTS[i % GHOST_FONTS.length],
+    alpha: (Math.random() * 0.028 + 0.012).toFixed(3),
     char: pickGhostKanji()
   }));
 
-  function step() {
+  let lastFrame = 0;
+  const FRAME_INTERVAL = 42; // ~24 fps atmospheric cadence
+
+  function step(now) {
+    requestAnimationFrame(step);
+    if (document.hidden) return;
+    if (now - lastFrame < FRAME_INTERVAL) return;
+    lastFrame = now;
+
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Faint ghostly kanji watermarks drifting in the abyss
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    for (const g of ghosts) {
-      g.y += g.vy;
-      if (g.y < -80) {
-        g.y = h + 80;
-        g.x = Math.random() * w;
-        g.char = pickGhostKanji();
+    // 1. Faint ghostly kanji watermarks (only on Title / Records views; Battle view covers the background)
+    const inBattle = typeof currentView !== "undefined" && currentView === "battle";
+    if (!inBattle) {
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (const g of ghosts) {
+        g.y += g.vy;
+        if (g.y < -80) {
+          g.y = h + 80;
+          g.x = Math.random() * w;
+          g.char = pickGhostKanji();
+        }
+        ctx.font = g.font;
+        ctx.fillStyle = `rgba(215, 58, 73, ${g.alpha})`;
+        ctx.fillText(g.char, g.x, g.y);
       }
-      ctx.font = `900 ${g.size}px "Noto Serif JP", serif`;
-      ctx.fillStyle = `rgba(215, 58, 73, ${g.alpha})`;
-      ctx.fillText(g.char, g.x, g.y);
     }
 
     // 2. Smoldering embers and drifting ash
-    for (const p of embers) {
+    const emberLimit = inBattle ? 14 : embers.length;
+    for (let i = 0; i < emberLimit; i++) {
+      const p = embers[i];
       p.phase += p.swaySpeed;
-      p.x += p.vx + Math.sin(p.phase) * 0.22;
+      p.x += p.vx + Math.sin(p.phase) * 0.28;
       p.y += p.vy;
       if (p.y < -12) {
         p.y = h + 12;
@@ -84,7 +98,6 @@ function startEmberCanvas() {
       }
       ctx.fill();
     }
-    requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }

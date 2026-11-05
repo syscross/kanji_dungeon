@@ -1,7 +1,7 @@
 /* Battle screen rendering: HUD, run encounter strip, cards, the run log, combat effects, judging spinner, dock actions. */
 
-const LOG_DOM_CAP = 250;   // entries kept on screen (older ones are dropped from the DOM)
-const LOG_HISTORY_CAP = 300;
+const LOG_DOM_CAP = 60;    // entries kept on screen (older ones are dropped from the DOM to keep layout fast)
+const LOG_HISTORY_CAP = 80;
 
 function formatTime(sec) {
   const m = String(Math.floor((sec || 0) / 60)).padStart(2, "0");
@@ -226,9 +226,15 @@ function insertKanji(k) {
  * Entries are recorded in state.history so a reload can replay the current descent.
  * The log is never wiped between runs; separators mark where a new descent begins. */
 
+let _scrollLogScheduled = false;
 function scrollLogToBottom() {
-  const gmBox = $("b-gm-log");
-  if (gmBox) requestAnimationFrame(() => { gmBox.scrollTop = gmBox.scrollHeight; });
+  if (_scrollLogScheduled) return;
+  _scrollLogScheduled = true;
+  requestAnimationFrame(() => {
+    _scrollLogScheduled = false;
+    const gmBox = $("b-gm-log");
+    if (gmBox) gmBox.scrollTop = gmBox.scrollHeight;
+  });
 }
 
 function pushLogNode(node) {
@@ -272,7 +278,7 @@ function logBeat(cls, title, lines, record = true) {
 }
 
 /* After a reload: show the tail of this descent's log. */
-function replayHistory(count = 40) {
+function replayHistory(count = 25) {
   state.history.slice(-count).forEach(e => pushLogNode(e.beat ? renderBeatEntry(e.beat) : renderMdEntry(e.md, e.cls)));
 }
 
@@ -391,18 +397,18 @@ function startJudgingIndicator(kind = "JUDGE") {
   entry.innerHTML = `<span class="rune-spinner"></span><span class="judge-txt">${label} (0.0s)</span>`;
   pushLogNode(entry);
 
+  const txtEl = entry.querySelector(".judge-txt");
   const t0 = performance.now();
   const iv = setInterval(() => {
     const sec = ((performance.now() - t0) / 1000).toFixed(1);
-    const txtEl = entry.querySelector(".judge-txt");
     if (txtEl) txtEl.textContent = `${label} (${sec}s)`;
-    sendBtn.textContent = `⏳ ${sec}s`;
-  }, 100);
+    if (sendBtn) sendBtn.textContent = `⏳ ${sec}s`;
+  }, 250);
 
   return () => {
     clearInterval(iv);
     entry.remove();
-    sendBtn.textContent = t("castBtn");
+    if (sendBtn) sendBtn.textContent = t("castBtn");
     return ((performance.now() - t0) / 1000).toFixed(1);
   };
 }

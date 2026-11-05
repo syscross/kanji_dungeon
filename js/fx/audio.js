@@ -1,15 +1,22 @@
 /*
  * Procedural Dark Eastern Ritual / Sekiro-inspired Web Audio Synthesizer (zero external audio files).
- * Features:
- *  - Pre-warmed ConvolverNode + continuous silent keep-alive so the first attack after an AI wait NEVER pops or cuts off.
- *  - Master DynamicsCompressorNode limiter + 14ms lookahead scheduling + micro-attack ramps on all oscillators.
- *  - Global interactive element sound delegation so no button, modal, or navigation action is ever silent.
+ * Performance-hardened architecture:
+ *  - Every temporary OscillatorNode / AudioBufferSourceNode automatically disconnects its entire
+ *    downstream filter/gain chain on completion (`onended`), preventing Web Audio graph leaks
+ *    and audio crackling over long runs.
+ *  - Pre-allocated shared reverb send buses (zero GainNode allocations in `connectOut`).
+ *  - Active voice limiter so rapid overlapping SFX never overload the audio render thread.
  */
 let audioCtx = null;
 let noiseBuf = null;
 let reverbNode = null;
+let reverbSendLow = null;
+let reverbSendMid = null;
+let reverbSendHigh = null;
 let masterBus = null;
 let lastSfxStamp = 0;
+let activeVoices = 0;
+const MAX_ACTIVE_VOICES = 18;
 let soundEnabled = localStorage.getItem("kd_sound") !== "off";
 
 function markSfxPlayed() {
@@ -22,7 +29,7 @@ function initAudio() {
     if (!AudioContext) return;
     audioCtx = new AudioContext();
 
-    // Master brickwall compressor/limiter so overlapping hits or reverb never clip or pop
+    // Master brickwall compressor/limiter so overlapping hits never clip or pop
     const limiter = audioCtx.createDynamicsCompressor();
     limiter.threshold.value = -5;
     limiter.knee.value = 6;
@@ -35,9 +42,10 @@ function initAudio() {
     masterBus.gain.value = 0.88;
     masterBus.connect(limiter);
 
-    // Pre-generate 2 seconds of organic pink/brown-tinted noise for blade wind, paper, wood & breath
+    // Pre-generate 1.5 seconds of organic pink/brown-tinted noise
     const sr = audioCtx.sampleRate;
-    noiseBuf = audioCtx.createBuffer(1, sr * 2, sr);
+    const noiseLen = Math.floor(sr * 1.5);
+    noiseBuf = audioCtx.createBuffer(1, noiseLen, sr);
     const data = noiseBuf.getChannelData(0);
     let b0 = 0, b1 = 0, b2 = 0;
     for (let i = 0; i < data.length; i++) {
@@ -48,17 +56,15 @@ function initAudio() {
       data[i] = (b0 + b1 + b2 + white * 0.18) * 0.55;
     }
 
-    // Subterranean stone shrine impulse response (1.5s dark tail, smoothly tapered at start & end)
+    // Lightweight mono shrine impulse response (0.55s tail) + 3 shared send buses (zero per-SFX GainNode allocation)
     try {
-      const len = Math.floor(sr * 1.5);
-      const imp = audioCtx.createBuffer(2, len, sr);
-      for (let ch = 0; ch < 2; ch++) {
-        const c = imp.getChannelData(ch);
-        for (let i = 0; i < len; i++) {
-          const fadeIn = Math.min(1, i / (sr * 0.008));
-          const env = Math.pow(1 - i / len, 2.8) * fadeIn;
-          c[i] = (Math.random() * 2 - 1) * env * 0.32;
-        }
+      const len = Math.floor(sr * 0.55);
+      const imp = audioCtx.createBuffer(1, len, sr);
+      const c = imp.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        const fadeIn = Math.min(1, i / (sr * 0.006));
+        const env = Math.pow(1 - i / len, 2.8) * fadeIn;
+        c[i] = (Math.random() * 2 - 1) * env * 0.3;
       }
       reverbNode = audioCtx.createConvolver();
       reverbNode.buffer = imp;
@@ -66,27 +72,25 @@ function initAudio() {
       revFilter.type = "lowpass";
       revFilter.frequency.value = 1400;
       const revGain = audioCtx.createGain();
-      revGain.gain.value = 0.25;
+      revGain.gain.value = 0.24;
       reverbNode.connect(revFilter);
       revFilter.connect(revGain);
       revGain.connect(masterBus);
+
+      reverbSendLow = audioCtx.createGain();
+      reverbSendLow.gain.value = 0.12;
+      reverbSendLow.connect(reverbNode);
+
+      reverbSendMid = audioCtx.createGain();
+      reverbSendMid.gain.value = 0.28;
+      reverbSendMid.connect(reverbNode);
+
+      reverbSendHigh = audioCtx.createGain();
+      reverbSendHigh.gain.value = 0.48;
+      reverbSendHigh.connect(reverbNode);
     } catch (_) {
       reverbNode = null;
     }
-
-    // Continuous ultra-quiet keep-alive through reverb & masterBus so mobile/desktop DACs
-    // and the ConvolverNode FFT buffers never cold-stall after waiting for AI network calls!
-    try {
-      const keepAlive = audioCtx.createOscillator();
-      const kaGain = audioCtx.createGain();
-      keepAlive.type = "sine";
-      keepAlive.frequency.value = 30;
-      kaGain.gain.value = 0.000015;
-      keepAlive.connect(kaGain);
-      kaGain.connect(masterBus);
-      if (reverbNode) kaGain.connect(reverbNode);
-      keepAlive.start();
-    } catch (_) {}
   }
   if (audioCtx && audioCtx.state === "suspended") {
     audioCtx.resume().catch(() => {});
@@ -94,19 +98,49 @@ function initAudio() {
 }
 
 function nowTime() {
-  // 14ms lookahead prevents main-thread jitter from cutting off the attack transient
-  return audioCtx ? audioCtx.currentTime + 0.014 : 0;
+  return audioCtx ? audioCtx.currentTime + 0.012 : 0;
 }
 
+/* Connect a voice's final GainNode to masterBus and a shared reverb bus without allocating extra GainNodes. */
 function connectOut(node, wet = 0.2) {
   if (!masterBus) return;
   node.connect(masterBus);
   if (reverbNode && wet > 0) {
-    const send = audioCtx.createGain();
-    send.gain.value = wet;
-    node.connect(send);
-    send.connect(reverbNode);
+    if (wet <= 0.16 && reverbSendLow) node.connect(reverbSendLow);
+    else if (wet <= 0.36 && reverbSendMid) node.connect(reverbSendMid);
+    else if (reverbSendHigh) node.connect(reverbSendHigh);
   }
+}
+
+/*
+ * Register a one-shot source (OscillatorNode or AudioBufferSourceNode) and its downstream nodes
+ * so every node is deterministically disconnected from the audio graph as soon as the sound ends.
+ */
+function trackVoice(sourceNode, downstreamNodes, stopTime) {
+  activeVoices += 1;
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    activeVoices = Math.max(0, activeVoices - 1);
+    try { sourceNode.disconnect(); } catch (_) {}
+    if ( Array.isArray(downstreamNodes)) {
+      for (let i = 0; i < downstreamNodes.length; i++) {
+        try { downstreamNodes[i].disconnect(); } catch (_) {}
+      }
+    }
+  };
+  sourceNode.onended = cleanup;
+  if (audioCtx && stopTime) {
+    const durMs = Math.max(60, Math.ceil((stopTime - audioCtx.currentTime) * 1000) + 120);
+    setTimeout(cleanup, durMs);
+  } else {
+    setTimeout(cleanup, 1800);
+  }
+}
+
+function canPlayVoice(needed = 1) {
+  return activeVoices + needed <= MAX_ACTIVE_VOICES;
 }
 
 function syncSoundBtn() {
@@ -125,7 +159,7 @@ function toggleSound() {
 
 /* Dry wooden fuda / stone seal tap */
 function playClickSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(2)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -145,6 +179,7 @@ function playClickSfx() {
   src.connect(bp);
   bp.connect(nGain);
   connectOut(nGain, 0.08);
+  trackVoice(src, [bp, nGain], t0 + 0.04);
   src.start(t0, Math.random() * 0.5, 0.035);
 
   // 2. Muted dark wood body thud
@@ -158,13 +193,14 @@ function playClickSfx() {
   oGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.036);
   osc.connect(oGain);
   connectOut(oGain, 0.05);
+  trackVoice(osc, [oGain], t0 + 0.045);
   osc.start(t0);
   osc.stop(t0 + 0.04);
 }
 
 /* Heavy wooden shrine gate / sliding door resonance (used on Title/Select view transitions & modals) */
 function playGateSlideSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(2)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -185,6 +221,7 @@ function playGateSlideSfx() {
   slide.connect(bp);
   bp.connect(sGain);
   connectOut(sGain, 0.28);
+  trackVoice(slide, [bp, sGain], t0 + 0.26);
   slide.start(t0, Math.random() * 0.6, 0.26);
 
   // 2. Low wooden latch thud
@@ -198,6 +235,7 @@ function playGateSlideSfx() {
   lGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.2);
   latch.connect(lGain);
   connectOut(lGain, 0.22);
+  trackVoice(latch, [lGain], t0 + 0.23);
   latch.start(t0 + 0.02);
   latch.stop(t0 + 0.22);
 }
@@ -209,7 +247,7 @@ function playCardDealSfx(delayMs = 0) {
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
   setTimeout(() => {
-    if (!soundEnabled || !audioCtx) return;
+    if (!soundEnabled || !audioCtx || !canPlayVoice(1)) return;
     const t0 = nowTime();
 
     const src = audioCtx.createBufferSource();
@@ -229,26 +267,14 @@ function playCardDealSfx(delayMs = 0) {
     src.connect(bp);
     bp.connect(gain);
     connectOut(gain, 0.12);
+    trackVoice(src, [bp, gain], t0 + 0.09);
     src.start(t0, Math.random() * 0.8, 0.085);
-
-    const sub = audioCtx.createOscillator();
-    const sGain = audioCtx.createGain();
-    sub.type = "sine";
-    sub.frequency.setValueAtTime(88, t0 + 0.012);
-    sub.frequency.exponentialRampToValueAtTime(44, t0 + 0.058);
-    sGain.gain.setValueAtTime(0.0001, t0 + 0.012);
-    sGain.gain.linearRampToValueAtTime(0.038, t0 + 0.018);
-    sGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.065);
-    sub.connect(sGain);
-    connectOut(sGain, 0);
-    sub.start(t0 + 0.012);
-    sub.stop(t0 + 0.07);
   }, delayMs);
 }
 
 /* Talisman Cast / Incantation Release when pressing Cast (⚔ 시전) */
 function playCastIncantationSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(3)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -269,6 +295,7 @@ function playCastIncantationSfx() {
   whoosh.connect(bp);
   bp.connect(wGain);
   connectOut(wGain, 0.3);
+  trackVoice(whoosh, [bp, wGain], t0 + 0.19);
   whoosh.start(t0, Math.random() * 0.6, 0.18);
 
   // 2. Subtle ritual kagura suzu (shrine bell) shimmer
@@ -283,6 +310,7 @@ function playCastIncantationSfx() {
     g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.28);
     osc.connect(g);
     connectOut(g, 0.4);
+    trackVoice(osc, [g], t0 + 0.31);
     osc.start(t0 + idx * 0.02);
     osc.stop(t0 + 0.3);
   });
@@ -290,7 +318,7 @@ function playCastIncantationSfx() {
 
 /* Eerie shrine spirit whisper / wind chime (used on Hint, Ask, Events) */
 function playWhisperSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(2)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -310,6 +338,7 @@ function playWhisperSfx() {
   breath.connect(bp);
   bp.connect(bGain);
   connectOut(bGain, 0.45);
+  trackVoice(breath, [bp, bGain], t0 + 0.33);
   breath.start(t0, Math.random() * 0.5, 0.32);
 
   const chime = audioCtx.createOscillator();
@@ -322,6 +351,7 @@ function playWhisperSfx() {
   cGain.gain.exponentialRampToValueAtTime(0.0006, t0 + 0.44);
   chime.connect(cGain);
   connectOut(cGain, 0.55);
+  trackVoice(chime, [cGain], t0 + 0.47);
   chime.start(t0 + 0.01);
   chime.stop(t0 + 0.46);
 }
@@ -335,7 +365,7 @@ function playFootstepSfx() {
 
   [0, 135].forEach((delay, stepIdx) => {
     setTimeout(() => {
-      if (!soundEnabled || !audioCtx) return;
+      if (!soundEnabled || !audioCtx || !canPlayVoice(2)) return;
       const t0 = nowTime();
       const step = audioCtx.createBufferSource();
       step.buffer = noiseBuf;
@@ -350,6 +380,7 @@ function playFootstepSfx() {
       step.connect(lp);
       lp.connect(g);
       connectOut(g, 0.25);
+      trackVoice(step, [lp, g], t0 + 0.09);
       step.start(t0, Math.random() * 0.5, 0.08);
 
       const thud = audioCtx.createOscillator();
@@ -362,6 +393,7 @@ function playFootstepSfx() {
       tGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.065);
       thud.connect(tGain);
       connectOut(tGain, 0.15);
+      trackVoice(thud, [tGain], t0 + 0.08);
       thud.start(t0);
       thud.stop(t0 + 0.07);
     }, delay);
@@ -370,7 +402,7 @@ function playFootstepSfx() {
 
 /* Ancient God Summon invocation rumble */
 function playSummonGodSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(3)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -391,6 +423,7 @@ function playSummonGodSfx() {
   rumble.connect(lp);
   lp.connect(rGain);
   connectOut(rGain, 0.5);
+  trackVoice(rumble, [lp, rGain], t0 + 0.62);
   rumble.start(t0);
   rumble.stop(t0 + 0.6);
 
@@ -405,6 +438,7 @@ function playSummonGodSfx() {
     g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.58);
     osc.connect(g);
     connectOut(g, 0.55);
+    trackVoice(osc, [g], t0 + 0.62);
     osc.start(t0 + 0.02);
     osc.stop(t0 + 0.6);
   });
@@ -412,7 +446,7 @@ function playSummonGodSfx() {
 
 /* Singing bowl / vitality resonance when recovering HP */
 function playHealSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(3)) return;
   initAudio();
   if (!audioCtx) return;
   markSfxPlayed();
@@ -429,6 +463,7 @@ function playHealSfx() {
     g.gain.exponentialRampToValueAtTime(0.0006, t0 + 0.58);
     osc.connect(g);
     connectOut(g, 0.55);
+    trackVoice(osc, [g], t0 + 0.64);
     osc.start(t0 + i * 0.035);
     osc.stop(t0 + 0.62);
   });
@@ -436,7 +471,7 @@ function playHealSfx() {
 
 /* Sekiro-style Katana Deflect / Parry Ring (챙—!) when full defense nullifies enemy attack */
 function playParrySfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(3)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -456,13 +491,13 @@ function playParrySfx() {
   spark.connect(hp);
   hp.connect(sGain);
   connectOut(sGain, 0.35);
+  trackVoice(spark, [hp, sGain], t0 + 0.1);
   spark.start(t0, Math.random() * 0.5, 0.09);
 
   // Resonant steel parry ring
   const ringFreqs = [
-    { f1: 1760, f2: 1735, g: 0.07, d: 0.38 },
-    { f1: 2790, f2: 2740, g: 0.05, d: 0.30 },
-    { f1: 4180, f2: 4110, g: 0.03, d: 0.22 }
+    { f1: 1760, f2: 1735, g: 0.07, d: 0.35 },
+    { f1: 2790, f2: 2740, g: 0.05, d: 0.28 }
   ];
   ringFreqs.forEach(({ f1, f2, g, d }) => {
     const osc = audioCtx.createOscillator();
@@ -474,21 +509,22 @@ function playParrySfx() {
     pGain.gain.linearRampToValueAtTime(g, t0 + 0.004);
     pGain.gain.exponentialRampToValueAtTime(0.0006, t0 + d);
     osc.connect(pGain);
-    connectOut(pGain, 0.5);
+    connectOut(pGain, 0.45);
+    trackVoice(osc, [pGain], t0 + d + 0.03);
     osc.start(t0);
     osc.stop(t0 + d + 0.02);
   });
 }
 
-/* Sekiro-inspired Katana Slash & Spirit Severance (zero-pop micro-ramp envelope) */
+/* Sekiro-inspired Katana Slash & Spirit Severance */
 function playSlashSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(4)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
   const t0 = nowTime();
 
-  // 1. High-velocity blade wind cut (filtered noise sweep)
+  // 1. High-velocity blade wind cut
   const wind = audioCtx.createBufferSource();
   wind.buffer = noiseBuf;
   const bp = audioCtx.createBiquadFilter();
@@ -503,13 +539,13 @@ function playSlashSfx() {
   wind.connect(bp);
   bp.connect(wGain);
   connectOut(wGain, 0.28);
+  trackVoice(wind, [bp, wGain], t0 + 0.22);
   wind.start(t0, Math.random() * 0.5, 0.21);
 
-  // 2. Cold steel katana ring (inharmonic metallic partials with smooth 5ms attack ramp)
+  // 2. Cold steel katana ring
   const partials = [
-    { f1: 1420, f2: 1380, g: 0.048, d: 0.28 },
-    { f1: 2290, f2: 2210, g: 0.036, d: 0.22 },
-    { f1: 3480, f2: 3320, g: 0.022, d: 0.16 }
+    { f1: 1420, f2: 1380, g: 0.048, d: 0.26 },
+    { f1: 2290, f2: 2210, g: 0.036, d: 0.20 }
   ];
   partials.forEach(({ f1, f2, g, d }) => {
     const osc = audioCtx.createOscillator();
@@ -522,11 +558,12 @@ function playSlashSfx() {
     pGain.gain.exponentialRampToValueAtTime(0.0006, t0 + d);
     osc.connect(pGain);
     connectOut(pGain, 0.35);
+    trackVoice(osc, [pGain], t0 + d + 0.03);
     osc.start(t0);
     osc.stop(t0 + d + 0.02);
   });
 
-  // 3. Heavy flesh/posture impact sub-thud (smooth 6ms attack ramp so it never clicks/pops)
+  // 3. Heavy flesh/posture impact sub-thud
   const sub = audioCtx.createOscillator();
   const sGain = audioCtx.createGain();
   sub.type = "triangle";
@@ -537,13 +574,14 @@ function playSlashSfx() {
   sGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.21);
   sub.connect(sGain);
   connectOut(sGain, 0.18);
+  trackVoice(sub, [sGain], t0 + 0.23);
   sub.start(t0 + 0.008);
   sub.stop(t0 + 0.22);
 }
 
 /* Heavy posture/blood hit taken by player — visceral low thud & dark dissonance */
 function playDamageSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(3)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -560,6 +598,7 @@ function playDamageSfx() {
   sGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.3);
   sub.connect(sGain);
   connectOut(sGain, 0.22);
+  trackVoice(sub, [sGain], t0 + 0.33);
   sub.start(t0);
   sub.stop(t0 + 0.32);
 
@@ -577,28 +616,28 @@ function playDamageSfx() {
   crunch.connect(lp);
   lp.connect(cGain);
   connectOut(cGain, 0.18);
+  trackVoice(crunch, [lp, cGain], t0 + 0.21);
   crunch.start(t0, Math.random() * 0.5, 0.2);
 
   // 3. Eerie minor-second dark tremor
-  [98, 104.5].forEach((freq) => {
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(freq, t0);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.72, t0 + 0.34);
-    g.gain.setValueAtTime(0.0001, t0);
-    g.gain.linearRampToValueAtTime(0.058, t0 + 0.008);
-    g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.36);
-    osc.connect(g);
-    connectOut(g, 0.32);
-    osc.start(t0);
-    osc.stop(t0 + 0.38);
-  });
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(102, t0);
+  osc.frequency.exponentialRampToValueAtTime(72, t0 + 0.32);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(0.085, t0 + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.34);
+  osc.connect(g);
+  connectOut(g, 0.32);
+  trackVoice(osc, [g], t0 + 0.36);
+  osc.start(t0);
+  osc.stop(t0 + 0.35);
 }
 
 /* Subterranean Temple Bell (Bonsho) & Taiko Drum — Boss encounter / Curtain transition */
 function playGongSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(4)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -615,17 +654,15 @@ function playGongSfx() {
   tGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.55);
   taiko.connect(tGain);
   connectOut(tGain, 0.4);
+  trackVoice(taiko, [tGain], t0 + 0.6);
   taiko.start(t0);
   taiko.stop(t0 + 0.58);
 
-  // 2. Bronze Bonsho bell partials
+  // 2. Bronze Bonsho bell partials (streamlined to 3 core partials)
   const bellPartials = [
-    { f: 110.0, g: 0.11, d: 1.9 },
-    { f: 111.4, g: 0.09, d: 1.85 },
-    { f: 221.5, g: 0.058, d: 1.45 },
-    { f: 318.0, g: 0.04, d: 1.15 },
-    { f: 476.0, g: 0.024, d: 0.85 },
-    { f: 712.0, g: 0.013, d: 0.55 }
+    { f: 110.0, g: 0.13, d: 1.35 },
+    { f: 221.5, g: 0.065, d: 1.05 },
+    { f: 318.0, g: 0.042, d: 0.85 }
   ];
   bellPartials.forEach(({ f, g, d }) => {
     const osc = audioCtx.createOscillator();
@@ -638,30 +675,15 @@ function playGongSfx() {
     pGain.gain.exponentialRampToValueAtTime(0.0006, t0 + d);
     osc.connect(pGain);
     connectOut(pGain, 0.55);
+    trackVoice(osc, [pGain], t0 + d + 0.05);
     osc.start(t0);
     osc.stop(t0 + d + 0.04);
   });
-
-  // 3. Eerie crypt wind swell
-  const breath = audioCtx.createBufferSource();
-  breath.buffer = noiseBuf;
-  const bp = audioCtx.createBiquadFilter();
-  bp.type = "bandpass";
-  bp.frequency.setValueAtTime(280, t0);
-  bp.Q.value = 3.5;
-  const bGain = audioCtx.createGain();
-  bGain.gain.setValueAtTime(0.0001, t0);
-  bGain.gain.linearRampToValueAtTime(0.055, t0 + 0.15);
-  bGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 1.2);
-  breath.connect(bp);
-  bp.connect(bGain);
-  connectOut(bGain, 0.45);
-  breath.start(t0, 0, 1.3);
 }
 
 /* Sekiro Deathblow / Execution Seal Stamp (斬) */
 function playSealStampSfx() {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !canPlayVoice(4)) return;
   initAudio();
   if (!audioCtx || !noiseBuf) return;
   markSfxPlayed();
@@ -681,6 +703,7 @@ function playSealStampSfx() {
   clack.connect(hp);
   hp.connect(cGain);
   connectOut(cGain, 0.4);
+  trackVoice(clack, [hp, cGain], t0 + 0.09);
   clack.start(t0, Math.random() * 0.4, 0.08);
 
   // 2. Deep execution sub-boom
@@ -688,29 +711,31 @@ function playSealStampSfx() {
   const bGain = audioCtx.createGain();
   boom.type = "sine";
   boom.frequency.setValueAtTime(96, t0);
-  boom.frequency.exponentialRampToValueAtTime(27, t0 + 0.55);
+  boom.frequency.exponentialRampToValueAtTime(27, t0 + 0.52);
   bGain.gain.setValueAtTime(0.0001, t0);
   bGain.gain.linearRampToValueAtTime(0.28, t0 + 0.006);
-  bGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.6);
+  bGain.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.56);
   boom.connect(bGain);
   connectOut(bGain, 0.45);
+  trackVoice(boom, [bGain], t0 + 0.6);
   boom.start(t0);
-  boom.stop(t0 + 0.65);
+  boom.stop(t0 + 0.58);
 
   // 3. Haunting ritual chime ring
-  [528, 792, 1188].forEach((freq, i) => {
+  [528, 792].forEach((freq, i) => {
     const osc = audioCtx.createOscillator();
     const g = audioCtx.createGain();
     osc.type = "sine";
     osc.frequency.setValueAtTime(freq, t0 + 0.01);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.99, t0 + 1.1);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.99, t0 + 0.85);
     g.gain.setValueAtTime(0.0001, t0 + 0.01);
-    g.gain.linearRampToValueAtTime(0.048 / (i + 1), t0 + 0.018);
-    g.gain.exponentialRampToValueAtTime(0.0006, t0 + 1.15);
+    g.gain.linearRampToValueAtTime(0.05 / (i + 1), t0 + 0.018);
+    g.gain.exponentialRampToValueAtTime(0.0006, t0 + 0.88);
     osc.connect(g);
     connectOut(g, 0.55);
+    trackVoice(osc, [g], t0 + 0.92);
     osc.start(t0 + 0.01);
-    osc.stop(t0 + 1.2);
+    osc.stop(t0 + 0.9);
   });
 }
 
@@ -726,7 +751,7 @@ if (typeof document !== "undefined") {
       : null;
     if (!el || el.disabled) return;
     if (el.id === "sound-btn" || el.id === "sound-toggle-btn") return;
-    if (performance.now() - lastSfxStamp > 45) {
+    if (performance.now() - lastSfxStamp > 55) {
       playClickSfx();
     }
   }, true);

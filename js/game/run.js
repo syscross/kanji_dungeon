@@ -565,7 +565,7 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   resetPilesForFight();
   drawHand();
   dealEnemyHand();
-  for (let i = 0; i < HAND_SIZE; i++) playCardDealSfx(i * 65);
+  for (let i = 0; i < 2; i++) playCardDealSfx(i * 90);
 
   resetBattleChrome();
   const shortName = typeof getEnemyShortName === "function" ? getEnemyShortName(kanji) : "";

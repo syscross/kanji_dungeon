@@ -292,14 +292,17 @@ function hasActiveStoryDungeonRun() {
 function cleanRunForStorage(runObj) {
   if (!runObj || typeof runObj !== "object") return null;
   const clone = { ...runObj };
-  // Truncate run history in localStorage to 50 entries to prevent quota overflow
-  if (Array.isArray(clone.history) && clone.history.length > 50) {
-    clone.history = clone.history.slice(-50);
+  // Truncate run history in localStorage to 35 entries to keep serialization fast
+  if (Array.isArray(clone.history) && clone.history.length > 35) {
+    clone.history = clone.history.slice(-35);
   }
   return clone;
 }
 
-function saveRunToStorage() {
+let _saveScheduled = false;
+
+function _flushSaveRunToStorage() {
+  _saveScheduled = false;
   const mode = state.gameMode || activeGameMode || "arcade";
   if (mode === "story") {
     if (
@@ -314,7 +317,6 @@ function saveRunToStorage() {
       try {
         localStorage.setItem(STORAGE.savedStoryRun, JSON.stringify(cleaned));
       } catch (_e) {
-        // Quota exceeded emergency fallback: drop history completely
         if (cleaned) {
           cleaned.history = [];
           localStorage.setItem(STORAGE.savedStoryRun, JSON.stringify(cleaned));
@@ -337,8 +339,24 @@ function saveRunToStorage() {
       }
     }
   }
-  if (typeof updateSavedRunBanner === "function") updateSavedRunBanner();
+  if (currentView === "title" && typeof updateSavedRunBanner === "function") {
+    updateSavedRunBanner();
+  }
 }
+
+function saveRunToStorage() {
+  if (currentView === "title") {
+    _flushSaveRunToStorage();
+    return;
+  }
+  if (_saveScheduled) return;
+  _saveScheduled = true;
+  requestAnimationFrame(_flushSaveRunToStorage);
+}
+
+window.addEventListener("pagehide", () => {
+  if (_saveScheduled) _flushSaveRunToStorage();
+});
 
 function loadSavedRunFromStorage() {
   const storyRun = getSavedStoryRun();
