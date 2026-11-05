@@ -130,6 +130,7 @@
         <div class="save-data-btns">
           <button class="btn" data-i18n="exportSaveBtn" onclick="exportSaveData()">📤 Export</button>
           <button class="btn" data-i18n="importSaveBtn" onclick="triggerImportSave()">📥 Import</button>
+          <button class="btn btn-danger icon-btn" id="delete-save-btn" title="Delete All Save Data" onclick="promptWipeAllSaveData()">🗑️</button>
           <input type="file" id="save-file-input" accept=".json,application/json" style="display:none" onchange="handleImportSaveFile(event)" />
         </div>
       </div>

@@ -10,7 +10,8 @@ function setupKeyboardNavigation() {
         return;
       }
       if (document.querySelector(".modal-backdrop.active:not([data-locked='1'])")) {
-        closeAllModals();
+        if (typeof closeTopModal === "function") closeTopModal();
+        else closeAllModals();
         return;
       }
       if (isTextEntryFocused()) {

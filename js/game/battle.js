@@ -346,7 +346,8 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   triggerCombatFX(n.enemyDamage, n.playerDamage, healed, n.defense);
 
   const enemyUsedTxt = j.enemyUsed.length ? `${t("enemyIntentUsed")}: 【${j.enemyUsed.join("·")}】 → ` : "";
-  const enemyLine = `👹 **【${state.enemyKanji}】** *(${t("enemyHandLog")}: ${state.enemyHand.join(" ")})* ${j.enemyAction}\n   ${enemyUsedTxt}**${t("dmgYou")(n.playerDamage)}**${DEFENSE_MARK[n.defense]}${escapeFailNote}`;
+  const brutalCritMark = j.brutalCrit ? " 🩸💥 **【회심의 일격 / 묵직한 강타!】**" : "";
+  const enemyLine = `👹 **【${state.enemyKanji}】** *(${t("enemyHandLog")}: ${state.enemyHand.join(" ")})* ${j.enemyAction}\n   ${enemyUsedTxt}**${t("dmgYou")(n.playerDamage)}**${DEFENSE_MARK[n.defense]}${brutalCritMark}${escapeFailNote}`;
   logMd(`${youLine}\n${gmLine}\n${enemyLine}`, verdictClass);
   maybeShowTrialNudge(j);
 

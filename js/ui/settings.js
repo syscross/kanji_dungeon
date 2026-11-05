@@ -210,3 +210,45 @@ function handleImportSaveFile(event) {
   reader.readAsText(file);
 }
 
+
+function promptWipeAllSaveData() {
+  playClickSfx();
+  const title = "⚠️ 【세이브 데이터 영구 삭제】";
+  const desc = "스토리 모드 진행도, 보유 엔화, 영구 특수 성물, 도감 기록, 아케이드 진행 상황이 모두 영구 삭제됩니다.\n정말로 모든 세이브 데이터를 초기화하시겠습니까?";
+  if (typeof openConfirmModal === "function") {
+    openConfirmModal(title, desc, () => {
+      wipeAllSaveData();
+    });
+  } else if (confirm(desc)) {
+    wipeAllSaveData();
+  }
+}
+
+function wipeAllSaveData() {
+  playSealStampSfx();
+  Object.values(STORAGE).forEach(k => {
+    // Keep API keys and provider so user doesn't have to re-enter their key unless they want to
+    if (k !== STORAGE.keys && k !== STORAGE.legacyKey && k !== STORAGE.provider && k !== STORAGE.endpoint) {
+      localStorage.removeItem(k);
+    }
+  });
+
+  config.achievements = {};
+  config.seenFoes = {};
+  config.stats = { kills: 0, runs: 0 };
+  config.records = {};
+  config.story = createDefaultStoryState();
+
+  state = createRunState();
+  state.active = false;
+
+  loadSavedRunFromStorage();
+  updateSavedRunBanner();
+  renderDepthSpine();
+
+  if (currentView === "battle") {
+    transitionToView("title");
+  }
+
+  showToast("🗑️ 모든 세이브 데이터가 완전히 초기화되었습니다.");
+}

@@ -42,6 +42,7 @@ function stageCardContent() {
   if (state.phase === "battle" || (state.phase === "reward" && state.enemyKanji)) {
     return { kanji: state.enemyKanji, neutral: false };
   }
+  // During stage/village exploration, portrait is strictly the stage sign (e.g. 塾, 炉, 橋, 家, 田, 川, etc.)
   return { kanji: state.sign || "開", neutral: true };
 }
 
@@ -62,31 +63,30 @@ function renderRunRosterBar() {
   const runBoss = state.runBoss || roster.boss;
   const mobs = [...new Set([...roster.normal, ...roster.elite])].filter(k => k !== runBoss);
 
-  const mobHtml = mobs.map(k => {
-    const killed = (state.defeatedEnemies || []).includes(k);
-    const seen = (state.encounteredEnemies || []).includes(k) ||
+  // User request: No question marks (？) like a chore checklist. Only show actually encountered/slain foes as discovered!
+  const mobHtml = mobs.filter(k => {
+    return (state.defeatedEnemies || []).includes(k) ||
+      (state.encounteredEnemies || []).includes(k) ||
       Boolean(config.seenFoes && config.seenFoes[k]) ||
       Boolean(config.achievements && config.achievements[`boss_${k}`]);
-    if (killed) {
-      return `<span class="rr-chip killed" title="${escapeHtml(k)} (殺)">${escapeHtml(k)}</span>`;
-    }
-    if (seen) {
-      const wHp = state.woundedEnemies && state.woundedEnemies[k];
-      const tip = wHp ? `${k} (HP ${wHp})` : k;
-      return `<span class="rr-chip seen" title="${escapeHtml(tip)}">${escapeHtml(k)}</span>`;
-    }
-    return `<span class="rr-chip unknown" title="?">？</span>`;
+  }).map(k => {
+    const killed = (state.defeatedEnemies || []).includes(k);
+    const wHp = state.woundedEnemies && state.woundedEnemies[k];
+    const tip = killed ? `${k} (殺)` : (wHp ? `${k} (HP ${wHp})` : k);
+    const cls = killed ? "rr-chip killed" : "rr-chip seen";
+    return `<span class="${cls}" title="${escapeHtml(tip)}">${escapeHtml(k)}</span>`;
   }).join("");
 
   const bossKilled = (state.defeatedEnemies || []).includes(runBoss);
   const bossSeen = Boolean(state.bossEncountered || (state.encounteredEnemies || []).includes(runBoss));
-  let bossHtml = `<span class="rr-chip boss unknown" title="Boss: ?">主 ？</span>`;
+  // User request: Remove "主" prefix kanji from boss chip so it doesn't look like 2 kanji stuck together
+  let bossHtml = "";
   if (bossKilled) {
-    bossHtml = `<span class="rr-chip boss killed" title="Boss: ${escapeHtml(runBoss)} (殺)">主 ${escapeHtml(runBoss)}</span>`;
+    bossHtml = `<span class="rr-chip boss killed" title="${escapeHtml(runBoss)} (殺)">${escapeHtml(runBoss)}</span>`;
   } else if (bossSeen) {
     const bHp = state.woundedEnemies && state.woundedEnemies[runBoss];
-    const tip = bHp ? `Boss: ${runBoss} (HP ${bHp})` : `Boss: ${runBoss}`;
-    bossHtml = `<span class="rr-chip boss seen" title="${escapeHtml(tip)}">主 ${escapeHtml(runBoss)}</span>`;
+    const tip = bHp ? `${runBoss} (HP ${bHp})` : runBoss;
+    bossHtml = `<span class="rr-chip boss seen" title="${escapeHtml(tip)}">${escapeHtml(runBoss)}</span>`;
   }
 
   bar.innerHTML = `<div class="rr-mobs">${mobHtml}</div>${bossHtml}`;

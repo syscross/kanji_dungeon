@@ -17,14 +17,14 @@ const VERDICT_LABELS = {
 };
 
 /* Damage dealt by verdict (only when the move attacks). */
-const VERDICT_DAMAGE = { FIZZLE: [0, 0], WEAK: [8, 12], SOLID: [16, 22], CLEVER: [27, 35], MASTERFUL: [42, 55] };
+const VERDICT_DAMAGE = { FIZZLE: [0, 0], WEAK: [10, 18], SOLID: [22, 34], CLEVER: [38, 52], MASTERFUL: [65, 95] };
 
 /*
  * Exact Enemy HP threshold at or below which a verdict is GUARANTEED to be a finishing blow (막타).
  * Shared with buildJudgePrompt() in js/ai/gm.js so the GM always knows 100% whether its chosen
  * verdict kills the enemy this turn or leaves it alive!
  */
-const VERDICT_KILL_THRESHOLD = { FIZZLE: 0, WEAK: 12, SOLID: 22, CLEVER: 35, MASTERFUL: 55 };
+const VERDICT_KILL_THRESHOLD = { FIZZLE: 0, WEAK: 18, SOLID: 34, CLEVER: 52, MASTERFUL: 95 };
 
 /* Healing by level; "major" needs at least SOLID, MASTERFUL adds a bonus. */
 const HEAL_RANGE = { none: [0, 0], minor: [7, 12], major: [15, 24] };
@@ -39,9 +39,10 @@ const RANK_MARK = { normal: "", elite: "強", boss: "主" };
  */
 function enemyCounterBaseline(depthId) {
   const d = depthNumber(depthId);
-  const abyssBoost = d >= 11 ? 9 : d >= 7 ? 4 : 0;
-  const min = 5 + d + abyssBoost;
-  return { min, max: min + 6 + Math.floor(d / 3) };
+  // Brutal baseline: early gaols punish careless play with 15-28 dmg, abyss gaols 35-65+ dmg!
+  const abyssBoost = d >= 11 ? 22 : d >= 7 ? 12 : 0;
+  const min = 12 + d * 2 + abyssBoost;
+  return { min, max: min + 10 + Math.floor(d * 1.5) };
 }
 
 const atLeast = (verdict, floor) => VERDICTS.indexOf(verdict) >= VERDICTS.indexOf(floor);
@@ -80,7 +81,7 @@ function resolveTurnNumbers(j) {
   if (isCountdownPrep) {
     counter *= 0.35; // Ominous countdown turn before the storm
   } else if (hasLethalIntent && defense === "none") {
-    counter *= 1.65; // Ignoring a telegraphed execution/heavy intent is devastating!
+    counter *= 2.2; // Devastating lethal intent ignoring!
   }
 
   // Escape resolution
@@ -91,9 +92,19 @@ function resolveTurnNumbers(j) {
   } else if (j.escape === "failed") {
     counter *= 1.15;
   } else {
-    if (j.verdict === "FIZZLE") counter *= 1.45;
-    else if (defense === "partial") counter *= 0.45;
-    else if (defense === "full") counter = 0;
+    if (j.verdict === "FIZZLE") {
+      counter *= 1.85; // Complete whiff leads to ruthless punishment
+    } else if (defense === "partial") {
+      counter *= 0.45;
+    } else if (defense === "full") {
+      counter = 0;
+    } else if (defense === "none") {
+      // Fear & Hunger style sudden brutal mutilation strike
+      if (Math.random() < 0.25) {
+        counter *= 1.6;
+        j.brutalCrit = true;
+      }
+    }
   }
 
   return { enemyDamage, heal, playerDamage: Math.round(counter), defense };

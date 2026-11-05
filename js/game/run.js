@@ -232,6 +232,22 @@ function renderPhase() {
       renderFork();
       break;
     case "path": renderFork(); break;
+    case "battle_encounter_omen": {
+      const pe = state.pendingEncounter;
+      if (pe && pe.kanji) {
+        setDockActions([
+          {
+            label: "⚔ 무기를 쥐고 기척을 마주한다",
+            gold: true,
+            onClick: () => triggerEnemyCinematicReveal(pe.kanji, pe.rank || "normal")
+          }
+        ]);
+      } else {
+        state.phase = "path";
+        renderFork();
+      }
+      break;
+    }
     case "battle": setDockActions([]); break;
     case "reward": state.pending ? openPendingPick() : renderRewardOffer(); break;
     case "event": state.pending ? openPendingPick() : renderEventOptions(); break;
@@ -500,6 +516,33 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   }
 
   const { kanji, rank: actualRank } = picked;
+
+  // Staged multi-step encounter buildup:
+  // Step 1: "무언가 다가오는 소리가 들린다..." -> button to face the threat
+  // Step 2: Full-screen shadow flash of the enemy kanji
+  // Step 3: Formal battle HUD & portrait reveal
+  if (!ambush && state.phase !== "battle_encounter_ready") {
+    state.phase = "battle_encounter_omen";
+    state.pendingEncounter = { rank: actualRank, kanji, picked };
+    state.enemyKanji = "";
+    updateBattleHUD(false);
+
+    playGongSfx();
+    logBeat("event-log", "👁 【조우의 전조】", [
+      "어둠 속 저편에서… 으스스하게 삐걱거리며 무언가 다가오는 소리가 들린다…",
+      "*숨을 멈추고 그림자의 진명을 확인해야 합니다.*"
+    ]);
+
+    setDockActions([
+      {
+        label: "⚔ 무기를 쥐고 기척을 마주한다",
+        gold: true,
+        onClick: () => triggerEnemyCinematicReveal(kanji, actualRank)
+      }
+    ]);
+    saveRunToStorage();
+    return;
+  }
   if (!state.encounteredEnemies.includes(kanji)) state.encounteredEnemies.push(kanji);
   if (actualRank === "boss" || kanji === state.runBoss) state.bossEncountered = true;
   recordFoeEncountered(kanji);
@@ -615,4 +658,25 @@ function promptAbandonRun() {
     return;
   }
   openConfirmModal(t("abandonModalTitle"), t("abandonModalDesc"), () => showRunEnd(true));
+}
+
+function triggerEnemyCinematicReveal(kanji, actualRank) {
+  playSealStampSfx();
+  const curtain = $("cinematic-curtain");
+  if (curtain) {
+    const tier = typeof getKanjiTier === "function" ? getKanjiTier(kanji) : "edu";
+    if ($("curtain-badge")) $("curtain-badge").textContent = actualRank === "boss" ? "【 主 敵 】" : actualRank === "elite" ? "【 強 敵 】" : "【 敵 影 】";
+    $("curtain-title").textContent = kanji;
+    $("curtain-sub").textContent = "THE WRAITH REVEALED";
+    if ($("curtain-stages")) $("curtain-stages").textContent = "";
+    curtain.className = `active descent tier-${tier}`;
+    setTimeout(() => {
+      curtain.classList.remove("active");
+    }, 720);
+  }
+
+  setTimeout(() => {
+    state.phase = "battle_encounter_ready";
+    startBattle(actualRank, kanji);
+  }, 420);
 }

@@ -186,7 +186,7 @@ function renderDepthSpine() {
         <div class="node-meta">故郷 · 4処 (塾 · 炉 · 橋 · 家)</div>
         <div class="node-scores">${escapeHtml(villageSubHint)}</div>
       </div>
-      <div class="node-bosses">${spotsHtml}<span class="boss-group">主 <span class="encountered">先</span></span></div>
+      <div class="node-bosses">${spotsHtml}<span class="boss-group"><span class="encountered">先</span></span></div>
     `;
     spine.appendChild(villageNode);
   }
@@ -238,9 +238,9 @@ function renderDepthSpine() {
     const renderFoeSpan = (k, isBoss = false) => {
       const killedInExpedition = runSlain.includes(k);
       const seenEver = isDiscovered(k);
-      const cls = [isBoss ? "boss" : "", killedInExpedition ? "seen" : seenEver ? "encountered" : "unknown"].filter(Boolean).join(" ");
-      const txt = (killedInExpedition || seenEver) ? k : "？";
-      return `<span class="${cls}">${escapeHtml(txt)}</span>`;
+      if (!killedInExpedition && !seenEver) return ""; // User request: No question mark chore list
+      const cls = [isBoss ? "boss" : "", killedInExpedition ? "seen" : "encountered"].filter(Boolean).join(" ");
+      return `<span class="${cls}">${escapeHtml(k)}</span>`;
     };
 
     const node = document.createElement("div");
@@ -253,7 +253,7 @@ function renderDepthSpine() {
         <div class="node-meta">${kankenLabel(did)} · ${d.count.toLocaleString()}字 · ${t("depthBestiary")(discoveredCount, allFoes.length)}</div>
         <div class="node-scores">${recordLine}</div>
       </div>
-      <div class="node-bosses">${mobs.map(k => renderFoeSpan(k, false)).join("")}<span class="boss-group">主 ${bosses.map(k => renderFoeSpan(k, true)).join("")}</span></div>
+      <div class="node-bosses">${mobs.map(k => renderFoeSpan(k, false)).join("")}<span class="boss-group">${bosses.map(k => renderFoeSpan(k, true)).join("")}</span></div>
     `;
     spine.appendChild(node);
   });
@@ -299,7 +299,7 @@ function openDepthEnterModal(did) {
     $("dm-lore").classList.remove("warn-step");
 
     const stageWrap = $("dm-stages-wrap");
-    stageWrap.style.display = "";
+    stageWrap.style.display = "none";
     $("dm-stages-label").textContent = t("dmStagesLabel");
     const stagesEl = $("dm-stages");
     const vSpots = typeof VILLAGE_SPOTS !== "undefined" ? Object.keys(VILLAGE_SPOTS) : ["塾", "炉", "橋", "家"];
@@ -360,7 +360,7 @@ function openDepthEnterModal(did) {
   $("dm-lore").classList.remove("warn-step");
 
   const stageWrap = $("dm-stages-wrap");
-  stageWrap.style.display = "";
+  stageWrap.style.display = "none";
   $("dm-stages-label").textContent = t("dmStagesLabel");
   const stagesEl = $("dm-stages");
   const stageSigns = (typeof DEPTH_STAGE_POOLS !== "undefined" && DEPTH_STAGE_POOLS[did]) || [];

@@ -354,9 +354,9 @@ const VILLAGE_SPOTS = {
     npcKanji: "先",
     title: ST_L("Dying Study", "꺼져가는 서당", "消えかけの書堂"),
     omen: ST_L(
-      "A single paper lantern flickers inside the half-collapsed study where your old teacher 【先】 waits.",
-      "반쯤 무너진 서당 안에서 옛 스승 【先】이 홀로 희미한 등불을 지키고 있다.",
-      "半ば崩れた書堂の中で、かつての師【先】がひとり仄かな灯を守っている。"
+      "A solitary paper lantern flickers inside the broken study where Sensei 【先】 waits.",
+      "반쯤 무너진 서당 안에서 옛 스승 【先】이 희미한 등불을 지키고 있다.",
+      "半ば崩れた書堂の中で、旧師【先】が仄かな灯を守っている。"
     ),
     preview: "先 · 生 · 持 · 帰"
   },
@@ -365,9 +365,9 @@ const VILLAGE_SPOTS = {
     npcKanji: "老",
     title: ST_L("Ash Brazier Ruin", "잿빛 화로터", "灰の火炉跡"),
     omen: ST_L(
-      "A blind elder 【老】 sits before a cracked bronze brazier, stirring the ashes of burnt script.",
-      "금 간 청동 화로 앞에서 잿빛 눈의 노인 【老】이 타다 남은 문자의 재를 뒤적이고 있다.",
-      "ひび割れた青銅の火炉の前で、灰色の目の老人【老】が燃え残った文字の灰をかき混ぜている。"
+      "A blind elder 【老】 stirs the ashes of burnt characters before a bronze brazier.",
+      "금 간 청동 화로 앞에서 잿빛 눈의 노인 【老】이 문자의 재를 뒤적이고 있다.",
+      "ひび割れた火炉の前で、灰眸の老人【老】が文字の灰をかき混ぜている。"
     ),
     preview: "老 · 炉 · 眼 · 合"
   },
@@ -376,9 +376,9 @@ const VILLAGE_SPOTS = {
     npcKanji: "友",
     title: ST_L("Fog-Bound Stone Bridge", "안개 낀 돌다리", "霧の石橋"),
     omen: ST_L(
-      "Your old friend 【友】 leans against the broken parapet with a blood-stained bandage on his sword arm.",
-      "끊어진 돌다리 난간에 팔을 붕대로 감은 옛 벗 【友】이 칼집을 짚고 기대어 있다.",
-      "崩れた石橋の欄干に、腕に血染めの包帯を巻いた旧友【友】が鞘を突いて凭れている。"
+      "Your old friend 【友】 leans against the broken parapet with a bandaged arm.",
+      "끊어진 돌다리 난간에 부상당한 옛 벗 【友】이 칼집을 짚고 서 있다.",
+      "崩れた石橋の欄干に、傷を負った旧友【友】が鞘を突いて立っている。"
     ),
     preview: "友 · 刀 · 火 · 富"
   },
@@ -387,11 +387,55 @@ const VILLAGE_SPOTS = {
     npcKanji: "家",
     title: ST_L("Ruined Family Home", "무너진 본가", "崩れた生家"),
     omen: ST_L(
-      "Your childhood roof has caved in under black ash, yet the old hearthstone beneath the eaves remains.",
-      "오랜만에 돌아온 본가의 지붕은 검은 재에 내려앉았으나, 처마 밑 낡은 아궁이만큼은 남아 있다.",
-      "久しぶりに戻った生家の屋根は黒い灰に崩れ落ちていたが、軒下の古いかまどだけは残っている。"
+      "Ash-covered courtyard of your childhood home where the hearthstone rests.",
+      "잿더미에 덮인 본가 마당 처마 밑, 낡은 아궁이가 남아 있다.",
+      "灰に覆われた生家の庭、軒下に古いかまどが残っている。"
     ),
-    preview: "家 · 休 · 猫 · 温"
+    preview: "家 · 休 · 温"
+  },
+  井: {
+    sign: "井",
+    npcKanji: "女",
+    title: ST_L("Dried Village Well", "마른 우물가", "涸れ井戸"),
+    omen: ST_L(
+      "A quiet village woman 【女】 sits by the stone well, washing linen in drawn dew.",
+      "마른 우물가 돌턱에 단정한 여인 【女】이 앉아 밤이슬로 천을 닦아내고 있다.",
+      "涸れ井戸の縁に静かな女【女】が腰掛け、夜露で布を拭っている。"
+    ),
+    preview: "女 · 水 · 薬 · 糸"
+  },
+  鍛: {
+    sign: "鍛",
+    npcKanji: "男",
+    title: ST_L("Shattered Smithy", "무너진 대장간", "崩れた鍛冶場"),
+    omen: ST_L(
+      "A burly swordsmith 【男】 hammers bent iron cold against a cracked anvil.",
+      "금 간 모루 위에서 거친 체구의 대장장이 【男】이 묵묵히 쇠를 두드리고 있다.",
+      "ひび割れた金床の上で、屈強な男【男】が黙々と鉄を叩いている。"
+    ),
+    preview: "男 · 鉄 · 刀 · 金"
+  },
+  祠: {
+    sign: "祠",
+    npcKanji: "神",
+    title: ST_L("Mossy Roadside Shrine", "이끼 낀 당산 사당", "苔むす祠"),
+    omen: ST_L(
+      "Weathered stone shrine smothered in thick red prayer ropes beneath a dead pine.",
+      "고목 아래 붉은 금줄이 칭칭 감긴 채 비바람에 바랜 고요한 사당.",
+      "枯れ松の下、注連縄が幾重にも巻かれ風雨に晒された古い祠。"
+    ),
+    preview: "祠 · 祈 · 護 · 霊"
+  },
+  墓: {
+    sign: "墓",
+    npcKanji: "石",
+    title: ST_L("Nameless Headstones", "무명 묘지", "名もなき墓所"),
+    omen: ST_L(
+      "Stones etched with lost characters stand crooked under swirling black fog.",
+      "안개 속에 비스듬히 기울어진 비석들. 글자가 깎여 나간 묵직한 묘비.",
+      "霧の中に傾く無数の墓石。文字の削り取られた重い碑。"
+    ),
+    preview: "墓 · 骨 · 灰 · 冥"
   }
 };
 
@@ -520,7 +564,20 @@ function renderVillagePhase() {
 
 function renderVillageFork() {
   const st = ensureStoryConfig();
-  const spotKeys = ["塾", "炉", "橋", "家"];
+  const allSpotKeys = Object.keys(VILLAGE_SPOTS);
+  let spotKeys = [];
+  if (st.introStage < 2) {
+    // Before first gaol unlocked: study is always accessible, plus 3 random spots
+    const others = allSpotKeys.filter(k => k !== "塾");
+    const pickedOthers = sample(others, 3);
+    spotKeys = ["塾", ...pickedOthers];
+  } else {
+    // Semi-random dynamic village landscape (4 distinct spots)
+    spotKeys = sample(allSpotKeys, 4);
+    if (!spotKeys.includes("塾") && Math.random() < 0.5) {
+      spotKeys[0] = "塾";
+    }
+  }
   const tiles = spotKeys.map((k) => {
     const def = VILLAGE_SPOTS[k];
     const displayKanji = (k === "家" && st.catRescued) ? "猫" : k;
@@ -556,8 +613,8 @@ function renderVillageFork() {
       onClick: () => {
         playClickSfx();
         logMd(pickLang(ST_L(
-          "🌫 The black fog beyond the village boundary is impenetrable. Visit the **Dying Study (【塾】)** first and speak with your old teacher **【先】**.",
-          "🌫 마을 밖은 한 치 앞도 보이지 않는 검은 안개에 막혀 있습니다. 먼저 **꺼져가는 서당(【塾】)**으로 들어가 옛 스승 **【先】**에게 고향의 변고와 옥문의 위치를 전해 들으세요.",
+          "짙은 먹빛 안개가 마을 밖을 짓누르고 있어 나아갈 수 없다. 등불이 켜진 서당【塾】 쪽에서 희미한 인기척이 느껴진다.",
+          "짙은 먹빛 안개가 마을 밖을 짓누르고 있어 나아갈 수 없다. 등불이 켜진 서당【塾】 쪽에서 희미한 인기척이 느껴진다.",
           "🌫 里の外は一寸先も見えない黒い霧に阻まれている。まずは**消えかけの書堂（【塾】）**へ入り、かつての師**【先】**から異変の顛末と獄門のありかを聞くのだ。"
         )), "hint-log");
       },
@@ -582,10 +639,8 @@ function enterVillageSpot(spotKey) {
   const def = VILLAGE_SPOTS[spotKey] || VILLAGE_SPOTS.塾;
   state.phase = "village_spot";
   state.villageSpot = spotKey;
-  const portraitKanji = spotKey === "家"
-    ? (st.catRescued ? "猫" : "家")
-    : def.npcKanji;
-  state.sign = portraitKanji;
+  // Stage sign remains strictly the place/building kanji (塾, 炉, 橋, 家, etc.)
+  state.sign = spotKey;
   state.enemyKanji = "";
   state.fieldState = `${pickLang(def.title)} — ${pickLang(def.omen)}`;
 
@@ -599,6 +654,26 @@ function enterVillageSpot(spotKey) {
     logFriendArrival();
   } else if (spotKey === "家") {
     logHomeArrival();
+  } else if (spotKey === "井") {
+    logBeat("event-log", "💧 【井】 마른 우물가", [
+      "깊이를 알 수 없는 마른 우물가에 앉은 여인【女】이 피 묻은 무명천을 묵묵히 헹구고 있다.",
+      "\"…글자를 잃은 이들은 모두 저 아래로 던져졌어요. 귀를 기울이면 아직도 희미하게 긁는 소리가 들려요…\""
+    ]);
+  } else if (spotKey === "鍛") {
+    logBeat("event-log", "⚒ 【鍛】 무너진 대장간", [
+      "불 꺼진 화덕 곁에서 거친 사내【男】가 부러진 칼날들을 모루 위에 내리치고 있다.",
+      "\"칼날에 글자를 새기지 않으면 원령의 가죽을 벨 수 없다. 옥문에서 쓸 만한 쇳조각이나 주워 오든가.\""
+    ]);
+  } else if (spotKey === "祠") {
+    logBeat("event-log", "⛩ 【祠】 이끼 낀 당산 사당", [
+      "썩어가는 고목 아래, 핏빛 금줄로 칭칭 묶인 돌사당에서 태고의 신음이 흘러나온다.",
+      "사람들이 두려워 잊어버린 고신(古神)의 이름들이 이끼 낀 돌 틈에 새겨져 있다."
+    ]);
+  } else if (spotKey === "墓") {
+    logBeat("event-log", "🪦 【墓】 무명 묘지", [
+      "비문이 뭉개진 돌비석들이 안개 속에 서 있다. 누구의 묘인지조차 알 수 없다.",
+      "이름을 빼앗긴 자들이 묻힌 자리. 흙 속에서 차가운 한기가 발목을 휘감는다."
+    ]);
   }
 
   updateBattleHUD(false);
@@ -1113,54 +1188,44 @@ function renderVillageSpotChoices(spotKey) {
       });
     }
   } else if (spotKey === "橋") {
-    // 3. 【橋】 안개 낀 돌다리 — 옛 벗 【友】
-    if (!st.friendGiftClaimed) {
-      actions.push({
-        label: pickLang(ST_L(
-          "🤝 Clasp your friend's uninjured hand & accept his expedition pouch",
-          "🤝 옛 벗의 성한 손을 맞잡고 출정 배낭을 건네받는다",
-          "🤝 旧友の無事な手を握り、出陣の袋を受け取る"
-        )),
-        gold: true,
-        onClick: () => {
+    // 3. 【橋】 안개 낀 돌다리 — 옛 벗 【友】 (대화 속에 자연스럽게 전낭/매듭 전수 통합)
+    actions.push({
+      label: pickLang(ST_L(
+        "💬 Talk with your friend 【友】 leaning against the stone parapet",
+        "💬 다리 난간에 기댄 옛 벗 【友】과 이야기를 나눈다",
+        "💬 石橋の欄干に凭れる旧友【友】と語り合う"
+      )),
+      gold: !st.friendGiftClaimed,
+      onClick: () => {
+        logMd(`→ ${pickLang(ST_L("Talk with 【友】", "옛 벗 【友】과 이야기를 나눈다", "旧友【友】と語り合う"))}`, "choice-log");
+        if (!st.friendGiftClaimed) {
           playSealStampSfx();
           st.friendGiftClaimed = true;
           addStoryYen(80);
           addSpecialItem("talisman_wealth", 1);
+          const cap = typeof MAX_DECK_SIZE !== "undefined" ? MAX_DECK_SIZE : 40;
           ["火", "水", "刀"].forEach(k => {
-            if (st.deck.length < DECK_CAP) st.deck.push(k);
+            if (st.deck.length < cap) st.deck.push(k);
           });
           state.deck = [...st.deck];
           persistStoryState();
-          logMd(`→ ${pickLang(ST_L("Accept your friend's pouch", "옛 벗의 배낭과 매듭을 건네받는다", "旧友の袋と結び紐を受け取る"))}`, "choice-log");
-          logBeat("event-log", `🗡 【富】 ${pickLang(ST_L("Comrade's Pouch & Knot of Echoes", "벗의 전낭과 【富】 잔향의 매듭", "友の袋と【富】残響の結び"))}`, [
+          logBeat("event-log", `🗡 【友】 ${pickLang(ST_L("Words on the Bridge & Knot of Echoes", "돌다리 위에서의 해후", "石橋の上での邂逅"))}`, [
             pickLang(ST_L(
-              `*"Take what's left in my pouch—I can't swing a sword with this arm anyway. And tie this **Knot of Residual Echoes (【富】)** to your wrist so no wraith's echo slips through your fingers."*`,
-              `*"내 배낭에 남아 있던 글자들이랑 잔향이야. 어차피 이 팔로는 당분간 칼도 못 쥐니까 네가 써. 그리고 이 **잔향의 매듭(【富】)**을 손목에 감아 둬. 원령을 베었을 때 흩어지는 잔향을 훨씬 많이 끌어모아 줄 거야."*`,
-              `*「俺の袋に残っていた文字と残響だ。どうせこの腕じゃしばらく刀も握れないから、お前が使ってくれ。それとこの**残響の結び（【富】）**を手首に巻いておけ。怨霊を斬った時に散る残響をずっと多く集めてくれるはずだ。」*`
+              `*"I can't swing a blade with this shattered arm anyway… Here, take the characters and echoes left in my pouch, and tie this **Knot of Residual Echoes (【富】)** around your wrist."*`,
+              `*"이 부러진 팔로는 당분간 칼도 못 쥐니까… 내 품에 남아 있던 글자들이랑 잔향은 네가 가져가. 그리고 이 **잔향의 매듭(【富】)**을 손목에 감아 둬. 원령을 베었을 때 흩어지는 잔향을 끌어모아 줄 거야."*`,
+              `*「この折れた腕じゃしばらく刀も握れないからな……俺の懐に残っていた文字と残響はお前が持っていろ。それとこの**残響の結び（【富】）**を手首に巻いておけ。」*`
             )),
             pickLang(ST_L(
-              "🎁 Received **+80 円**, normal Kanji **【火 · 水 · 刀】**, and permanent relic **【富】 Knot of Residual Echoes (+50% 円 gain)**!",
-              "🎁 **+80 円**, 일반 소지 한자 **【火 · 水 · 刀】**, 그리고 **【특수 소지: 【富】 잔향의 매듭 (적 처치 시 円 +50% 영구 증가)】**을 획득했습니다!",
-              "🎁 **+80 円**、一般所持漢字 **【火・水・刀】**、そして **【特殊所持：【富】残響の結び（敵討伐時の円+50%永久増加）】** を獲得した！"
+              "🎁 Received **+80 円**, normal Kanji **【火 · 水 · 刀】**, and **【富】 Knot of Residual Echoes (+50% 円 gain)**.",
+              "🎁 대화 끝에 벗이 건넨 **+80 円**, 일반 소지 한자 **【火 · 水 · 刀】**, 그리고 **【특수 소지: 【富】 잔향의 매듭 (적 처치 시 円 +50%)】**을 품에 넣었습니다.",
+              "🎁 旧友から **+80 円**、一般所持漢字 **【火・水・刀】**、そして **【特殊所持：【富】残響の結び（敵討伐時の円+50%）】** を受け取った。"
             ))
           ]);
           updateBattleHUD(false);
-          renderVillageSpotChoices("橋");
+        } else {
+          playClickSfx();
+          logFriendArrival();
         }
-      });
-    }
-
-    actions.push({
-      label: pickLang(ST_L(
-        "💬 Talk with your friend 【友】 about the village and the mist",
-        "💬 옛 벗 【友】과 다리 난간에 기대어 이야기를 나눈다",
-        "💬 旧友【友】と橋の欄干に凭れて語り合う"
-      )),
-      onClick: () => {
-        playClickSfx();
-        logMd(`→ ${pickLang(ST_L("Talk with 【友】", "옛 벗 【友】과 이야기를 나눈다", "旧友【友】と語り合う"))}`, "choice-log");
-        logFriendArrival();
         renderVillageSpotChoices("橋");
       }
     });
@@ -1220,16 +1285,116 @@ function renderVillageSpotChoices(spotKey) {
         onClick: () => {
           playClickSfx();
           logMd(pickLang(ST_L(
-            "🏚 Only cold ash lies in the hearth. Your friend 【友】 on the bridge mentioned hearing a stray cat 【猫】 crying inside the Gaol mist—perhaps if you rescue it, warmth will return to this home.",
-            "🏚 차갑게 식은 아궁이에는 잿가루만 남아 있습니다. 돌다리의 옛 벗【友】이 옥문 안개 속에서 길 잃은 고양이【猫】 울음소리를 들었다고 했으니, 구출해 오면 이 빈집에도 다시 온기가 돌지 모릅니다.",
-            "🏚 冷え切ったかまどには灰だけが残っている。石橋の旧友【友】が獄門の霧の中で迷い猫【猫】の鳴き声を聞いたと言っていた――救い出せば、この空き家にも再び温もりが戻るかもしれない。"
+            "Beneath the collapsed roof, cold ash scatters across the empty hearthstone.",
+            "무너진 지붕 밑 차가운 아궁이에 검은 재만 흩날린다. 바람이 불 때마다 어릴 적의 기억이 서늘하게 스쳐 지나간다.",
+            "崩れた屋根の下、冷え切ったかまどに黒い灰だけが舞っている。"
           )), "sys-log");
           renderVillageSpotChoices("家");
         }
       });
     }
+  } else if (spotKey === "井") {
+    actions.push({
+      label: "💧 우물가 여인【女】에게 다가간다",
+      onClick: () => {
+        playClickSfx();
+        logMd("→ 우물가 여인【女】에게 다가간다", "choice-log");
+        if (!state.wellVisited) {
+          state.wellVisited = true;
+          const cap = typeof MAX_DECK_SIZE !== "undefined" ? MAX_DECK_SIZE : 40;
+          if (st.deck.length < cap) {
+            st.deck.push("水");
+            state.deck = [...st.deck];
+            persistStoryState();
+          }
+          logBeat("event-log", "💧 【女】 우물가의 여인", [
+            "여인이 핏물이 빠지지 않는 무명천을 짜다 말고, 젖은 손으로 차가운 물방울이 맺힌 한자 조각 **【水】** 하나를 건넨다.",
+            "\"…우물 밑바닥에서 건져 올린 글자예요. 목이 타들어 갈 때 쓰세요…\""
+          ]);
+        } else {
+          logBeat("event-log", "💧 【女】 우물가의 여인", [
+            "여인이 고개를 숙인 채 마른 천을 다시 물에 적신다.",
+            "\"옥문 깊은 곳에서는 자비도, 동정도 통하지 않아요. 부디 팔다리 온전히 돌아오시길…\""
+          ]);
+        }
+        updateBattleHUD(false);
+        renderVillageSpotChoices("井");
+      }
+    });
+  } else if (spotKey === "鍛") {
+    actions.push({
+      label: "⚒ 대장장이【男】에게 칼날을 내보인다",
+      onClick: () => {
+        playClickSfx();
+        logMd("→ 대장장이【男】에게 칼날을 내보인다", "choice-log");
+        if (!state.smithVisited) {
+          state.smithVisited = true;
+          const cap = typeof MAX_DECK_SIZE !== "undefined" ? MAX_DECK_SIZE : 40;
+          if (st.deck.length < cap) {
+            st.deck.push("鉄");
+            state.deck = [...st.deck];
+            persistStoryState();
+          }
+          logBeat("event-log", "⚒ 【男】 무너진 대장간", [
+            "사내가 굳은살 박인 엄지로 당신의 칼날을 훑더니, 모루 위에서 벼려낸 묵직한 쇠 글자 **【鉄】** 하나를 툭 던져 준다.",
+            "\"이딴 무딘 날로 뭘 베겠다는 거냐. 가방에 쇠【鉄】라도 한 장 품고 가라. 살점이 뜯겨 나가기 싫거든.\""
+          ]);
+        } else {
+          logBeat("event-log", "⚒ 【男】 무너진 대장간", [
+            "사내는 말없이 식어버린 모루 위에 망치질만 계속하고 있다.",
+            "\"글자의 급수가 높아질수록 원령들의 가죽은 무쇠보다 단단해진다. 어설픈 획으로는 기스도 안 날 거다.\""
+          ]);
+        }
+        updateBattleHUD(false);
+        renderVillageSpotChoices("鍛");
+      }
+    });
+  } else if (spotKey === "祠") {
+    if (!state.shrinePrayed) {
+      actions.push({
+        label: "⛩ 금줄이 감긴 당산 사당 앞에 고개를 숙인다",
+        onClick: () => {
+          playGongSfx();
+          state.shrinePrayed = true;
+          state.rerollTokens += 1;
+          updateBattleHUD(false);
+          logMd("⛩ 비바람에 깎인 사당 앞에서 묵념하자 서늘한 바람이 이마를 스치며 정신이 맑아집니다. (**조율/리롤 +1**)", "fx-log");
+          renderVillageSpotChoices("祠");
+        }
+      });
+    } else {
+      actions.push({
+        label: "⛩ 고요해진 돌제단을 살핀다",
+        onClick: () => {
+          playClickSfx();
+          logMd("⛩ 붉은 금줄이 바람에 희미하게 흔들릴 뿐, 사당은 다시 깊은 침묵에 잠겨 있습니다.", "sys-log");
+          renderVillageSpotChoices("祠");
+        }
+      });
+    }
+  } else if (spotKey === "墓") {
+    actions.push({
+      label: "🪦 글자가 깎여 나간 무명 비석을 어루만진다",
+      onClick: () => {
+        playClickSfx();
+        logMd("→ 글자가 지워진 비석을 어루만진다", "choice-log");
+        if (!state.graveSearched) {
+          state.graveSearched = true;
+          addStoryYen(25);
+          persistStoryState();
+          logBeat("event-log", "🪦 【墓】 비석 밑의 유품", [
+            "비석의 차가운 돌 표면을 쓸어내리자, 무너진 흙더미 사이에서 이름 모를 망자가 남긴 **25 円**의 잔향이 손끝에 걸립니다."
+          ]);
+        } else {
+          logBeat("event-log", "🪦 【墓】 비석의 한기", [
+            "이름을 빼앗긴 자들이 묻힌 자리. 안개 속에서 차가운 한기만이 손끝을 타고 오릅니다."
+          ]);
+        }
+        updateBattleHUD(false);
+        renderVillageSpotChoices("墓");
+      }
+    });
   }
-
   actions.push({
     label: pickLang(ST_L(
       "↩ Return to the Village Crossroads (【里】)",

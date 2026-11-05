@@ -280,6 +280,9 @@ button { font-family: inherit; }
   justify-content: center;
   padding: 12px;
 }
+#confirm-modal, #info-modal {
+  z-index: 2600;
+}
 .modal-backdrop.active { display: flex; }
 .modal-card {
   background: #11131d;

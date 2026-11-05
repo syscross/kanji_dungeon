@@ -28,17 +28,52 @@ function formatGmText(raw) {
     .replace(/`([^`]+)`/g, "<strong>[$1]</strong>");
 }
 
-/* Modals */
+/* Modals — dynamic z-index stack so newly opened modals (e.g. #confirm-modal over #settings-modal) always sit on top */
+let _modalZCounter = 2000;
+
 function openModal(id) {
-  $(id).classList.add("active");
+  const el = $(id);
+  if (!el) return;
+  _modalZCounter += 2;
+  // Confirmation & info modals get an extra boost so they can never be obscured by any dialog
+  const boost = (id === "confirm-modal" || id === "info-modal") ? 500 : 0;
+  el.style.zIndex = String(_modalZCounter + boost);
+  el.classList.add("active");
 }
 
 function closeModal(id) {
-  $(id).classList.remove("active");
+  const el = $(id);
+  if (!el) return;
+  el.classList.remove("active");
+  el.style.zIndex = "";
+  if (!document.querySelector(".modal-backdrop.active")) {
+    _modalZCounter = 2000;
+  }
 }
 
 function anyModalOpen() {
   return document.querySelector(".modal-backdrop.active") !== null;
+}
+
+/* Closes only the topmost unlocked modal when ESC is pressed (preserves underlying modals like Settings). */
+function closeTopModal() {
+  const unlocked = Array.from(document.querySelectorAll(".modal-backdrop.active:not([data-locked='1'])"));
+  if (!unlocked.length) return false;
+  unlocked.sort((a, b) => {
+    const za = parseInt(a.style.zIndex || getComputedStyle(a).zIndex || "0", 10) || 0;
+    const zb = parseInt(b.style.zIndex || getComputedStyle(b).zIndex || "0", 10) || 0;
+    return zb - za;
+  });
+  const top = unlocked[0];
+  if (!top) return false;
+  if (top.id === "confirm-modal") {
+    closeConfirmModal(false);
+  } else if (top.id === "pick-modal") {
+    dismissPicker();
+  } else {
+    closeModal(top.id);
+  }
+  return true;
 }
 
 /* Locked modals (a required choice, e.g. the draft) ignore ESC / back. */
@@ -46,8 +81,14 @@ function closeAllModals() {
   document.querySelectorAll(".modal-backdrop.active").forEach(m => {
     if (m.dataset.locked) return;
     if (m.id === "pick-modal") dismissPicker();
-    else m.classList.remove("active");
+    else {
+      m.classList.remove("active");
+      m.style.zIndex = "";
+    }
   });
+  if (!document.querySelector(".modal-backdrop.active")) {
+    _modalZCounter = 2000;
+  }
 }
 
 let modalConfirmCallback = null;
@@ -108,7 +149,7 @@ function enterGaolCinematic(depthId, onReady) {
   $("curtain-title").textContent = `【 ${depthName(depthId)} 】`;
   $("curtain-sub").textContent = depthGloss(depthId);
   if ($("curtain-stages")) {
-    $("curtain-stages").textContent = stageSigns.length ? stageSigns.join("  ·  ") : "";
+    $("curtain-stages").textContent = "";
   }
 
   curtain.className = `active descent tier-${tier}`;

@@ -2,15 +2,22 @@
  * GM engines. Order here is the order in the settings dropdown.
  * Model lists are presets only — any model ID can be typed in.
  */
+/*
+ * GM engines. Order here is the order in the settings dropdown.
+ * Model lists are presets only — any model ID can be typed in freely.
+ */
 const PROVIDERS = {
   gemini: {
-    name: "Google · Gemini  — recommended, free tier",
+    name: "Google · Gemini — recommended, free tier",
     keyUrl: "https://aistudio.google.com/app/apikey",
     keyLabel: "aistudio.google.com ↗",
     models: [
-      { id: "gemini-flash-lite-latest", label: "gemini-flash-lite-latest · fast" },
-      { id: "gemini-2.5-flash", label: "gemini-2.5-flash · balanced" },
-      { id: "gemini-2.5-pro", label: "gemini-2.5-pro · strict" }
+      { id: "gemini-4-argon", label: "gemini-4-argon · flagship reasoning (2026)" },
+      { id: "gemini-3.8-flash", label: "gemini-3.8-flash · standard fast & smart" },
+      { id: "gemini-3.6-flash", label: "gemini-3.6-flash · stable multimodal" },
+      { id: "gemini-3.5-flash-lite", label: "gemini-3.5-flash-lite · ultra fast & light" },
+      { id: "gemini-flash-lite-latest", label: "gemini-flash-lite-latest · auto latest" },
+      { id: "gemini-2.5-flash", label: "gemini-2.5-flash · legacy fallback" }
     ]
   },
   anthropic: {
@@ -18,9 +25,11 @@ const PROVIDERS = {
     keyUrl: "https://console.anthropic.com/settings/keys",
     keyLabel: "console.anthropic.com ↗",
     models: [
-      { id: "claude-haiku-5-5", label: "claude-haiku-5-5 · fast" },
-      { id: "claude-sonnet-5-5", label: "claude-sonnet-5-5 · balanced" },
-      { id: "claude-opus-5-5", label: "claude-opus-5-5 · strict" }
+      { id: "claude-haiku-5-5", label: "claude-haiku-5-5 · ultra fast & adaptive (2026)" },
+      { id: "claude-sonnet-5-5", label: "claude-sonnet-5-5 · flagship balanced" },
+      { id: "claude-opus-5-5", label: "claude-opus-5-5 · supreme reasoning" },
+      { id: "claude-opus-fable", label: "claude-opus-fable · deep narrative & TRPG persona" },
+      { id: "claude-3-7-sonnet", label: "claude-3-7-sonnet · hybrid thinking" }
     ]
   },
   openai: {
@@ -29,8 +38,11 @@ const PROVIDERS = {
     keyLabel: "platform.openai.com ↗",
     endpoint: "https://api.openai.com/v1/chat/completions",
     models: [
-      { id: "gpt-4.1-mini", label: "gpt-4.1-mini · fast" },
-      { id: "gpt-4.1", label: "gpt-4.1 · balanced" }
+      { id: "gpt-5-mini", label: "gpt-5-mini · fast reasoning" },
+      { id: "gpt-5", label: "gpt-5 · flagship" },
+      { id: "o4-mini", label: "o4-mini · deep reasoning" },
+      { id: "gpt-4.1", label: "gpt-4.1 · balanced" },
+      { id: "gpt-4o", label: "gpt-4o · multimodal" }
     ]
   },
   deepseek: {
@@ -39,8 +51,8 @@ const PROVIDERS = {
     keyLabel: "platform.deepseek.com ↗",
     endpoint: "https://api.deepseek.com/chat/completions",
     models: [
-      { id: "deepseek-chat", label: "deepseek-chat · fast" },
-      { id: "deepseek-reasoner", label: "deepseek-reasoner · strict" }
+      { id: "deepseek-chat", label: "deepseek-chat · fast & capable" },
+      { id: "deepseek-reasoner", label: "deepseek-reasoner · chain-of-thought" }
     ]
   },
   groq: {
@@ -49,7 +61,8 @@ const PROVIDERS = {
     keyLabel: "console.groq.com ↗",
     endpoint: "https://api.groq.com/openai/v1/chat/completions",
     models: [
-      { id: "llama-3.3-70b-versatile", label: "llama-3.3-70b-versatile · fast" }
+      { id: "llama-3.3-70b-versatile", label: "llama-3.3-70b-versatile · lightning" },
+      { id: "mixtral-8x7b-32768", label: "mixtral-8x7b-32768" }
     ]
   },
   xai: {
@@ -58,8 +71,8 @@ const PROVIDERS = {
     keyLabel: "console.x.ai ↗",
     endpoint: "https://api.x.ai/v1/chat/completions",
     models: [
-      { id: "grok-3-mini", label: "grok-3-mini · fast" },
-      { id: "grok-3", label: "grok-3 · balanced" }
+      { id: "grok-3", label: "grok-3 · flagship" },
+      { id: "grok-3-mini", label: "grok-3-mini · fast" }
     ]
   },
   openrouter: {
@@ -68,9 +81,12 @@ const PROVIDERS = {
     keyLabel: "openrouter.ai ↗",
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
     models: [
-      { id: "google/gemini-2.5-flash", label: "google/gemini-2.5-flash" },
+      { id: "google/gemini-4-argon", label: "google/gemini-4-argon" },
+      { id: "google/gemini-3.8-flash", label: "google/gemini-3.8-flash" },
       { id: "anthropic/claude-haiku-5.5", label: "anthropic/claude-haiku-5.5" },
-      { id: "deepseek/deepseek-chat", label: "deepseek/deepseek-chat" }
+      { id: "anthropic/claude-opus-fable", label: "anthropic/claude-opus-fable" },
+      { id: "deepseek/deepseek-chat", label: "deepseek/deepseek-chat" },
+      { id: "auto", label: "auto · OpenRouter best fit" }
     ]
   },
   custom: {
@@ -80,17 +96,18 @@ const PROVIDERS = {
     endpoint: "http://localhost:11434/v1/chat/completions",
     models: [
       { id: "qwen2.5:14b", label: "qwen2.5:14b" },
-      { id: "llama3.2", label: "llama3.2" }
+      { id: "llama3.3", label: "llama3.3" },
+      { id: "mistral", label: "mistral" }
     ]
   },
   free_keyless: {
-    name: "Trial · no key  — shared server, ~1 reply / 45 s",
+    name: "Trial · no key — shared server, ~1 reply / 45 s",
     keyUrl: "https://aistudio.google.com/app/apikey",
     keyLabel: "aistudio.google.com ↗",
     models: [{ id: "openai", label: "shared model · offline judge when busy" }]
   },
   offline: {
-    name: "No AI · offline judge  — counts kanji only",
+    name: "No AI · offline judge — counts kanji only",
     keyUrl: "https://aistudio.google.com/app/apikey",
     keyLabel: "aistudio.google.com ↗",
     models: [{ id: "offline", label: "offline judge" }]

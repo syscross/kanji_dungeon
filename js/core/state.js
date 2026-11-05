@@ -64,10 +64,22 @@ function createDefaultStoryState() {
 
 function loadStoryStateFromStorage() {
   const saved = readJson(STORAGE.storyState, null);
-  if (!saved || saved.v !== STORY_STATE_VERSION) {
+  if (!saved || typeof saved !== "object") {
     return createDefaultStoryState();
   }
-  return { ...createDefaultStoryState(), ...saved };
+  const def = createDefaultStoryState();
+  // Safe migration: preserve any existing player progress (unlocked depths, relics, kills, yen, deck, cat)
+  return {
+    ...def,
+    ...saved,
+    v: STORY_STATE_VERSION,
+    yen: typeof saved.yen === "number" ? saved.yen : def.yen,
+    deck: Array.isArray(saved.deck) ? saved.deck : def.deck,
+    specialItems: Array.isArray(saved.specialItems) ? saved.specialItems : def.specialItems,
+    defeatedFoes: Array.isArray(saved.defeatedFoes) ? saved.defeatedFoes : def.defeatedFoes,
+    defeatedBosses: Array.isArray(saved.defeatedBosses) ? saved.defeatedBosses : def.defeatedBosses,
+    unlockedDepth: typeof saved.unlockedDepth === "number" ? saved.unlockedDepth : def.unlockedDepth
+  };
 }
 
 let savedKeys = readJson(STORAGE.keys, {});
@@ -265,6 +277,16 @@ function hasActiveStoryDungeonRun() {
   return Boolean(getSavedStoryRun());
 }
 
+function cleanRunForStorage(runObj) {
+  if (!runObj || typeof runObj !== "object") return null;
+  const clone = { ...runObj };
+  // Truncate run history in localStorage to 50 entries to prevent quota overflow
+  if (Array.isArray(clone.history) && clone.history.length > 50) {
+    clone.history = clone.history.slice(-50);
+  }
+  return clone;
+}
+
 function saveRunToStorage() {
   const mode = state.gameMode || activeGameMode || "arcade";
   if (mode === "story") {
@@ -276,12 +298,32 @@ function saveRunToStorage() {
     ) {
       localStorage.removeItem(STORAGE.savedStoryRun);
     } else {
-      localStorage.setItem(STORAGE.savedStoryRun, JSON.stringify(state));
+      const cleaned = cleanRunForStorage(state);
+      try {
+        localStorage.setItem(STORAGE.savedStoryRun, JSON.stringify(cleaned));
+      } catch (_e) {
+        // Quota exceeded emergency fallback: drop history completely
+        if (cleaned) {
+          cleaned.history = [];
+          localStorage.setItem(STORAGE.savedStoryRun, JSON.stringify(cleaned));
+        }
+      }
     }
     persistStoryState();
   } else {
-    if (!state.active || state.playerHp <= 0) localStorage.removeItem(STORAGE.savedRun);
-    else localStorage.setItem(STORAGE.savedRun, JSON.stringify(state));
+    if (!state.active || state.playerHp <= 0) {
+      localStorage.removeItem(STORAGE.savedRun);
+    } else {
+      const cleaned = cleanRunForStorage(state);
+      try {
+        localStorage.setItem(STORAGE.savedRun, JSON.stringify(cleaned));
+      } catch (_e) {
+        if (cleaned) {
+          cleaned.history = [];
+          localStorage.setItem(STORAGE.savedRun, JSON.stringify(cleaned));
+        }
+      }
+    }
   }
   if (typeof updateSavedRunBanner === "function") updateSavedRunBanner();
 }
