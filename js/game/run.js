@@ -83,11 +83,11 @@ function startRun(depthId) {
     logMd(t("enteredMsg")(depthName(depthId), depthGloss(depthId)), "sys-log");
     if (godStacks > 0 || catBonusHp > 0 || hadCatBless || hadSenseiBless) {
       const buffs = [];
-      if (catBonusHp + senseiBonusHp > 0) buffs.push(`❤️ 최대 HP +${catBonusHp + senseiBonusHp}`);
-      if (godStacks > 0) buffs.push(`👁 심안의 부적 (무료 고신 +${godStacks} · 리롤 +${godStacks})`);
-      if (hadCatBless) buffs.push(`🐾 고양이의 온기 (리롤 +1)`);
-      if (hadSenseiBless) buffs.push(`🍵 스승의 약차 (리롤 +1)`);
-      logMd(`✨ **특수 소지 및 마을 가호**: ${buffs.join(" · ")}`, "fx-log");
+      if (catBonusHp + senseiBonusHp > 0) buffs.push(`최대 HP +${catBonusHp + senseiBonusHp}`);
+      if (godStacks > 0) buffs.push(`심안의 부적 · 고신 +${godStacks} · 리롤 +${godStacks}`);
+      if (hadCatBless) buffs.push(`고양이의 온기 · 리롤 +1`);
+      if (hadSenseiBless) buffs.push(`스승의 약차 · 리롤 +1`);
+      logMd(`✨ **마을 가호**: ${buffs.join(" · ")}`, "fx-log");
     }
     if (dNum === 11) {
       logMd(`🩸 **【금역 침범】** — 인간계의 평화를 뒤로하고 상용 외 금역(第11獄)의 봉인을 찢었습니다. 마을 사람들의 시선이 두려움으로 물듭니다…`, "hint-log");
@@ -484,8 +484,7 @@ function enterPeacefulClearedStage() {
   state.phase = "reward";
   state.stageCards = buildStageCards(state.depthId, state.sign);
   logBeat("event-log", `🍃 【${state.sign}】 ${t("emptyStageTitle")}`, [
-    t("emptyStageDesc")(state.sign),
-    `🎴 ${t("stageCardsLog")}: ${state.stageCards.join(" · ")}`
+    t("emptyStageDesc")(state.sign)
   ]);
   runEffects([{ hp: 12 }, { scavenge: 5 }]);
 }
@@ -495,8 +494,7 @@ function enterConqueredBossSanctum() {
   state.phase = "reward";
   state.stageCards = buildStageCards(state.depthId, state.sign);
   logBeat("event-log", `🍃 【${state.sign}】 ${t("emptyStageTitle")}`, [
-    t("emptyStageDesc")(state.sign),
-    `🎴 ${t("stageCardsLog")}: ${state.stageCards.join(" · ")}`
+    t("emptyStageDesc")(state.sign)
   ]);
   logBossClearImmediate();
   runEffects([{ hp: 15 }, { scavenge: 5 }, { bossClear: true }]);
@@ -521,19 +519,19 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
     playGongSfx();
     const omenLines = actualRank === "boss"
       ? [
-          "대지가 울리며 숨 막히는 살기가 밀려온다.",
+          "대지가 울리며 숨 막히는 살기가 안개 너머에서 밀려온다.",
           "*이 옥문의 주인이 모습을 드러내려 합니다.*"
         ]
       : actualRank === "elite"
       ? [
-          "어둠 너머에서 짙은 피비린내가 스며든다.",
+          "칠흑 같은 어둠 너머에서 짙은 피비린내가 스며든다.",
           "*심상치 않은 정예 원령이 다가옵니다.*"
         ]
       : [
-          "안개 너머에서 기괴한 기척이 다가온다.",
+          "자욱한 안개 너머에서 기괴한 기척이 다가온다.",
           "*무기를 쥐고 원령의 정체를 마주하세요.*"
         ];
-    logBeat("foe-omen-log", "🩸 【 살기의 전조 】", omenLines, false);
+    logBeat("foe-omen-log", "🩸 【 살기의 전조 】", omenLines);
 
     setDockActions([
       {
@@ -544,11 +542,6 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
     ]);
     saveRunToStorage();
     return;
-  }
-
-  const gmBox = $("b-gm-log");
-  if (gmBox) {
-    gmBox.querySelectorAll(".foe-omen-log").forEach(el => el.remove());
   }
 
   if (!state.encounteredEnemies.includes(kanji)) state.encounteredEnemies.push(kanji);
@@ -583,7 +576,6 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   for (let i = 0; i < HAND_SIZE; i++) playCardDealSfx(i * 65);
 
   resetBattleChrome();
-  const mark = RANK_MARK[actualRank] ? `${RANK_MARK[actualRank]}·` : "";
   const encounterLine = typeof getEnemyEncounterLine === "function"
     ? getEnemyEncounterLine(kanji, actualRank, Boolean(prevWoundedHp), Boolean(ambush))
     : "";
@@ -595,16 +587,15 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   const descLine = encounterLine || fallbackTail;
   if (prevWoundedHp) {
     logMd(
-      `🩸 ${t("reEncounterChallenger")(`${mark}${kanji}`, startHp, maxHp)} — ${descLine}`,
+      `🩸 ${t("reEncounterChallenger")(kanji, startHp, maxHp)} — ${descLine}`,
       "foe-log"
     );
   } else {
     logMd(
-      `🩸 ${t("nextChallenger")(`${mark}${kanji}`)} — ${descLine}`,
+      `🩸 ${t("nextChallenger")(kanji)} — ${descLine}`,
       "foe-log"
     );
   }
-  logMd(`🎴 **${t("stageCardsLog")}**: ${state.stageCards.join(" · ")}`, "fx-log");
 
   saveRunToStorage();
   renderPhase();

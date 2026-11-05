@@ -100,10 +100,10 @@ const STORY_SPECIAL_ITEMS = {
     },
     desc: {
       EN: "Obsidian bead bestowed by the blind Elder 【老】. Grants +1 free Ancient God summon and +1 free Reroll at the start of every expedition.",
-      KO: "잿빛 눈의 노인【老】이 건네준 흑요석 부적. 매 출정마다 무료 고신(古神) 소환 +1 및 무료 조율(리롤) +1을 부여합니다. (영구 귀속 · 전투 중 손패로 드로우되지 않음)",
-      JA: "灰色の目の老人【老】から授かった黒曜石の護符。毎回の出陣時に無料古神召喚+1・無料調律（リロール）+1を付与する。（永久帰属・戦闘中の手札には引かれない）",
-      ZH_CN: "灰眸老人【老】赐予的黑曜石护符。每次出征时赋予免费古神召唤+1与免费调律（重掷）+1。（永久归属）",
-      ZH_TW: "灰眸老人【老】賜予的黑曜石護符。每次出征時賦予免費古神召唤+1與免費調律（重擲）+1。（永久歸屬）"
+      KO: "잿빛 눈의 노인【老】이 건네준 흑요석 부적. 매 출정마다 무료 고신 소환 +1 및 무료 리롤 +1을 부여합니다.",
+      JA: "灰色の目の老人【老】から授かった黒曜石の護符。毎回の出陣時に無料古神召喚+1・無料リロール+1を付与する。",
+      ZH_CN: "灰眸老人【老】赐予的黑曜石护符。每次出征时赋予免费古神召唤+1与免费重掷+1。",
+      ZH_TW: "灰眸老人【老】賜予的黑曜石護符。每次出征時賦予免費古神召唤+1與免費重擲+1。"
     }
   }
 };
@@ -1298,9 +1298,9 @@ function renderVillageSpotChoices(spotKey) {
           state.rerollTokens += 1;
           updateBattleHUD(false);
           logMd(pickLang(ST_L(
-            "⛩ As you bow before the moss-covered altar, a clear mountain breeze brushes your forehead and sharpens your focus (**Reroll +1**).",
-            "⛩ 이끼 낀 돌제단 앞에 고개를 숙이자, 서늘한 산바람이 이마를 스치며 어지럽던 호흡과 정신이 맑게 가다듬어집니다 (**조율/리롤 +1**).",
-            "⛩ 苔むした石祭壇の前に頭を垂れると、涼やかな山風が額を撫で、乱れていた呼吸と意識が澄み渡った（**調律/リロール +1**）。"
+            "⛩ As you bow before the moss-covered altar, a clear mountain breeze brushes your forehead and sharpens your focus (**Free Reroll +1**).",
+            "⛩ 이끼 낀 돌제단 앞에 고개를 숙이자, 서늘한 산바람이 이마를 스치며 어지럽던 호흡과 정신이 맑게 가다듬어집니다 (**무료 리롤 +1**).",
+            "⛩ 苔むした石祭壇の前に頭を垂れると、涼やかな山風が額を撫で、乱れていた呼吸と意識が澄み渡った（**無料リロール +1**）。"
           )), "fx-log");
           renderVillageSpotChoices("祠");
         }

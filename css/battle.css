@@ -723,28 +723,26 @@ body.kb-open .gm-box { min-height: 48px; }
 .boss-card.neutral { border-color: #6e5931; box-shadow: 0 0 18px rgba(229,192,123,0.18); cursor: default; }
 .boss-card.neutral .boss-kanji { color: var(--gold); text-shadow: 0 0 14px rgba(229,192,123,0.4); }
 .rank-mark {
-  position: absolute;
-  top: -8px;
-  left: -8px;
-  background: var(--crimson);
-  color: #fff;
-  font-family: 'Noto Serif JP', serif;
-  font-weight: 900;
-  font-size: 0.78rem;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none !important;
 }
 .enemy-stage.no-foe .boss-tags,
 .enemy-stage.no-foe .hp-line,
 .enemy-stage.no-foe .enemy-hand-wrap { visibility: hidden; }
 
 /* Log beat cards */
-.beat-log { text-align: center; border-left: none; padding: 12px 10px; }
+.beat-log { text-align: center; border-left: none; padding: 12px 10px; box-sizing: border-box; }
 .beat-title { font-family: 'Noto Serif JP', serif; font-size: 1.15rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 6px; }
 .beat-line { font-size: 0.8rem; }
+.log-entry.beat-log.foe-omen-log {
+  border: 1.5px solid #8c1d2e !important;
+  border-left: 1.5px solid #8c1d2e !important;
+  background: linear-gradient(180deg, rgba(72, 10, 20, 0.65), rgba(16, 8, 12, 0.9));
+  padding: 11px 12px;
+  width: calc(100% - 6px);
+  max-width: calc(100% - 6px);
+  margin: 2px auto;
+  box-sizing: border-box;
+}
 .victory-log {
   border: 1px solid #6e5931;
   background: linear-gradient(90deg, rgba(229,192,123,0.04), rgba(229,192,123,0.14), rgba(229,192,123,0.04));

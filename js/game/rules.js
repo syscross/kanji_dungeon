@@ -31,7 +31,7 @@ const HEAL_RANGE = { none: [0, 0], minor: [7, 12], major: [15, 24] };
 
 const ENEMY_HP = { normal: 60, elite: 90, boss: 140 };
 const RANK_DAMAGE_MULT = { normal: 1, elite: 1.22, boss: 1.4 };
-const RANK_MARK = { normal: "", elite: "強", boss: "主" };
+const RANK_MARK = { normal: "", elite: "", boss: "" };
 
 /*
  * Enemy counterattack baseline before rank/intent/defense modifiers.
