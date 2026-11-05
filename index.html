@@ -15,9 +15,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=20261105c" />
-  <link rel="stylesheet" href="/css/screens.css?v=20261105c" />
-  <link rel="stylesheet" href="/css/battle.css?v=20261105c" />
+  <link rel="stylesheet" href="/css/base.css?v=20261105d" />
+  <link rel="stylesheet" href="/css/screens.css?v=20261105d" />
+  <link rel="stylesheet" href="/css/battle.css?v=20261105d" />
 </head>
 <body>
   <canvas id="ember-canvas"></canvas>
@@ -292,11 +292,11 @@
           <button class="badge trial-badge" id="b-trial" data-i18n="trialBadge" onclick="openConnectModal()">🔌 Trial</button>
         </div>
         <div class="bb-right">
-          <span class="sign-badge" id="b-sign" title="">道</span>
+          <button type="button" class="sign-badge" id="b-sign" onclick="openStageCardsViewer()" title="">道</button>
+          <button type="button" class="btn icon-btn" id="b-top-deck" data-i18n-title="deckBtn" onclick="openDeckViewer()">🀄</button>
           <div class="dropdown align-right" id="battle-menu">
             <button class="btn icon-btn" data-i18n-title="menuBtn" onclick="toggleDropdown('battle-menu', event)">⋮</button>
             <div class="dropdown-menu">
-              <button class="menu-item" data-i18n="deckBtn" onclick="openDeckViewer()">🀄 Bag</button>
               <button class="menu-item" data-i18n="logCopy" onclick="exportBattleLog()">📋 Copy log</button>
               <button class="menu-item" data-i18n="logClear" onclick="closeDropdowns(); clearGmLog(true)">🧹 Clear log</button>
               <button class="menu-item" data-i18n="pauseTitle" onclick="pauseRunToTitle()">⏸ Save & title</button>
@@ -366,43 +366,43 @@
   </div>
 
   <!-- Classic scripts sharing globals. Load order: i18n → data → core → ai → fx → ui → game → main -->
-  <script src="/js/i18n/index.js?v=20261105c"></script>
-  <script src="/js/i18n/en.js?v=20261105c"></script>
-  <script src="/js/i18n/ko.js?v=20261105c"></script>
-  <script src="/js/i18n/ja.js?v=20261105c"></script>
-  <script src="/js/i18n/zh-cn.js?v=20261105c"></script>
-  <script src="/js/i18n/zh-tw.js?v=20261105c"></script>
-  <script src="/js/data/depths.js?v=20261105c"></script>
-  <script src="/js/data/stages.js?v=20261105c"></script>
-  <script src="/js/data/rewards.js?v=20261105c"></script>
-  <script src="/js/data/events.js?v=20261105c"></script>
-  <script src="/js/data/guide.js?v=20261105c"></script>
-  <script src="/js/data/achievements.js?v=20261105c"></script>
-  <script src="/js/core/state.js?v=20261105c"></script>
-  <script src="/js/ai/providers.js?v=20261105c"></script>
-  <script src="/js/ai/gm.js?v=20261105c"></script>
-  <script src="/js/ai/local-engine.js?v=20261105c"></script>
-  <script src="/js/fx/audio.js?v=20261105c"></script>
-  <script src="/js/fx/embers.js?v=20261105c"></script>
-  <script src="/js/ui/dom.js?v=20261105c"></script>
-  <script src="/js/ui/hud.js?v=20261105c"></script>
-  <script src="/js/ui/picker.js?v=20261105c"></script>
-  <script src="/js/ui/viewport.js?v=20261105c"></script>
-  <script src="/js/ui/keyboard.js?v=20261105c"></script>
-  <script src="/js/ui/settings.js?v=20261105c"></script>
-  <script src="/js/ui/connect.js?v=20261105c"></script>
-  <script src="/js/ui/install.js?v=20261105c"></script>
-  <script src="/js/ui/screens.js?v=20261105c"></script>
-  <script src="/js/game/rules.js?v=20261105c"></script>
-  <script src="/js/game/deck.js?v=20261105c"></script>
-  <script src="/js/game/achievements.js?v=20261105c"></script>
-  <script src="/js/game/effects.js?v=20261105c"></script>
-  <script src="/js/game/rewards.js?v=20261105c"></script>
-  <script src="/js/game/events.js?v=20261105c"></script>
-  <script src="/js/game/story.js?v=20261105c"></script>
-  <script src="/js/game/run.js?v=20261105c"></script>
-  <script src="/js/game/battle.js?v=20261105c"></script>
-  <script src="/js/game/beats.js?v=20261105c"></script>
-  <script src="/js/main.js?v=20261105c"></script>
+  <script src="/js/i18n/index.js?v=20261105d"></script>
+  <script src="/js/i18n/en.js?v=20261105d"></script>
+  <script src="/js/i18n/ko.js?v=20261105d"></script>
+  <script src="/js/i18n/ja.js?v=20261105d"></script>
+  <script src="/js/i18n/zh-cn.js?v=20261105d"></script>
+  <script src="/js/i18n/zh-tw.js?v=20261105d"></script>
+  <script src="/js/data/depths.js?v=20261105d"></script>
+  <script src="/js/data/stages.js?v=20261105d"></script>
+  <script src="/js/data/rewards.js?v=20261105d"></script>
+  <script src="/js/data/events.js?v=20261105d"></script>
+  <script src="/js/data/guide.js?v=20261105d"></script>
+  <script src="/js/data/achievements.js?v=20261105d"></script>
+  <script src="/js/core/state.js?v=20261105d"></script>
+  <script src="/js/ai/providers.js?v=20261105d"></script>
+  <script src="/js/ai/gm.js?v=20261105d"></script>
+  <script src="/js/ai/local-engine.js?v=20261105d"></script>
+  <script src="/js/fx/audio.js?v=20261105d"></script>
+  <script src="/js/fx/embers.js?v=20261105d"></script>
+  <script src="/js/ui/dom.js?v=20261105d"></script>
+  <script src="/js/ui/hud.js?v=20261105d"></script>
+  <script src="/js/ui/picker.js?v=20261105d"></script>
+  <script src="/js/ui/viewport.js?v=20261105d"></script>
+  <script src="/js/ui/keyboard.js?v=20261105d"></script>
+  <script src="/js/ui/settings.js?v=20261105d"></script>
+  <script src="/js/ui/connect.js?v=20261105d"></script>
+  <script src="/js/ui/install.js?v=20261105d"></script>
+  <script src="/js/ui/screens.js?v=20261105d"></script>
+  <script src="/js/game/rules.js?v=20261105d"></script>
+  <script src="/js/game/deck.js?v=20261105d"></script>
+  <script src="/js/game/achievements.js?v=20261105d"></script>
+  <script src="/js/game/effects.js?v=20261105d"></script>
+  <script src="/js/game/rewards.js?v=20261105d"></script>
+  <script src="/js/game/events.js?v=20261105d"></script>
+  <script src="/js/game/story.js?v=20261105d"></script>
+  <script src="/js/game/run.js?v=20261105d"></script>
+  <script src="/js/game/battle.js?v=20261105d"></script>
+  <script src="/js/game/beats.js?v=20261105d"></script>
+  <script src="/js/main.js?v=20261105d"></script>
 </body>
 </html>

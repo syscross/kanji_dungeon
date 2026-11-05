@@ -289,33 +289,33 @@ const STAGE_SIGNS = {
   殿: {
     omen: STG_L("echoing demon hall", "곡성 울리는 전당", "鬼哭の殿", "鬼哭大殿", "鬼哭大殿"),
     cards: ["剣", "撃", "突", "刺", "盾", "矛", "鎖", "火", "血", "壊"],
-    foes: ["盗", "影", "凶", "巨", "鬼"],
+    foes: ["影盗", "黒影", "凶鳥", "巨兵", "百鬼"],
     outcomes: [["elite", 50], ["battle", 40], ["treasure", 10]],
     risky: true
   },
   塔: {
     omen: STG_L("lightning-struck spire", "벼락 치는 첨탑", "雷落ちる塔", "雷击高塔", "雷擊高塔"),
     cards: ["爆", "砲", "弾", "煙", "風", "火", "鉄", "剣", "撃"],
-    foes: ["僧", "影", "凶", "狂", "雷", "雄"],
+    foes: ["悪僧", "黒影", "凶鳥", "狂鬼", "雷神", "鬼雄"],
     outcomes: [["battle", 55], ["elite", 30], ["event:quiz", 15]],
     risky: true
   },
   沼: {
     omen: STG_L("rotting poison swamp", "썩어가는 독늪", "腐敗の沼", "腐败毒沼", "腐敗毒沼"),
     cards: ["沼", "水", "腐", "毒", "霧", "煙", "土", "沈", "刺", "鎖"],
-    foes: ["獣", "盗", "影", "狂", "鬼"],
+    foes: ["狂獣", "影盗", "黒影", "狂鬼", "百鬼"],
     outcomes: [["battle", 60], ["event:well", 20], ["event:*", 20]]
   },
   峰: {
     omen: STG_L("jagged beast peak", "짐승 우는 봉우리", "獣咆える峰", "群兽险峰", "群獸險峰"),
     cards: ["石", "岩", "風", "襲", "駆", "跳", "剣", "火", "鋭"],
-    foes: ["獣", "狩", "凶", "巨", "狂", "雷"],
+    foes: ["狂獣", "人狩", "凶鳥", "巨兵", "狂鬼", "雷神"],
     outcomes: [["battle", 60], ["elite", 25], ["event:*", 15]]
   },
   陣: {
     omen: STG_L("abandoned siege camp", "피로 물든 진영", "血の陣営", "血之阵营", "血之陣營"),
     cards: ["剣", "矛", "盾", "砲", "弾", "爆", "鎖", "火", "薪", "攻"],
-    foes: ["狩", "盗", "僧", "巨", "雄"],
+    foes: ["人狩", "影盗", "悪僧", "巨兵", "鬼雄"],
     outcomes: [["battle", 55], ["treasure", 25], ["elite", 20]]
   },
 
@@ -323,32 +323,32 @@ const STAGE_SIGNS = {
   獄: {
     omen: STG_L("iron torture gaol", "절규하는 뇌옥", "絶叫の牢獄", "绝叫牢狱", "絕叫牢獄"),
     cards: ["獄", "縛", "絞", "鎖", "鉄", "刑", "炎", "血", "魂", "奪"],
-    foes: ["賊", "偶", "邪", "侍", "魔"],
+    foes: ["山賊", "木偶", "邪霊", "亡侍", "魔王"],
     outcomes: [["elite", 50], ["battle", 40], ["event:quiz", 10]],
     risky: true
   },
   炉: {
     omen: STG_L("hellfire smelting furnace", "영혼 태우는 화로", "魂溶かす炉", "炼魂熔炉", "煉魂熔爐"),
     cards: ["炎", "火", "焦", "鍛", "鋳", "鉄", "煙", "滅", "爆", "塊"],
-    foes: ["怪", "蛮", "賊", "侍", "魔"],
+    foes: ["怪異", "蛮族", "山賊", "亡侍", "魔王"],
     outcomes: [["battle", 55], ["treasure", 25], ["elite", 20]]
   },
   壇: {
     omen: STG_L("sacrificial blood altar", "산제물의 제단", "生贄の祭壇", "活祭祭坛", "活祭祭壇"),
     cards: ["魂", "祈", "血", "炎", "犠", "牲", "封", "鐘", "刃"],
-    foes: ["霊", "偶", "邪", "幽", "帝"],
+    foes: ["悪霊", "木偶", "邪霊", "幽鬼", "魔帝"],
     outcomes: [["event:shrine", 40], ["battle", 40], ["elite", 20]]
   },
   墳: {
     omen: STG_L("ancient imperial barrow", "도굴된 고분", "暴かれた古墳", "被盗古坟", "被盜古墳"),
     cards: ["葬", "埋", "魂", "骨", "土", "石", "凍", "幻", "封"],
-    foes: ["霊", "幽", "偶", "侍", "帝"],
+    foes: ["悪霊", "幽鬼", "木偶", "亡侍", "魔帝"],
     outcomes: [["battle", 55], ["event:corpse", 30], ["treasure", 15]]
   },
   峡: {
     omen: STG_L("phantom-haunted gorge", "원귀 서린 협곡", "亡霊の峡谷", "亡灵峡谷", "亡靈峽谷"),
     cards: ["風", "凍", "零", "氷", "崩", "裂", "岩", "貫", "殴", "幻"],
-    foes: ["怪", "猟", "蛮", "鯨", "騎", "魔"],
+    foes: ["怪異", "血猟", "蛮族", "亡鯨", "黒騎", "魔王"],
     outcomes: [["battle", 65], ["event:*", 20], ["elite", 15]]
   },
 
@@ -356,32 +356,32 @@ const STAGE_SIGNS = {
   洞: {
     omen: STG_L("wyrm's cavern", "화룡 잠든 동굴", "竜眠る洞", "恶龙洞窟", "惡龍洞窟"),
     cards: ["火", "炎", "岩", "砕", "剛", "珠", "硝", "硫", "煙", "渦"],
-    foes: ["蛇", "猿", "仙", "竜", "覇"],
+    foes: ["毒蛇", "血猿", "怪仙", "火竜", "覇王"],
     outcomes: [["elite", 50], ["battle", 35], ["treasure", 15]],
     risky: true
   },
   廃: {
     omen: STG_L("blighted ruin sector", "역병 도는 폐허", "疫病の廃墟", "疫病废墟", "疫病廢墟"),
     cards: ["廃", "銃", "刃", "硝", "鉄", "泥", "疫", "菌", "毒", "火"],
-    foes: ["忍", "猫", "蚊", "偵", "曹"],
+    foes: ["影忍", "怪猫", "疫蚊", "凶偵", "獄曹"],
     outcomes: [["battle", 60], ["event:quiz", 20], ["event:*", 20]]
   },
   塚: {
     omen: STG_L("mound of executed blades", "처형된 칼의 무덤", "処刑刀の塚", "刑刀之冢", "刑刀之塚"),
     cards: ["刃", "刀", "剣", "棺", "弔", "骨", "血", "漆", "縛", "拷"],
-    foes: ["忍", "偵", "曹", "傑", "帥", "覇"],
+    foes: ["影忍", "凶偵", "獄曹", "血傑", "元帥", "覇王"],
     outcomes: [["battle", 55], ["event:corpse", 25], ["elite", 20]]
   },
   堀: {
     omen: STG_L("black moat of warships", "가라앉은 검은 해자", "鉄艦沈む堀", "沉舰护城河", "沉艦護城河"),
     cards: ["水", "渦", "泥", "泡", "銃", "艦", "鉄", "氷", "雷", "津"],
-    foes: ["蛇", "蚊", "偵", "曹", "帥", "竜"],
+    foes: ["毒蛇", "疫蚊", "凶偵", "獄曹", "元帥", "火竜"],
     outcomes: [["battle", 60], ["elite", 25], ["treasure", 15]]
   },
   窯: {
     omen: STG_L("ash-choked kiln", "인골 굽는 가마", "人骨を焼く窯", "焚骨窑炉", "焚骨窯爐"),
     cards: ["火", "炎", "沸", "融", "硝", "硫", "灰", "炭", "瓶", "癒"],
-    foes: ["猫", "猿", "曹", "仙", "傑"],
+    foes: ["怪猫", "血猿", "獄曹", "怪仙", "血傑"],
     outcomes: [["event:rest", 45], ["battle", 40], ["event:quiz", 15]]
   },
 
@@ -389,34 +389,34 @@ const STAGE_SIGNS = {
   麓: {
     omen: STG_L("lightless netherworld foothills", "어둠 잠긴 산기슭", "闇に沈む冥府の麓", "暗黑山麓", "闇黑山麓"),
     cards: ["呪", "斬", "火", "光", "血", "刃", "風", "石", "氷"],
-    foes: ["妖", "顎", "骸", "怨", "闇"],
+    foes: ["妖魔", "大顎", "骸骨", "怨鬼", "常闇"],
     outcomes: [["battle", 45], ["elite", 35], ["event:*", 20]],
     risky: true
   },
   窟: {
     omen: STG_L("den of fangs and claws", "발톱과 어금니 마굴", "牙と爪の魔窟", "牙爪魔窟", "牙爪魔窟"),
     cards: ["牙", "爪", "拳", "蹴", "潰", "骨", "血", "肉", "剥"],
-    foes: ["虎", "亀", "蜂", "駒", "顎", "骸"],
+    foes: ["猛虎", "怪亀", "毒蜂", "暴駒", "大顎", "骸骨"],
     outcomes: [["battle", 60], ["elite", 25], ["event:corpse", 15]]
   },
   崖: {
     omen: STG_L("storm-lashed cliff", "폭풍 치는 절벽", "嵐吹き荒れる崖", "风暴断崖", "風暴斷崖"),
     cards: ["嵐", "風", "雷", "石", "蹴", "落", "鎌", "斬", "氷"],
-    foes: ["鶴", "虎", "蜂", "怨", "鬱"],
+    foes: ["凶鶴", "猛虎", "毒蜂", "怨鬼", "鬱鬼"],
     outcomes: [["battle", 55], ["elite", 30], ["event:quiz", 15]],
     risky: true
   },
   柵: {
     omen: STG_L("palisade of the dead", "망자를 가둔 철책", "亡者を阻む骸の柵", "亡者木栅", "亡者木柵"),
     cards: ["呪", "死", "魂", "鎌", "炎", "氷", "鎖", "縛", "骨"],
-    foes: ["骸", "怨", "妖", "顎", "冥"],
+    foes: ["骸骨", "怨鬼", "妖魔", "大顎", "冥王"],
     outcomes: [["elite", 50], ["battle", 35], ["event:shrine", 15]],
     risky: true
   },
   釜: {
     omen: STG_L("boiling hell cauldron", "죄인 삶는 가마솥", "罪人煮る地獄釜", "烹罪地狱釜", "烹罪地獄釜"),
     cards: ["火", "炎", "煎", "湯", "水", "油", "血", "毒", "蜜"],
-    foes: ["妖", "亀", "蜂", "顎", "骸"],
+    foes: ["妖魔", "怪亀", "毒蜂", "大顎", "骸骨"],
     outcomes: [["battle", 55], ["event:rest", 25], ["event:quiz", 20]]
   },
 
@@ -424,27 +424,27 @@ const STAGE_SIGNS = {
   牢: {
     omen: STG_L("blood-soaked beast cage", "피투성이 짐승 뇌옥", "獣の血牢", "猛兽血牢", "猛獸血牢"),
     cards: ["牢", "槍", "斧", "鎧", "薙", "鎖", "鉄", "血", "火", "噛"],
-    foes: ["狼", "豹", "猪", "獅", "兇"],
+    foes: ["血餓狼", "黒影豹", "大牙猪", "焔獅子", "屠殺兇"],
     outcomes: [["battle", 55], ["elite", 30], ["treasure", 15]],
     risky: true
   },
   砦: {
     omen: STG_L("dragonfire bastion", "화염 휩싸인 요새", "劫火の砦", "劫火壁垒", "劫火砦壘"),
     cards: ["焔", "火", "炎", "槍", "斧", "鎧", "薙", "轟", "閃", "穿"],
-    foes: ["鷲", "狼", "獅", "兇", "龍"],
+    foes: ["鋼爪鷲", "血餓狼", "焔獅子", "屠殺兇", "古神龍"],
     outcomes: [["elite", 50], ["battle", 35], ["event:quiz", 15]],
     risky: true
   },
   祠: {
     omen: STG_L("hungry beast shrine", "살점 탐하는 사당", "肉を喰らう祠", "噬肉古祠", "噬肉古祠"),
     cards: ["呑", "噛", "喰", "血", "骨", "火", "呪", "杖", "焚"],
-    foes: ["狐", "屍", "鰐", "鮫", "鳳"],
+    foes: ["九尾狐", "人喰屍", "血沼鰐", "深海鮫", "紅焔鳳"],
     outcomes: [["event:shrine", 45], ["battle", 40], ["event:quiz", 15]]
   },
   洲: {
     omen: STG_L("blood-stained sandbar", "아귀 들끓는 물가", "顎門うごめく洲", "恶鳄沙洲", "惡鱷沙洲"),
     cards: ["水", "濡", "溢", "雫", "氷", "雷", "槍", "血", "噛", "呑"],
-    foes: ["鰐", "鮫", "屍", "鷲", "鷹"],
+    foes: ["血沼鰐", "深海鮫", "人喰屍", "鋼爪鷲", "天帝鷹"],
     outcomes: [["battle", 65], ["event:well", 20], ["elite", 15]]
   },
 
@@ -452,28 +452,28 @@ const STAGE_SIGNS = {
   罠: {
     omen: STG_L("flesh-rending abyssal trap", "나락의 핏빛 함정", "肉裂く奈落の罠", "裂肉深渊陷阱", "裂肉深淵陷阱"),
     cards: ["罠", "毒", "針", "斬", "血", "火", "焔", "礫", "噬"],
-    foes: ["蟲", "蠱", "蝮", "傀儡", "饕餮"],
+    foes: ["百足蠱蟲", "漆黒毒蝮", "呪糸傀儡", "魔神饕餮"],
     outcomes: [["battle", 50], ["elite", 35], ["event:quiz", 15]],
     risky: true
   },
   尸: {
     omen: STG_L("mountain of twitching corpses", "꿈틀거리는 시체 산", "蠢く尸の山", "蠢动尸山", "蠢動尸山"),
     cards: ["尸", "屍", "骨", "髑", "髏", "血", "咒", "祟", "詛", "火"],
-    foes: ["巫", "魑", "魍", "髑髏", "饕餮"],
+    foes: ["血咒巫女", "魑魅魍魎", "白骨髑髏", "魔神饕餮"],
     outcomes: [["elite", 50], ["battle", 35], ["event:corpse", 15]],
     risky: true
   },
   峙: {
     omen: STG_L("monolith of the glutton god", "괴신 도사린 절벽", "怪神聳える峙", "怪神耸立之巅", "怪神聳立之峙"),
     cards: ["礫", "石", "岩", "雷", "焔", "殲", "咆", "睨", "噬", "抉"],
-    foes: ["魃", "蛟", "魑", "傀儡", "饕餮"],
+    foes: ["旱魃凶鬼", "深淵毒蛟", "魑魅魍魎", "呪糸傀儡", "魔神饕餮"],
     outcomes: [["elite", 55], ["battle", 35], ["treasure", 10]],
     risky: true
   },
   澪: {
     omen: STG_L("vein of black venom", "독혈 흐르는 수맥", "黒毒流れる澪", "黑毒水脉", "黑毒水脈"),
     cards: ["水", "淹", "滲", "毒", "氷", "血", "咒", "噬", "詛"],
-    foes: ["蟲", "蠱", "巫", "魍", "蛟"],
+    foes: ["百足蠱蟲", "血咒巫女", "魑魅魍魎", "深淵毒蛟"],
     outcomes: [["battle", 55], ["event:quiz", 25], ["event:well", 20]]
   },
 
@@ -503,8 +503,11 @@ const DEPTH_STAGE_POOLS = {
 };
 
 /*
- * Grade-matched Escape Intent Kanji when an enemy is at low HP (<= 35%) and tries to flee!
- * Each depth uses escape/movement kanji from its own Kanken grade.
+ * Grade-matched Escape Intent Kanji when an enemy is at low HP (<= 38%) and tries to flee!
+ *  - Depths 1..6 (Education): 1-char escape intents
+ *  - Depths 7..10 (Common): 2-char escape intents
+ *  - Depth 11 (Jun-1): 3-char escape intents
+ *  - Depth 12 (Grade 1): 4-char escape intents
  */
 const DEPTH_ESCAPE_INTENTS = {
   depth_1:  ["出", "足"],
@@ -513,19 +516,20 @@ const DEPTH_ESCAPE_INTENTS = {
   depth_4:  ["飛", "散"],
   depth_5:  ["迷", "往"],
   depth_6:  ["退", "裏"],
-  depth_7:  ["逃", "避"],
-  depth_8:  ["潜", "匿"],
-  depth_9:  ["逸", "奔"],
-  depth_10: ["隙", "踪"],
-  depth_11: ["遁", "馳"],
-  depth_12: ["遁", "逍"]
+  depth_7:  ["逃走", "退避"],
+  depth_8:  ["潜伏", "隠匿"],
+  depth_9:  ["逸走", "疾奔"],
+  depth_10: ["失踪", "闇逃"],
+  depth_11: ["血霧遁", "闇疾馳"],
+  depth_12: ["奈落逍遥", "虚空遁走"]
 };
 
 /*
- * Grade-matched fallback intent pools per depth so every depth uses its own Kanken pool!
- * Notice how similar concepts evolve with grade:
- *  - Gaze/Watch: 目/見(10급) -> 顔/声(9급) -> 向/相(8급) -> 察/望(7급) -> 眼/査(6급) -> 視/看/探(5급) -> 伺/尋/監(4급) -> 潜/幻(3급) -> 眺/偵(준2) -> 瞳/狙(2급) -> 覗/窺(준1) -> 睨/覘(1급)
- *  - Bite/Strike: 口/足/手/力(10급) -> 刀/切/弓/矢/角(9급) -> 打/投/歯/血(8급) -> 戦/折/焼/束(7급) -> 殺/破/暴/毒/囲(6급) -> 傷/痛/断/射/針(5급) -> 撃/突/剣/刺/爆(4급) -> 縛/絞/殴/貫/滅(3급) -> 砕/銃/刃/拷(준2) -> 斬/牙/爪/拳/蹴(2급) -> 噛/喰/呑/薙(준1) -> 噬/抉/蹂/殲(1급)
+ * Grade-matched intent pools per depth:
+ *  - Depths 1..6 (Education): 1-char intents
+ *  - Depths 7..10 (Common): 2-char intents (dangerous compound threats)
+ *  - Depth 11 (Jun-1): up to 3-char intents (out-of-spec beastly onslaught)
+ *  - Depth 12 (Grade 1): up to 4-char intents (abyssal horror incantations)
  */
 const DEPTH_INTENT_POOLS = {
   depth_1:  ["口", "足", "手", "力", "目", "見", "石", "火"],
@@ -534,17 +538,20 @@ const DEPTH_INTENT_POOLS = {
   depth_4:  ["戦", "折", "焼", "束", "察", "望", "縄", "害"],
   depth_5:  ["殺", "破", "暴", "毒", "眼", "囲", "圧", "絶"],
   depth_6:  ["傷", "痛", "断", "射", "針", "吸", "視", "看"],
-  depth_7:  ["撃", "突", "剣", "刺", "爆", "砲", "伺", "狂"],
-  depth_8:  ["縛", "絞", "殴", "貫", "奪", "裂", "滅", "刑"],
-  depth_9:  ["砕", "銃", "刃", "拷", "撲", "渦", "眺", "嚇"],
-  depth_10: ["斬", "牙", "爪", "拳", "蹴", "潰", "狙", "呪"],
-  depth_11: ["噛", "喰", "呑", "薙", "槍", "斧", "覗", "轟"],
-  depth_12: ["噬", "抉", "蹂", "殲", "詛", "祟", "睨", "咆"]
+  depth_7:  ["急襲", "刺殺", "爆撃", "乱撃", "鉄鎖", "狂乱", "突撃", "剣撃"],
+  depth_8:  ["処刑", "魂奪", "封縛", "絞殺", "虐殺", "黒炎", "貫通", "破滅"],
+  depth_9:  ["銃撃", "拷問", "粉砕", "吸血", "疫病", "凶刃", "撲殺", "威嚇"],
+  depth_10: ["斬首", "呪殺", "圧潰", "毒針", "牙爪", "怨呪", "死鎌", "闇討"],
+  depth_11: ["生肉喰", "骨噛砕", "皆薙殺", "黒焔焚", "雷轟穿", "八裂屠", "死角覗", "血槍突"],
+  depth_12: ["魂魄呑噬", "五臓抉出", "森羅殲滅", "万死咒詛", "百鬼夜祟", "深淵凝睨", "天地咆哮", "肉骨蹂躙"]
 };
 
 /*
  * Enemy Intent Kanji (Slay the Spire-style telegraphed moves via Kanji).
- * Strictly uses kanji from that enemy's Kanken grade or lower!
+ *  - 01-06: 1-char intents
+ *  - 07-10: 2-char compound intents
+ *  - 11: 3-char out-of-spec intents
+ *  - 12: 4-char abyssal intents
  */
 const FOE_INTENT_PROFILES = {
   // Depth 1 (Kanken 10 ONLY)
@@ -629,89 +636,159 @@ const FOE_INTENT_PROFILES = {
   将: { countdown: ["揮", "討", "断"], normal: ["鋼", "射", "傷", "激"] },
   聖: { countdown: ["三", "二", "一", "処"], normal: ["光", "裁", "断", "針"] },
 
-  // Depth 7 (Kanken 4)
-  獣: { normal: ["襲", "歯", "狂", "叫"] },
-  僧: { normal: ["戒", "罰", "音", "圧"] },
-  盗: { normal: ["刺", "潜", "逃", "鎖"] },
-  狩: { normal: ["弓", "矢", "襲", "刺"] },
-  影: { normal: ["伺", "刺", "惑", "暗"] },
-  凶: { normal: ["凶", "刺", "撃", "狂"] },
-  巨: { normal: ["壊", "踏", "圧", "撃"] },
-  狂: { normal: ["狂", "襲", "暴", "叫"] },
-  鬼: { countdown: ["怒", "狂", "壊"], normal: ["撃", "突", "鎖", "襲"] },
-  雷: { countdown: ["雲", "光", "雷"], normal: ["撃", "爆", "震", "焼"] },
-  雄: { countdown: ["叫", "駆", "撃"], normal: ["剣", "突", "矛", "盾"] },
+  // Depth 7 (Kanken 4 — 2-char intents)
+  狂獣: { normal: ["急襲", "噛裂", "狂乱", "咆哮"] },
+  悪僧: { normal: ["破戒", "天罰", "鉄杖", "重圧"] },
+  影盗: { normal: ["暗刺", "潜伏", "鉄鎖", "急襲"] },
+  人狩: { normal: ["狙射", "連矢", "急襲", "刺殺"] },
+  黒影: { normal: ["暗伺", "影刺", "幻惑", "闇襲"] },
+  凶鳥: { normal: ["急襲", "刺殺", "乱撃", "狂乱"] },
+  巨兵: { normal: ["破壊", "踏潰", "重圧", "強撃"] },
+  狂鬼: { normal: ["狂乱", "急襲", "暴撃", "鬼叫"] },
+  百鬼: { countdown: ["鬼怒", "狂乱", "壊滅"], normal: ["乱撃", "突撃", "鉄鎖", "急襲"] },
+  雷神: { countdown: ["黒雲", "閃光", "落雷"], normal: ["雷撃", "爆撃", "震撃", "焼尽"] },
+  鬼雄: { countdown: ["雄叫", "疾駆", "撃滅"], normal: ["剣撃", "突撃", "強矛", "鉄盾"] },
+  獣: { normal: ["急襲", "狂乱", "刺殺", "乱撃"] },
+  僧: { normal: ["破戒", "天罰", "重圧", "乱撃"] },
+  盗: { normal: ["暗刺", "鉄鎖", "急襲", "刺殺"] },
+  狩: { normal: ["連矢", "急襲", "刺殺", "乱撃"] },
+  影: { normal: ["影刺", "幻惑", "急襲", "暗刺"] },
+  凶: { normal: ["刺殺", "乱撃", "狂乱", "急襲"] },
+  巨: { normal: ["破壊", "踏潰", "重圧", "乱撃"] },
+  狂: { normal: ["狂乱", "急襲", "暴撃", "乱撃"] },
+  鬼: { countdown: ["鬼怒", "狂乱", "壊滅"], normal: ["乱撃", "突撃", "鉄鎖", "急襲"] },
+  雷: { countdown: ["黒雲", "閃光", "落雷"], normal: ["雷撃", "爆撃", "震撃", "焼尽"] },
+  雄: { countdown: ["雄叫", "疾駆", "撃滅"], normal: ["剣撃", "突撃", "強矛", "鉄盾"] },
 
-  // Depth 8 (Kanken 3)
-  霊: { normal: ["魂", "凍", "恨", "封"] },
-  怪: { normal: ["殴", "裂", "貫", "脅"] },
-  賊: { normal: ["奪", "潜", "刺", "縛"] },
-  偶: { normal: ["縛", "絞", "裂", "幻"] },
-  猟: { normal: ["貫", "裂", "奪", "潜"] },
-  蛮: { normal: ["殴", "崩", "突", "裂"] },
-  鯨: { normal: ["呑", "水", "崩", "圧"] },
-  侍: { normal: ["剣", "貫", "裂", "伐"] },
-  幽: { normal: ["幻", "潜", "凍", "魂"] },
-  邪: { normal: ["邪", "炎", "縛", "虐"] },
-  魔: { countdown: ["封", "炎", "滅"], normal: ["縛", "奪", "裂", "幻"] },
-  帝: { countdown: ["審", "刑", "滅"], normal: ["縛", "貫", "圧", "炎"] },
-  騎: { countdown: ["駆", "突", "貫"], normal: ["剣", "裂", "崩", "殴"] },
+  // Depth 8 (Kanken 3 — 2-char intents)
+  悪霊: { normal: ["魂奪", "氷凍", "怨恨", "封縛"] },
+  怪異: { normal: ["殴打", "裂傷", "貫通", "脅迫"] },
+  山賊: { normal: ["強奪", "潜伏", "刺殺", "封縛"] },
+  木偶: { normal: ["封縛", "絞殺", "裂傷", "幻惑"] },
+  血猟: { normal: ["貫通", "裂傷", "魂奪", "潜伏"] },
+  蛮族: { normal: ["殴打", "崩壊", "突撃", "裂傷"] },
+  亡鯨: { normal: ["丸呑", "濁流", "崩壊", "重圧"] },
+  亡侍: { normal: ["一閃", "貫通", "裂傷", "斬伐"] },
+  幽鬼: { normal: ["幻惑", "潜伏", "氷凍", "魂奪"] },
+  邪霊: { normal: ["邪炎", "黒炎", "封縛", "虐殺"] },
+  魔王: { countdown: ["魔封", "黒炎", "破滅"], normal: ["封縛", "魂奪", "裂傷", "幻惑"] },
+  魔帝: { countdown: ["審判", "処刑", "破滅"], normal: ["封縛", "貫通", "重圧", "黒炎"] },
+  黒騎: { countdown: ["疾駆", "突撃", "貫通"], normal: ["剣撃", "裂傷", "崩壊", "殴打"] },
+  霊: { normal: ["魂奪", "氷凍", "怨恨", "封縛"] },
+  怪: { normal: ["殴打", "裂傷", "貫通", "脅迫"] },
+  賊: { normal: ["強奪", "潜伏", "刺殺", "封縛"] },
+  偶: { normal: ["封縛", "絞殺", "裂傷", "幻惑"] },
+  猟: { normal: ["貫通", "裂傷", "魂奪", "潜伏"] },
+  蛮: { normal: ["殴打", "崩壊", "突撃", "裂傷"] },
+  鯨: { normal: ["丸呑", "濁流", "崩壊", "重圧"] },
+  侍: { normal: ["一閃", "貫通", "裂傷", "斬伐"] },
+  幽: { normal: ["幻惑", "潜伏", "氷凍", "魂奪"] },
+  邪: { normal: ["邪炎", "黒炎", "封縛", "虐殺"] },
+  魔: { countdown: ["魔封", "黒炎", "破滅"], normal: ["封縛", "魂奪", "裂傷", "幻惑"] },
+  帝: { countdown: ["審判", "処刑", "破滅"], normal: ["封縛", "貫通", "重圧", "黒炎"] },
+  騎: { countdown: ["疾駆", "突撃", "貫通"], normal: ["剣撃", "裂傷", "崩壊", "殴打"] },
 
-  // Depth 9 (Kanken 2.5)
-  猫: { normal: ["疾", "眺", "裂", "奇"] },
-  蛇: { normal: ["毒", "絞", "潜", "渦"] },
-  猿: { normal: ["跳", "投", "奪", "侮"] },
-  蚊: { normal: ["吸", "血", "疫", "菌"] },
-  忍: { normal: ["刃", "潜", "毒", "煙"] },
-  偵: { normal: ["偵", "眺", "銃", "刃"] },
-  曹: { normal: ["鎖", "拷", "撲", "縛"] },
-  仙: { normal: ["幻", "渦", "雷", "癒"] },
-  傑: { normal: ["刃", "剛", "砕", "喝"] },
-  竜: { countdown: ["渦", "炎", "砕"], normal: ["火", "剛", "雷", "嚇"] },
-  覇: { countdown: ["威", "圧", "砕"], normal: ["刃", "剛", "撲", "滅"] },
-  帥: { countdown: ["斉", "銃", "砲"], normal: ["刃", "撃", "貫", "囲"] },
+  // Depth 9 (Kanken 2.5 — 2-char intents)
+  怪猫: { normal: ["疾走", "凝眺", "裂傷", "奇襲"] },
+  毒蛇: { normal: ["猛毒", "絞殺", "潜伏", "黒渦"] },
+  血猿: { normal: ["跳躍", "投石", "強奪", "侮辱"] },
+  疫蚊: { normal: ["吸血", "血毒", "疫病", "毒菌"] },
+  影忍: { normal: ["凶刃", "潜伏", "猛毒", "煙幕"] },
+  凶偵: { normal: ["偵察", "凝眺", "銃撃", "凶刃"] },
+  獄曹: { normal: ["鉄鎖", "拷問", "撲殺", "封縛"] },
+  怪仙: { normal: ["幻術", "黒渦", "落雷", "呪癒"] },
+  血傑: { normal: ["凶刃", "剛撃", "粉砕", "一喝"] },
+  火竜: { countdown: ["黒渦", "竜炎", "粉砕"], normal: ["業火", "剛撃", "落雷", "威嚇"] },
+  覇王: { countdown: ["覇威", "重圧", "粉砕"], normal: ["凶刃", "剛撃", "撲殺", "破滅"] },
+  元帥: { countdown: ["号令", "斉射", "砲撃"], normal: ["凶刃", "銃撃", "貫通", "包囲"] },
+  猫: { normal: ["疾走", "凝眺", "裂傷", "奇襲"] },
+  蛇: { normal: ["猛毒", "絞殺", "潜伏", "黒渦"] },
+  猿: { normal: ["跳躍", "投石", "強奪", "侮辱"] },
+  蚊: { normal: ["吸血", "血毒", "疫病", "毒菌"] },
+  忍: { normal: ["凶刃", "潜伏", "猛毒", "煙幕"] },
+  偵: { normal: ["偵察", "凝眺", "銃撃", "凶刃"] },
+  曹: { normal: ["鉄鎖", "拷問", "撲殺", "破滅"] },
+  仙: { normal: ["幻術", "黒渦", "落雷", "呪癒"] },
+  傑: { normal: ["凶刃", "剛撃", "粉砕", "一喝"] },
+  竜: { countdown: ["黒渦", "竜炎", "粉砕"], normal: ["業火", "剛撃", "落雷", "威嚇"] },
+  覇: { countdown: ["覇威", "重圧", "粉砕"], normal: ["凶刃", "剛撃", "撲殺", "破滅"] },
+  帥: { countdown: ["号令", "斉射", "砲撃"], normal: ["凶刃", "銃撃", "貫通", "包囲"] },
 
-  // Depth 10 (Kanken 2)
-  虎: { normal: ["牙", "爪", "襲", "蹴"] },
-  亀: { normal: ["錮", "殻", "重", "潰"] },
-  蜂: { normal: ["針", "毒", "刺", "群"] },
-  鶴: { normal: ["蹴", "狙", "貫", "風"] },
-  駒: { normal: ["蹴", "突", "走", "潰"] },
-  妖: { normal: ["妖", "呪", "惑", "闇"] },
-  顎: { normal: ["牙", "噛", "潰", "裂"] },
-  骸: { normal: ["骨", "鎌", "斬", "潰"] },
-  怨: { normal: ["怨", "呪", "闇", "絞"] },
-  冥: { countdown: ["三", "二", "一", "冥"], normal: ["鎌", "斬", "呪", "闇"] },
-  闇: { countdown: ["闇", "呪", "潰"], normal: ["奪", "冷", "怨", "斬"] },
-  鬱: { countdown: ["塞", "闇", "潰"], normal: ["呪", "怨", "縛", "溺"] },
+  // Depth 10 (Kanken 2 — 2-char intents)
+  猛虎: { normal: ["牙爪", "急襲", "強蹴", "噛裂"] },
+  怪亀: { normal: ["鉄殻", "重圧", "圧潰", "固守"] },
+  毒蜂: { normal: ["毒針", "猛毒", "刺殺", "群襲"] },
+  凶鶴: { normal: ["強蹴", "狙撃", "貫通", "烈風"] },
+  暴駒: { normal: ["強蹴", "突撃", "疾走", "圧潰"] },
+  妖魔: { normal: ["妖術", "呪殺", "幻惑", "常闇"] },
+  大顎: { normal: ["牙爪", "噛砕", "圧潰", "裂傷"] },
+  骸骨: { normal: ["死鎌", "斬首", "圧潰", "骨槍"] },
+  怨鬼: { normal: ["怨呪", "呪殺", "闇討", "絞殺"] },
+  冥王: { countdown: ["死兆", "冥罰", "斬首"], normal: ["死鎌", "斬首", "呪殺", "常闇"] },
+  常闇: { countdown: ["常闇", "呪殺", "圧潰"], normal: ["魂奪", "氷闇", "怨呪", "斬首"] },
+  鬱鬼: { countdown: ["閉塞", "常闇", "圧潰"], normal: ["呪殺", "怨呪", "封縛", "溺死"] },
+  虎: { normal: ["牙爪", "急襲", "強蹴", "噛裂"] },
+  亀: { normal: ["鉄殻", "重圧", "圧潰", "固守"] },
+  蜂: { normal: ["毒針", "猛毒", "刺殺", "群襲"] },
+  鶴: { normal: ["強蹴", "狙撃", "貫通", "烈風"] },
+  駒: { normal: ["強蹴", "突撃", "疾走", "圧潰"] },
+  妖: { normal: ["妖術", "呪殺", "幻惑", "常闇"] },
+  顎: { normal: ["牙爪", "噛砕", "圧潰", "裂傷"] },
+  骸: { normal: ["死鎌", "斬首", "圧潰", "骨槍"] },
+  怨: { normal: ["怨呪", "呪殺", "闇討", "絞殺"] },
+  冥: { countdown: ["死兆", "冥罰", "斬首"], normal: ["死鎌", "斬首", "呪殺", "常闇"] },
+  闇: { countdown: ["常闇", "呪殺", "圧潰"], normal: ["魂奪", "氷闇", "怨呪", "斬首"] },
+  鬱: { countdown: ["閉塞", "常闇", "圧潰"], normal: ["呪殺", "怨呪", "封縛", "溺死"] },
 
-  // Depth 11 (Kanken Jun-1)
-  狼: { normal: ["牙", "噛", "爪", "吠"] },
-  狐: { normal: ["焔", "幻", "嘘", "惑"] },
-  豹: { normal: ["爪", "噛", "閃", "襲"] },
-  猪: { normal: ["突", "牙", "轟", "潰"] },
-  鰐: { normal: ["噛", "呑", "水", "潜"] },
-  鮫: { normal: ["血", "噛", "渦", "裂"] },
-  鷲: { normal: ["爪", "穿", "閃", "空"] },
-  獅: { normal: ["吠", "噛", "爪", "轟"] },
-  屍: { normal: ["噛", "喰", "毒", "腐"] },
-  兇: { normal: ["薙", "斧", "槍", "屠"] },
-  龍: { countdown: ["覗", "焔", "呑"], normal: ["轟", "雷", "噛", "喰"] },
-  鳳: { countdown: ["閃", "焔", "焚"], normal: ["火", "嵐", "穿", "薙"] },
-  鷹: { countdown: ["覗", "閃", "穿"], normal: ["爪", "空", "裂", "襲"] },
+  // Depth 11 (Kanken Jun-1 — up to 3-char intents)
+  血餓狼: { normal: ["血牙噛", "生肉喰", "鋭爪裂", "狂遠吠"] },
+  九尾狐: { normal: ["狐焔焚", "九尾幻", "死角覗", "魂惑乱"] },
+  黒影豹: { normal: ["死角覗", "喉笛噛", "黒閃襲", "鋭爪裂"] },
+  大牙猪: { normal: ["巨牙突", "岩盤砕", "雷轟穿", "全身潰"] },
+  血沼鰐: { normal: ["骨噛砕", "丸呑喰", "血沼潜", "大顎裂"] },
+  深海鮫: { normal: ["血臭追", "骨噛砕", "黒渦呑", "八裂屠"] },
+  鋼爪鷲: { normal: ["鋼爪穿", "急降閃", "暴風裂", "死角覗"] },
+  焔獅子: { normal: ["劫火吠", "骨噛砕", "黒焔焚", "雷轟穿"] },
+  人喰屍: { normal: ["生肉喰", "腐毒噛", "骨噛砕", "屍群襲"] },
+  屠殺兇: { normal: ["皆薙殺", "血斧断", "血槍突", "八裂屠"] },
+  古神龍: { countdown: ["深淵覗", "黒焔焚", "天地呑"], normal: ["雷轟穿", "生肉喰", "骨噛砕", "皆薙殺"] },
+  紅焔鳳: { countdown: ["紅閃光", "黒焔焚", "万象焚"], normal: ["劫火嵐", "雷轟穿", "皆薙殺", "黒焔焚"] },
+  天帝鷹: { countdown: ["死角覗", "紅閃光", "心臓穿"], normal: ["鋼爪穿", "暴風裂", "八裂屠", "急降閃"] },
+  狼: { normal: ["血牙噛", "生肉喰", "鋭爪裂", "狂遠吠"] },
+  狐: { normal: ["狐焔焚", "九尾幻", "死角覗", "魂惑乱"] },
+  豹: { normal: ["死角覗", "喉笛噛", "黒閃襲", "鋭爪裂"] },
+  猪: { normal: ["巨牙突", "岩盤砕", "雷轟穿", "全身潰"] },
+  鰐: { normal: ["骨噛砕", "丸呑喰", "血沼潜", "大顎裂"] },
+  鮫: { normal: ["血臭追", "骨噛砕", "黒渦呑", "八裂屠"] },
+  鷲: { normal: ["鋼爪穿", "急降閃", "暴風裂", "死角覗"] },
+  獅: { normal: ["劫火吠", "骨噛砕", "黒焔焚", "雷轟穿"] },
+  屍: { normal: ["生肉喰", "腐毒噛", "骨噛砕", "屍群襲"] },
+  兇: { normal: ["皆薙殺", "血斧断", "血槍突", "八裂屠"] },
+  龍: { countdown: ["深淵覗", "黒焔焚", "天地呑"], normal: ["雷轟穿", "生肉喰", "骨噛砕", "皆薙殺"] },
+  鳳: { countdown: ["紅閃光", "黒焔焚", "万象焚"], normal: ["劫火嵐", "雷轟穿", "皆薙殺", "黒焔焚"] },
+  鷹: { countdown: ["死角覗", "紅閃光", "心臓穿"], normal: ["鋼爪穿", "暴風裂", "八裂屠", "急降閃"] },
 
-  // Depth 12 (Kanken 1)
-  巫: { normal: ["咒", "祟", "詛", "蠱"] },
-  蟲: { normal: ["蠱", "毒", "噬", "蝕"] },
-  蠱: { normal: ["蠱", "詛", "祟", "毒"] },
-  魑: { normal: ["睨", "咆", "抉", "祟"] },
-  魍: { normal: ["溺", "呪", "噬", "闇"] },
-  魃: { normal: ["焔", "焚", "渇", "詛"] },
-  蛟: { normal: ["渦", "呑", "噬", "雷"] },
-  蝮: { normal: ["毒", "噛", "噬", "潜"] },
-  傀儡: { countdown: ["糸", "縛", "殲"], normal: ["操", "刺", "斬", "抉"] },
-  髑髏: { countdown: ["咒", "祟", "殲"], normal: ["噬", "骨", "詛", "抉"] },
-  饕餮: { countdown: ["睨", "咆", "呑"], normal: ["噬", "喰", "抉", "蹂"] }
+  // Depth 12 (Kanken 1 — up to 4-char abyssal intents)
+  魑魅魍魎: { countdown: ["百鬼夜祟", "深淵凝睨", "森羅殲滅"], normal: ["魂魄呑噬", "五臓抉出", "万死咒詛", "肉骨蹂躙"] },
+  百足蠱蟲: { normal: ["百足毒噬", "五臓蝕毒", "万死咒詛", "肉骨蹂躙"] },
+  血咒巫女: { normal: ["万死咒詛", "百鬼夜祟", "血咒怨祟", "魂魄呑噬"] },
+  旱魃凶鬼: { normal: ["旱魃劫火", "血肉焚尽", "万死咒詛", "天地咆哮"] },
+  深淵毒蛟: { normal: ["深淵毒渦", "魂魄呑噬", "黒雷轟撃", "肉骨蹂躙"] },
+  漆黒毒蝮: { normal: ["即死猛毒", "五臓抉出", "魂魄呑噬", "暗闇潜伏"] },
+  呪糸傀儡: { countdown: ["呪糸緊縛", "四肢切断", "森羅殲滅"], normal: ["傀儡操刃", "五臓抉出", "万死咒詛", "肉骨蹂躙"] },
+  白骨髑髏: { countdown: ["血咒怨祟", "百鬼夜祟", "森羅殲滅"], normal: ["魂魄呑噬", "白骨砕撃", "万死咒詛", "五臓抉出"] },
+  魔神饕餮: { countdown: ["深淵凝睨", "天地咆哮", "万象呑噬"], normal: ["魂魄呑噬", "五臓抉出", "肉骨蹂躙", "森羅殲滅"] },
+  巫: { normal: ["万死咒詛", "百鬼夜祟", "血咒怨祟", "魂魄呑噬"] },
+  蟲: { normal: ["百足毒噬", "五臓蝕毒", "万死咒詛", "肉骨蹂躙"] },
+  蠱: { normal: ["百足毒噬", "万死咒詛", "百鬼夜祟", "五臓蝕毒"] },
+  魑: { normal: ["深淵凝睨", "天地咆哮", "五臓抉出", "百鬼夜祟"] },
+  魍: { normal: ["深淵毒渦", "万死咒詛", "魂魄呑噬", "百鬼夜祟"] },
+  魃: { normal: ["旱魃劫火", "血肉焚尽", "万死咒詛", "天地咆哮"] },
+  蛟: { normal: ["深淵毒渦", "魂魄呑噬", "黒雷轟撃", "肉骨蹂躙"] },
+  蝮: { normal: ["即死猛毒", "五臓抉出", "魂魄呑噬", "暗闇潜伏"] },
+  傀儡: { countdown: ["呪糸緊縛", "四肢切断", "森羅殲滅"], normal: ["傀儡操刃", "五臓抉出", "万死咒詛", "肉骨蹂躙"] },
+  髑髏: { countdown: ["血咒怨祟", "百鬼夜祟", "森羅殲滅"], normal: ["魂魄呑噬", "白骨砕撃", "万死咒詛", "五臓抉出"] },
+  饕餮: { countdown: ["深淵凝睨", "天地咆哮", "万象呑噬"], normal: ["魂魄呑噬", "五臓抉出", "肉骨蹂躙", "森羅殲滅"] }
 };
 
 /*
@@ -887,7 +964,16 @@ const FOE_ENCOUNTER_LINES = {
 };
 
 function getEnemyEncounterLine(kanji, rank = "normal", isWounded = false, isAmbush = false) {
-  const entry = FOE_ENCOUNTER_LINES[kanji];
+  let entry = FOE_ENCOUNTER_LINES[kanji];
+  if (!entry && kanji && kanji.length > 1) {
+    const chars = Array.from(String(kanji));
+    for (let i = chars.length - 1; i >= 0; i--) {
+      if (FOE_ENCOUNTER_LINES[chars[i]]) {
+        entry = FOE_ENCOUNTER_LINES[chars[i]];
+        break;
+      }
+    }
+  }
   const baseLine = entry ? pickLang(entry) : "";
   if (isAmbush) {
     const ambushPrefix = pickLang(STG_L(
@@ -908,11 +994,618 @@ function getEnemyEncounterLine(kanji, rank = "normal", isWounded = false, isAmbu
   return baseLine;
 }
 
+/* Enemy short names for full-screen encounter reveal (적/강적/주인 조우 -> 한자 -> 적 이름) */
+const FOE_NAMES = {
+  // Depth 1 (10級)
+  犬: STG_L("Stray Hound", "길 잃은 들개", "迷い野犬"),
+  虫: STG_L("Venomous Swarm", "사각거리는 벌레 떼", "蠢く蟲の群れ"),
+  人: STG_L("Hollow Wanderer", "넋 잃은 헤매는 자", "虚ろな彷徨い人"),
+  木: STG_L("Withered Deadwood", "뒤틀린 고목", "歪んだ古木"),
+  石: STG_L("Living Boulder", "살의를 품은 거석", "殺意宿す巨石"),
+  貝: STG_L("Starved Shell", "굶주린 귀조개", "飢えた怪貝"),
+  目: STG_L("Bloodshot Gaze", "충혈된 거대 눈동자", "充血した大目玉"),
+  森: STG_L("Devouring Thicket", "숨 쉬는 검은 숲", "息づく黒森"),
+  車: STG_L("Runaway War-Cart", "폭주하는 불수레", "暴走する火車"),
+  王: STG_L("Ruined Monarch", "폐허의 군왕", "廃墟の王"),
+  天: STG_L("Wrathful Firmament", "천벌의 하늘", "天罰の蒼穹"),
+  月: STG_L("Blood-Soaked Moon", "검붉게 물든 달", "血染めの凶月"),
+
+  // Depth 2 (9級)
+  馬: STG_L("Frenzied Black Steed", "거품 무는 흑마", "泡吹く黒馬"),
+  牛: STG_L("Blood-Horned Bull", "피 묻은 뿔 황소", "血角の巨牛"),
+  鳥: STG_L("Ash-Feathered Raptor", "잿빛 깃털 괴조", "灰羽の怪鳥"),
+  魚: STG_L("Abyssal Maw-Fish", "검은 물속 괴어", "黒水の怪魚"),
+  頭: STG_L("Floating Severed Head", "떠도는 거대 수급", "彷徨う大首"),
+  雪: STG_L("Flesh-Cutting Frost", "살을 에는 설녀", "肌裂く雪影"),
+  雲: STG_L("Suffocating Black Cloud", "숨통 조이는 먹구름", "息塞ぐ黒雲"),
+  岩: STG_L("Crag Colossus", "절벽 바위 거인", "断崖の岩巨人"),
+  黒: STG_L("Blade of Pitch Shadow", "빛 삼키는 검은 그림자", "光呑む黒影"),
+  電: STG_L("Roaring Violet Thunder", "자줏빛 뇌전", "轟く紫電"),
+  夜: STG_L("Sovereign Endless Night", "끝없는 칠흑의 밤", "果てなき常夜"),
+  星: STG_L("Fallen Omen-Star", "추락한 흉성", "堕ちた凶星"),
+
+  // Depth 3 (8級)
+  羊: STG_L("Spiral-Horned Ram", "뒤틀린 뿔 숫양", "歪み角の牡羊"),
+  客: STG_L("Blood-Robed Guest", "피 묻은 불청객", "血濡れの招かれざる客"),
+  医: STG_L("Beak-Masked Physician", "부리 가면 역병의", "嘴仮面の疫病医"),
+  者: STG_L("Shrouded Stalker", "얼굴 가린 괴한", "顔隠す何者か"),
+  氷: STG_L("Spear-Frost Fiend", "서슬 퍼런 빙결체", "鋭き氷柱の怪"),
+  病: STG_L("Festering Plague-Mist", "검붉은 역병 안개", "どす黒い病魔"),
+  暗: STG_L("Swallowing Gloom", "집어삼키는 암흑", "呑み込む暗黒"),
+  血: STG_L("Backflowing Gore", "역류하는 선혈", "逆流する鮮血"),
+  悪: STG_L("Incarnate Malice", "형상화된 악의", "形を成す悪意"),
+  死: STG_L("Pale Death Itself", "얼어붙은 죽음", "凍てつく死神"),
+  神: STG_L("Forsaken Local Deity", "일그러진 토착신", "歪んだ土着神"),
+  主: STG_L("Chained Old Master", "사슬 끄는 옛 주인", "鎖引く旧き主"),
+
+  // Depth 4 (7級)
+  熊: STG_L("Arrow-Bristling Bear", "화살 박힌 성난 곰", "矢負いの巨熊"),
+  鹿: STG_L("Blood-Antlered Stag", "핏빛 뿔 수사슴", "血角の大鹿"),
+  兵: STG_L("Undying Fallen Soldier", "전장을 떠도는 패잔병", "彷徨う敗残兵"),
+  徒: STG_L("Bloodthirsty Marauders", "피에 굶주린 약탈자", "血に飢えた徒党"),
+  卒: STG_L("Hollow Armor Footman", "녹슨 갑주 보졸", "錆鎧の兵卒"),
+  隊: STG_L("Phantom Marching Squad", "망자의 행군 부대", "亡者の行軍隊"),
+  機: STG_L("Rusted Killing Engine", "녹슨 살상 기관", "錆びた殺戮機"),
+  官: STG_L("Ruthless Magistrate", "처형령 내리는 집행관", "冷酷なる執行官"),
+  臣: STG_L("Blood-Weeping Retainer", "피눈물 흘리는 무신", "血涙の武臣"),
+  軍: STG_L("Legion of the Slain", "수천 전사자의 군세", "戦死者の大軍"),
+  司: STG_L("Arbiter of Life and Death", "생사를 재단하는 판관", "生死を裁く司"),
+  勇: STG_L("Shattered-Armor Champion", "투기에 미친 맹장", "闘気狂う猛将"),
+
+  // Depth 5 (6級)
+  士: STG_L("Blood-Crazed Warrior", "살육에 미친 타락 무사", "殺戮の堕武士"),
+  犯: STG_L("Shackle-Dragging Convict", "족쇄 끌고 웃는 탈옥수", "足枷引く脱獄犯"),
+  像: STG_L("Blood-Weeping Statue", "피눈물 흘리는 석상", "血涙の石像"),
+  象: STG_L("Chained War-Elephant", "쇠사슬 두른 갑주 거상", "鉄鎖の装甲巨象"),
+  毒: STG_L("Lung-Searing Venom Fiend", "폐부를 태우는 독괴", "肺を焼く毒怪"),
+  迷: STG_L("Phantom of Lost Fog", "길 잃게 하는 미망", "迷い霧の幻影"),
+  武: STG_L("Avatar of Martial Wrath", "베고 부수는 무력의 화신", "武力の権化"),
+  罪: STG_L("Tangled Karma Fiend", "엉겨 붙은 죄업의 흉물", "罪業の凶物"),
+  災: STG_L("Living Calamity", "살아 움직이는 재앙", "生ける災厄"),
+  師: STG_L("Blood-Talisman Heretic", "금기 주술의 이단 도사", "血札の異端師"),
+  仏: STG_L("Twisted Dark Buddha", "파멸을 품은 마불", "破滅宿す魔仏"),
+
+  // Depth 6 (5級)
+  骨: STG_L("Clattering Bone-Swordsman", "스스로 맞춰진 백골", "組み上がる白骨"),
+  亡: STG_L("Warmth-Craving Revenant", "산 자를 탐하는 망자", "温もり求める亡者"),
+  蚕: STG_L("Flesh-Fed Giant Silkworm", "살점 먹고 자란 거대 누에", "人肉喰らいの巨蚕"),
+  衆: STG_L("Writhing Mob of Limbs", "뒤엉킨 아귀의 군중", "絡み合う亡者衆"),
+  従: STG_L("Soul-Bound Puppet Thrall", "영혼 묶인 꼭두각시 시종", "魂縛りの従者"),
+  警: STG_L("Bell-Ringing Bone Sentry", "경종 울리는 백골 파수병", "警鐘の白骨衛"),
+  敵: STG_L("Battle-Scarred Nemesis", "사선을 넘어온 숙적", "死線越えの宿敵"),
+  異: STG_L("Twisted Bone Aberration", "형태 무너진 이형 괴물", "異形の怪物"),
+  皇: STG_L("Emperor of the Skull Throne", "해골 옥좌의 백골 황제", "骸玉座の白骨皇"),
+  将: STG_L("Undefeated Bone General", "천군만마의 백골 대장군", "白骨の大将軍"),
+  聖: STG_L("Tarnished-Halo Fallen Saint", "빛바랜 후광의 타락 성자", "堕ちた聖者"),
+
+  // Depth 7 (4級 — 2-char & 1-char)
+  狂獣: STG_L("Matted-Fur Ravenous Beast", "피 엉킨 굶주린 광수", "血塗れの狂獣"),
+  悪僧: STG_L("Skull-Rosary Renegade Monk", "해골 염주의 파계 악승", "髑髏数珠の悪僧"),
+  影盗: STG_L("Shadow-Step Cutthroat", "등 뒤를 노리는 그림자 도적", "背後の影盗賊"),
+  人狩: STG_L("Man-Hunting Tracker", "사람을 사냥하는 추격자", "人狩りの追跡者"),
+  黒影: STG_L("Betraying Black Shadow", "주인을 배신한 검은 그림자", "裏切りの黒影"),
+  凶鳥: STG_L("Omen-Shriek Raptor", "피가 식는 비명의 흉조", "凶兆の怪鳥"),
+  巨兵: STG_L("Ceiling-Scraping Titan Soldier", "천장을 찌르는 거대 갑주병", "天井突く巨兵"),
+  狂鬼: STG_L("Flesh-Tearing Berserk Oni", "이성 잃고 폭주하는 광귀", "暴走する狂鬼"),
+  百鬼: STG_L("Night-Parade Hundred Oni", "밤을 삼키는 백귀야행의 우두머리", "百鬼夜行の頭領"),
+  雷神: STG_L("Storm-Cloaked Thunder God", "먹구름 두른 뇌신", "黒雲纏う雷神"),
+  鬼雄: STG_L("Warlord Oni of the Valley", "골짜기를 지배하는 귀웅", "谷統べる鬼雄"),
+  獣: STG_L("Matted-Fur Ravenous Beast", "피 엉킨 굶주린 마수", "飢えた魔獣"),
+  僧: STG_L("Skull-Rosary Renegade Monk", "해골 염주의 파계승", "髑髏数珠の破戒僧"),
+  盗: STG_L("Shadow-Step Cutthroat", "등 뒤를 노리는 그림자 도적", "背後の影盗賊"),
+  狩: STG_L("Man-Hunting Tracker", "사람 사냥하는 추적자", "人狩りの追跡者"),
+  影: STG_L("Betraying Black Shadow", "주인을 배신한 검은 그림자", "裏切りの黒影"),
+  凶: STG_L("Condensed Omen-Fiend", "응축된 흉조의 괴물", "凶兆の怪物"),
+  巨: STG_L("Ceiling-Scraping Titan", "천장을 찌르는 거인", "天井突く巨人"),
+  狂: STG_L("Flesh-Tearing Berserker", "이성 잃고 폭주하는 광인", "暴走する狂人"),
+  鬼: STG_L("Voice-Mimicking Man-Eater Oni", "목소리 흉내 내는 식인 악귀", "声真似の食人鬼"),
+  雷: STG_L("Storm-Cloaked Thunder Beast", "먹구름 두른 뇌신수", "黒雲纏う雷獣"),
+  雄: STG_L("Warlord Spirit of the Valley", "골짜기를 지배하는 영웅신", "谷統べる英雄神"),
+
+  // Depth 8 (3級 — 2-char & 1-char)
+  悪霊: STG_L("Wailing Vengeful Spirit", "통곡하는 창백한 악령", "慟哭の悪霊"),
+  怪異: STG_L("Shifting-Eye Grotesque Yokai", "눈알과 아가리의 기괴 요괴", "異形の怪異"),
+  山賊: STG_L("Blood-Axe Mountain Brigand", "피비린내 나는 도끼 산적", "血斧の山賊"),
+  木偶: STG_L("Severed-String Cursed Puppet", "줄 끊어진 저주 목각인형", "糸切れの呪木偶"),
+  血猟: STG_L("Blood-Scent Feral Huntsman", "피 냄새 쫓는 광기의 엽사", "血追いの猟師"),
+  蛮族: STG_L("Bone-Crowned Savage Warrior", "뼈 투구 쓴 야만전사", "骨兜の蛮族"),
+  亡鯨: STG_L("Black-Fog Phantom Whale", "검은 안개 바다의 망령 고래", "黒霧の亡鯨"),
+  亡侍: STG_L("Blood-Starved Undead Samurai", "요도를 뽑아 든 망령 무사", "妖刀の亡侍"),
+  幽鬼: STG_L("Soul-Reaping Nether Ghost", "영혼을 베는 흐릿한 유귀", "魂刈る幽鬼"),
+  邪霊: STG_L("Black-Flame Curse Spirit", "검은 불꽃 흩뿌리는 사령", "黒炎の邪霊"),
+  魔王: STG_L("Hellfire Archfiend King", "지옥불 기둥의 마왕", "業火の魔王"),
+  魔帝: STG_L("Grudge-Devouring Demon Emperor", "원한을 집어삼킨 마제", "怨念呑む魔帝"),
+  黒騎: STG_L("Space-Piercing Black Knight", "해골 군마의 지옥 흑기사", "骸馬の黒騎士"),
+  霊: STG_L("Wailing Pale Spirit", "통곡하는 창백한 원령", "慟哭の怨霊"),
+  怪: STG_L("Shifting-Eye Grotesque Yokai", "눈알과 아가리의 기괴 요괴", "異形の物の怪"),
+  賊: STG_L("Blood-Axe Mountain Brigand", "피비린내 나는 산적", "血斧の山賊"),
+  偶: STG_L("Severed-String Cursed Puppet", "줄 끊어진 저주 목각인형", "糸切れの呪木偶"),
+  猟: STG_L("Blood-Scent Feral Huntsman", "피 냄새 쫓는 광기 엽사", "血追いの猟師"),
+  蛮: STG_L("Bone-Crowned Savage Warrior", "뼈 투구 쓴 야만전사", "骨兜の蛮族戦士"),
+  鯨: STG_L("Black-Fog Phantom Whale", "검은 안개 바다의 망령 고래", "黒霧の大鯨"),
+  侍: STG_L("Blood-Starved Undead Samurai", "요도를 뽑아 든 망령 무사", "妖刀の亡霊侍"),
+  幽: STG_L("Soul-Reaping Nether Phantom", "영혼을 베는 흐릿한 유령", "魂刈る幽鬼"),
+  邪: STG_L("Black-Flame Curse Fiend", "검은 불꽃 흩뿌리는 사념체", "黒炎の邪念体"),
+  魔: STG_L("Hellfire Archfiend", "지옥불 기둥의 대마", "業火の大魔"),
+  帝: STG_L("Grudge-Devouring Demon Emperor", "원한을 집어삼킨 마제", "怨念呑む魔帝"),
+  騎: STG_L("Space-Piercing Black Knight", "해골 군마의 지옥 흑기사", "骸馬の黒騎士"),
+
+  // Depth 9 (準2級 — 2-char & 1-char)
+  怪猫: STG_L("Fork-Tailed Giant Bakeneko", "두 갈래 꼬리 고양이 요괴", "二股尾の怪猫"),
+  毒蛇: STG_L("Crimson-Tongued Great Viper", "핏빛 혀 날름대는 거대 독사", "紅舌の大毒蛇"),
+  血猿: STG_L("Long-Armed Blood Ape", "기괴하게 팔 긴 피원숭이", "長腕の血猿"),
+  疫蚊: STG_L("Blood-Swollen Plague Mosquito", "피 빨아 부푼 역병 모기", "血膨れの疫蚊"),
+  影忍: STG_L("Smoke-Veiled Shadow Shinobi", "연막 속 어둠의 그림자 자객", "煙幕の影忍"),
+  凶偵: STG_L("All-Seeing Doom Scout", "살수의 포위망 펼치는 척후병", "必殺の凶偵"),
+  獄曹: STG_L("Torture-Iron Hell Sergeant", "고문 도구 매단 지옥 옥졸장", "拷問具の獄曹"),
+  怪仙: STG_L("Immortality-Warped Fallen Hermit", "괴물이 된 타락 괴선인", "怪物化した怪仙"),
+  血傑: STG_L("Army-Slaughtering Blood Warlord", "전장을 도륙한 피의 호걸", "血塗れの怪傑"),
+  火竜: STG_L("Magma-Breathing Ancient Wyrm", "용암 숨결 뿜는 고대 화룡", "溶岩吐く火竜"),
+  覇王: STG_L("Room-Crushing Tyrant Overlord", "절대 패기의 폭군 패왕", "絶対覇気の覇王"),
+  元帥: STG_L("Phantom-Artillery Grand Marshal", "망자 군세를 통솔하는 대원수", "亡者統べる元帥"),
+  猫: STG_L("Fork-Tailed Giant Bakeneko", "두 갈래 꼬리 고양이 요괴", "二股尾の化け猫"),
+  蛇: STG_L("Crimson-Tongued Great Serpent", "핏빛 혀 날름대는 대사", "紅舌の大蛇"),
+  猿: STG_L("Long-Armed Blood Ape", "기괴하게 팔 긴 괴원숭이", "長腕の怪猿"),
+  蚊: STG_L("Blood-Swollen Plague Mosquito", "피 빨아 부푼 흡혈 독충", "血膨れの疫病蚊"),
+  忍: STG_L("Smoke-Veiled Shadow Assassin", "연막 속 어둠의 자객", "煙幕の闇忍"),
+  偵: STG_L("All-Seeing Doom Scout", "포위망 펼치는 살수 척후병", "必殺の斥候"),
+  曹: STG_L("Torture-Iron Hell Sergeant", "고문 도구 매단 지옥 옥졸장", "拷問具の獄卒長"),
+  仙: STG_L("Immortality-Warped Fallen Hermit", "괴물이 된 타락 선인", "怪物と化した堕仙"),
+  傑: STG_L("Army-Slaughtering Blood Warlord", "전장을 도륙한 피의 호걸", "血塗れの怪傑"),
+  竜: STG_L("Magma-Breathing Ancient Wyrm", "용암 숨결 뿜는 고대 화룡", "溶岩吐く古竜"),
+  覇: STG_L("Room-Crushing Tyrant Lord", "절대 패기의 폭군 패왕", "絶対覇気の覇王"),
+  帥: STG_L("Phantom-Artillery Grand Marshal", "망자 군세를 통솔하는 대원수", "亡者統べる大元帥"),
+
+  // Depth 10 (2級 — 2-char & 1-char)
+  猛虎: STG_L("Man-Eating Great Tiger", "피 묻은 송곳니 식인 맹호", "人喰い猛虎"),
+  怪亀: STG_L("Basalt-Shell Monster Tortoise", "강철 등껍질 현무 괴거북", "鋼甲羅の怪亀"),
+  毒蜂: STG_L("Venom-Dripping Queen Hornet", "맹독 침 흘리는 여왕 독벌", "猛毒針の毒蜂"),
+  凶鶴: STG_L("Razor-Plumed Phantom Crane", "면도날 깃털의 살수 괴학", "剃刀羽の凶鶴"),
+  暴駒: STG_L("Cursed-Barding Runaway Colt", "저주 갑주 두른 폭주 망아지", "呪馬鎧の暴駒"),
+  妖魔: STG_L("Illusion-Weaving Wicked Fiend", "환각과 요술을 피우는 요마", "幻惑の妖魔"),
+  大顎: STG_L("Clattering Giant Jawbone", "어둠 속 거대 턱뼈 괴물", "暗闇の大顎"),
+  骸骨: STG_L("Scythe-Swinging Bone Colossus", "사신의 낫 든 거대 해골괴", "大鎌の巨大骸骨"),
+  怨鬼: STG_L("Thousand-Year Spite Demon", "천년 원념의 검은 원귀", "千年怨念の怨鬼"),
+  冥王: STG_L("Scythe-Bearing Underworld King", "생사 경계의 명부 군주 명왕", "冥府の主・冥王"),
+  常闇: STG_L("Light-Devouring Eternal Dark", "빛을 삼키는 태초의 상암", "光呑む常闇"),
+  鬱鬼: STG_L("Heart-Crushing Despair Demon", "심장을 짓누르는 절망의 울귀", "絶望の鬱鬼"),
+  虎: STG_L("Man-Eating Great Tiger", "피 묻은 송곳니 식인 대호", "人喰い大虎"),
+  亀: STG_L("Basalt-Shell Monster Tortoise", "강철 등껍질 현무 괴거북", "鋼甲羅の怪亀"),
+  蜂: STG_L("Venom-Dripping Queen Hornet", "맹독 침 흘리는 여왕벌 괴충", "猛毒針の女王蜂"),
+  鶴: STG_L("Razor-Plumed Phantom Crane", "면도날 깃털의 괴조 학", "剃刀羽の怪鶴"),
+  駒: STG_L("Cursed-Barding Runaway Colt", "저주 갑주 두른 폭주 망아지", "呪馬鎧の暴れ駒"),
+  妖: STG_L("Illusion-Weaving Wicked Apparition", "환각을 피우는 요마", "幻惑の妖魔"),
+  顎: STG_L("Clattering Giant Jawbone", "어둠 속 거대 턱뼈 괴물", "暗闇の巨大顎"),
+  骸: STG_L("Scythe-Swinging Bone Colossus", "사신의 낫 든 거대 해골괴", "大鎌の巨大骸骨"),
+  怨: STG_L("Thousand-Year Spite Hands", "천년 원념의 검은 손길", "千年怨念の黒手"),
+  冥: STG_L("Scythe-Bearing Underworld Lord", "생사 경계의 명부 군주", "冥府の主"),
+  闇: STG_L("Light-Devouring Primordial Dark", "빛을 삼키는 태초의 암흑", "原初の闇"),
+  鬱: STG_L("Heart-Crushing Despair Mire", "심장을 짓누르는 절망의 늪", "絶望の澱み"),
+
+  // Depth 11 (準1級 — 3-char & 1-char)
+  血餓狼: STG_L("Blood-Starved Silver Dire Wolf", "선혈에 굶주린 은빛 아랑", "血に飢えた餓狼"),
+  九尾狐: STG_L("Nine-Tailed Foxfire Kitsune", "아홉 꼬리 여우불 구미호", "九尾狐火の妖狐"),
+  黒影豹: STG_L("Presence-Erasing Shadow Panther", "기척 지운 암살 흑영표", "気配消す黒影豹"),
+  大牙猪: STG_L("Boulder-Shattering Great Tusk Boar", "바위 부수는 거대 어금니 산돼지", "岩砕く大牙猪"),
+  血沼鰐: STG_L("Blood-Mire Prehistoric Crocodile", "핏빛 늪의 식인 거대 악어", "血沼の大鰐"),
+  深海鮫: STG_L("Air-Cleaving Abyssal Shark", "허공을 가르는 심해 식인상어", "空間裂く深海鮫"),
+  鋼爪鷲: STG_L("Steel-Talon Storm Eagle", "폭풍 일으키는 강철 발톱 괴수리", "鋼爪の大鷲"),
+  焔獅子: STG_L("Hellfire-Maned Lion Fiend", "지옥불 갈기의 화염 사자", "焔鬣の獅子"),
+  人喰屍: STG_L("Flesh-Devouring Cursed Corpse", "산 자의 살점을 탐하는 식인 주검", "生肉漁る人喰屍"),
+  屠殺兇: STG_L("Blood-Axe Brutal Executioner", "도끼와 창 든 도살의 흉한", "血斧の屠殺兇"),
+  古神龍: STG_L("Cloud-Commanding Ancient True Dragon", "구름과 벼락 거느린 태고의 신룡", "雲雷従える古神龍"),
+  紅焔鳳: STG_L("World-Burning Crimson Phoenix", "홍련의 불꽃 두른 불사조 봉황", "紅蓮焔の鳳凰"),
+  天帝鷹: STG_L("Heart-Locking Sky Sovereign Hawk", "심장을 꿰뚫는 천공의 제왕매", "天空の天帝鷹"),
+  狼: STG_L("Blood-Matted Silver Dire Wolf", "은빛 털 적신 굶주린 마랑", "血濡れ銀毛の魔狼"),
+  狐: STG_L("Nine-Tailed Foxfire Kitsune", "아홉 꼬리 여우불 요호", "九尾狐火の妖狐"),
+  豹: STG_L("Presence-Erasing Black Panther", "기척 지운 암살 흑표범", "気配消す黒豹"),
+  猪: STG_L("Boulder-Shattering Tusk Boar", "바위 부수는 거대 산돼지", "岩砕く大猪"),
+  鰐: STG_L("Blood-Mire Prehistoric Crocodile", "핏빛 늪의 거대 악어", "血沼の大鰐"),
+  鮫: STG_L("Air-Cleaving Abyssal Shark", "허공을 가르는 심해 식인상어", "空間裂く深海鮫"),
+  鷲: STG_L("Steel-Talon Storm Eagle", "폭풍 일으키는 강철 발톱 괴수리", "鋼爪の大鷲"),
+  獅: STG_L("Hellfire-Maned Lion Fiend", "불타는 갈기의 화염 사자", "焔鬣の獅子"),
+  屍: STG_L("Flesh-Hungry Cursed Corpse", "살점 탐하는 저주받은 주검", "肉漁る腐乱屍"),
+  兇: STG_L("Blood-Axe Brutal Executioner", "도끼와 창 든 흉폭한 도살자", "血斧の兇漢"),
+  龍: STG_L("Cloud-Commanding True Dragon", "구름과 벼락 거느린 신룡", "雲雷従える真龍"),
+  鳳: STG_L("World-Burning Crimson Phoenix", "홍련의 불꽃 두른 봉황", "紅蓮焔の鳳凰"),
+  鷹: STG_L("Heart-Locking Sky Sovereign Hawk", "심장을 꿰뚫는 천공의 제왕매", "天空の帝王鷹"),
+
+  // Depth 12 (1級 — 4-char & 1/2-char)
+  魑魅魍魎: STG_L("Myriad Mountain & River Fiends", "산천과 심연의 온갖 도깨비 치미망량", "山川の百鬼・魑魅魍魎"),
+  百足蠱蟲: STG_L("Cannibal-Jar Centipede Horror", "고독 항아리에서 살아남은 백족 고충", "蠱毒の百足蠱蟲"),
+  血咒巫女: STG_L("Blood-Hex Abyssal Shamaness", "피의 주문을 읊는 나락의 혈주 무녀", "血呪文の奈落巫女"),
+  旱魃凶鬼: STG_L("Blood-Parching Drought Fiend", "피와 수분을 말려 죽이는 한발 흉귀", "灼熱の旱魃凶鬼"),
+  深淵毒蛟: STG_L("Venom-Maelstrom Abyssal Dragon", "독안개 소용돌이의 심연 독교룡", "毒渦の深淵毒蛟"),
+  漆黒毒蝮: STG_L("Instant-Death Pitch Pit Viper", "한 방울로 숨통 끊는 칠흑 독살무사", "漆黒の猛毒蝮"),
+  呪糸傀儡: STG_L("Fate-Stringed Blade Marionette", "보이지 않는 저주 실의 살육 괴뢰", "呪糸の殺戮傀儡"),
+  白骨髑髏: STG_L("Ghost-Fire Towering Skull Colossus", "푸른 귀화 뿜는 거대 백골 독루", "青鬼火の白骨髑髏"),
+  魔神饕餮: STG_L("All-Devouring Abyss Fiend God", "만물과 한자마저 집어삼키는 마신 도철", "万象喰らう魔神饕餮"),
+  巫: STG_L("Soul-Rotting Abyssal Shaman", "피의 주문을 읊는 나락 무녀", "血呪文の奈落巫女"),
+  蟲: STG_L("Countless-Legged Centipede Horror", "나락의 백족 고충", "奈落の百足蟲"),
+  蠱: STG_L("Last-Surviving Jar Venom Fiend", "서로 잡아먹고 남은 고독의 화신", "蠱毒の権化"),
+  魑: STG_L("Blue-Eyed Mountain Demon", "시퍼런 안광의 산도깨비 치", "青眼の山の怪・魑"),
+  魍: STG_L("Ankle-Clutching Water Fiend", "심연으로 끌고 가는 물귀신 망량", "深淵へ引く水の怪・魍"),
+  魃: STG_L("Blood-Parching Drought Demon", "피와 수분을 말리는 가뭄 귀신 발", "灼熱の旱魃鬼"),
+  蛟: STG_L("Venom-Whirlpool Flood Dragon", "독안개 소용돌이의 심연 교룡", "毒渦の深淵蛟"),
+  蝮: STG_L("Instant-Death Black Pit Viper", "소리 없이 똬리 튼 칠흑 살무사", "漆黒の猛毒蝮"),
+  傀儡: STG_L("Fate-Stringed Blade Marionette", "보이지 않는 실의 저주 꼭두각시", "呪糸の傀儡"),
+  髑髏: STG_L("Ghost-Fire Skull Tower", "푸른 귀화 뿜는 거대 해골 독루", "青鬼火の巨大髑髏"),
+  饕餮: STG_L("Kanji-Devouring Abyss Glutton", "만물과 한자를 집어삼키는 마신 도철", "万象喰らう魔神・饕餮")
+};
+
+function getEnemyShortName(kanji) {
+  let entry = FOE_NAMES[kanji];
+  if (!entry && kanji && kanji.length > 1) {
+    const chars = Array.from(String(kanji));
+    for (let i = chars.length - 1; i >= 0; i--) {
+      if (FOE_NAMES[chars[i]]) {
+        entry = FOE_NAMES[chars[i]];
+        break;
+      }
+    }
+  }
+  if (entry) return pickLang(entry);
+  return pickLang(STG_L(`Aberrant Spirit`, `이형의 원령`, `異形の怨霊`));
+}
+
 /* Classify what kind of threat an intent kanji represents for rules.js & GM */
-const LETHAL_INTENTS = new Set(["落", "滅", "殲", "爆", "砲", "呑", "噬", "抉", "蹂", "処", "刑", "死", "殺", "断", "絶", "潰", "砕", "冥"]);
-const EVADE_DEFEND_INTENTS = new Set(["目", "見", "固", "守", "避", "潜", "防", "隠", "霧", "幻", "映", "反", "錮", "盾"]);
-const CURSE_DEBUFF_INTENTS = new Set(["毒", "呪", "祟", "詛", "縛", "絞", "惑", "病", "迷", "怨", "糸", "封", "縄"]);
+const LETHAL_INTENTS = new Set(["落", "滅", "殲", "爆", "砲", "呑", "噬", "抉", "蹂", "処", "刑", "死", "殺", "断", "絶", "潰", "砕", "冥", "屠"]);
+const EVADE_DEFEND_INTENTS = new Set(["目", "見", "固", "守", "避", "潜", "防", "隠", "霧", "幻", "映", "反", "錮", "盾", "覗", "睨", "眺", "偵"]);
+const CURSE_DEBUFF_INTENTS = new Set(["毒", "呪", "咒", "祟", "詛", "縛", "絞", "惑", "病", "疫", "菌", "迷", "怨", "糸", "封", "縄", "鎖"]);
 const ESCAPE_INTENTS = new Set(["出", "走", "帰", "去", "速", "飛", "散", "往", "退", "裏", "逃", "避", "潜", "匿", "逸", "奔", "隙", "踪", "遁", "馳", "逍"]);
+const COUNTDOWN_PREP_INTENTS = new Set(["三", "二", "兆", "号", "黒雲", "閃光", "鬼怒", "雄叫", "魔封", "審判", "疾駆", "黒渦", "覇威", "号令", "斉射", "死兆", "冥罰", "閉塞", "深淵覗", "紅閃光", "死角覗", "百鬼夜祟", "深淵凝睨", "呪糸緊縛", "血咒怨祟", "天地咆哮"]);
+
+/* Concrete action meaning for individual intent kanji so the AI never interprets enemy intentions arbitrarily. */
+const INTENT_KANJI_MEANINGS = {
+  // Bite / Maw / Devour
+  口: "입과 아가리를 크게 벌려 물어뜯기",
+  歯: "날카로운 이빨로 강하게 물어뜯기",
+  牙: "송곳니를 박아 넣고 찢어발기기",
+  噛: "턱뼈가 부서져라 악물어 으깨기",
+  喰: "산 채로 살점을 뜯어 삼키기",
+  呑: "통째로 집어삼키는 포식 공격",
+  噬: "뼈와 살을 남김없이 씹어 삼키기",
+  吸: "피와 생기를 빨아들이는 흡혈·흡수",
+  飲: "선혈과 기운을 들이켜기",
+
+  // Rush / Trample / Movement / Escape
+  足: "빠른 발걸음으로 쇄도해 짓밟기",
+  走: "맹렬한 질주로 거리 좁혀 들이받기",
+  疾: "질풍 같은 속도로 단숨에 파고들기",
+  駆: "전속력으로 질주하며 몰아붙이기",
+  跳: "높이 도약해 머리 위에서 덮치기",
+  躍: "공중으로 솟구쳐 기습 낙하하기",
+  蹴: "강력한 발차기로 걷어차 무너뜨리기",
+  踏: "거대한 무게로 위에서 짓밟아 뭉개기",
+  蹂: "무자비하게 짓밟아 초토화하기",
+  躙: "육신을 발밑에 깔고 짓이겨 유린하기",
+  追: "도망치지 못하게 끝까지 추격해 타격하기",
+
+  // Claw / Hand / Blunt / Crush
+  手: "손과 앞발을 뻗어 할퀴고 붙잡기",
+  爪: "예리한 발톱으로 할퀴어 찢기",
+  拳: "묵직한 주먹으로 정면 강타하기",
+  力: "괴력을 실어 정면에서 힘껏 내려치기",
+  強: "강인한 완력으로 거세게 몰아치기",
+  剛: "금강석 같은 강맹한 힘으로 부수기",
+  打: "둔중한 타격으로 후려치기",
+  撃: "강력한 타격을 정면으로 내리꽂기",
+  殴: "무차별적으로 두들겨 패기",
+  撲: "전신을 실어 매섭게 후려치기",
+  投: "바위나 흉기를 강하게 집어던지기",
+  重: "육중한 무게로 짓눌러 압살하기",
+  圧: "숨 막히는 중압감과 물리력으로 찍어 누르기",
+  折: "뼈와 무기를 꺾어 부러뜨리기",
+  壊: "방어 태세를 통째로 부숴버리기",
+  破: "보호막과 방어선을 정면 돌파해 깨뜨리기",
+  砕: "단숨에 가루가 되도록 박살 내기",
+  粉: "뼈가 가루가 되도록 분쇄하기",
+  潰: "형체가 남지 않게 짓이겨 으깨기",
+  崩: "지반과 방어를 한꺼번에 무너뜨리기",
+  落: "머리 위에서 낙하·추락시켜 치명타 입히기",
+
+  // Blade / Pierce / Ranged
+  刀: "시퍼런 칼날로 매섭게 베기",
+  切: "예리하게 살갗과 급소를 베어내기",
+  剣: "검을 휘둘러 정면에서 베어 넘기기",
+  刃: "날 선 칼날로 치명상을 입히기",
+  斬: "일격에 두 동강 내듯 참격 가하기",
+  首: "목덜미와 수급을 노려 베어내기",
+  断: "퇴로와 숨통을 단칼에 끊어내기",
+  伐: "거침없이 베어 쓰러뜨리기",
+  裂: "살갗과 방어를 갈가리 찢어발기기",
+  傷: "깊은 자상과 출혈 상처 입히기",
+  薙: "주변을 휩쓸듯 가로로 넓게 베어내기",
+  屠: "도살하듯 무자비하게 난도질하기",
+  刺: "예리한 끝으로 급소를 깊숙이 찌르기",
+  突: "창과 뿔을 세워 일직선으로 꿰뚫기",
+  貫: "방어를 뚫고 몸통을 관통하기",
+  通: "방어막 너머까지 빈틈없이 꿰뚫기",
+  穿: "단단한 갑주와 살갗을 꿰뚫어 구멍 내기",
+  抉: "상처와 오장육부를 깊숙이 도려내기",
+  角: "단단한 뿔을 세워 들이받기",
+  針: "독침이나 바늘로 급소를 찌르기",
+  弓: "활시위를 당겨 조준 사격하기",
+  矢: "날카로운 화살을 연속으로 쏘아 보내기",
+  射: "정확히 조준해 관통 사격 가하기",
+  銃: "총포를 겨누어 탄환 발사하기",
+  砲: "대포 같은 파괴력의 포격 퍼붓기",
+  弾: "빠른 탄환을 쏘아 타격하기",
+  矛: "날카로운 창끝으로 찌르기",
+  槍: "긴 창을 휘둘러 찌르고 후려치기",
+  斧: "무거운 도끼로 내려찍기",
+  杖: "무거운 석장으로 내려찍기",
+  鎌: "사신의 낫으로 목과 영혼을 베어내기",
+  械: "기계 장치와 톱니 함정 작동시키기",
+
+  // Elements / Nature
+  火: "타오르는 불길로 태우기",
+  炎: "맹렬한 화염을 뿜어 불사르기",
+  焔: "꺼지지 않는 지옥 불꽃으로 집어삼키기",
+  業: "업화의 불길로 죄업을 태우기",
+  劫: "영겁의 화염과 재앙으로 불사르기",
+  焼: "고열로 살갗과 주변을 태워버리기",
+  燃: "불씨를 옮겨붙여 거세게 연소시키기",
+  焚: "모든 것을 잿더미로 태워버리기",
+  尽: "남김없이 끝까지 태워 소진시키기",
+  熱: "숨 막히는 열기로 기력을 앗아가기",
+  旱: "모든 수분과 피를 바짝 말려버리기",
+  魃: "가뭄의 열기로 생명력을 말려 죽이기",
+  水: "거센 물줄기와 냉기로 몰아치기",
+  海: "바다 같은 수압으로 덮쳐 익사시키기",
+  池: "검은 연못의 수렁으로 끌어들이기",
+  沼: "피와 진흙의 늪으로 발목을 잡아 끌어당기기",
+  波: "거친 파도로 휩쓸어 넘어뜨리기",
+  流: "급류에 휘말리게 해 중심 무너뜨리기",
+  濁: "혼탁한 격류로 시야와 호흡을 막기",
+  渦: "거대한 소용돌이로 빨아들여 찢기",
+  濡: "축축한 수기와 피로 적셔 둔화시키기",
+  溺: "검은 물과 절망 속에 빠뜨려 숨통 조이기",
+  氷: "날카로운 얼음 결정으로 얼리고 찌르기",
+  寒: "뼈가 시린 한기로 몸을 굳게 만들기",
+  凍: "움직임을 얼려버리는 빙결 공격",
+  雪: "시야를 가리는 눈보라와 냉기 몰아치기",
+  冬: "혹한의 기운으로 생기를 얼리기",
+  風: "칼날 같은 돌풍으로 베고 밀쳐내기",
+  烈: "맹렬한 기세의 폭풍으로 몰아붙이기",
+  嵐: "사방을 휩쓰는 폭풍우 일으키기",
+  雲: "먹구름과 안개로 시야를 가리고 압박하기",
+  雨: "차갑고 불길한 비를 퍼부어 압박하기",
+  雷: "하늘에서 벼락을 내리꽂아 감전시키기",
+  電: "빠른 뇌전 충격으로 마비시키고 타격하기",
+  震: "대지와 공기를 진동시켜 중심 무너뜨리기",
+  光: "눈부신 섬광으로 시야를 앗고 꿰뚫기",
+  閃: "눈 깜짝할 사이의 섬광 일격 가하기",
+  石: "단단한 돌덩이로 부딪쳐 타격하기",
+  岩: "거대한 바위로 찍어 누르기",
+  盤: "단단한 암반째로 뒤흔들어 부수기",
+  山: "산처럼 거대한 덩치로 압도하기",
+  土: "흙먼지와 지면 진동으로 발밑 흔들기",
+  木: "억센 나뭇가지로 휘감고 후려치기",
+  林: "수풀의 가지를 사방에서 뻗어 조이기",
+  草: "풀줄기로 발목을 휘감아 넘어뜨리기",
+  金: "차가운 금속성 타격 가하기",
+  鉄: "강철 같은 경도로 정면 충돌하기",
+  鋼: "강철 무기로 빈틈없이 몰아치기",
+  煙: "자욱한 연기로 시야와 호흡 차단하기",
+  幕: "장막을 펼쳐 시야를 차단하고 기습하기",
+  爆: "맹렬한 폭발을 일으켜 산산조각 내기",
+  轟: "귀를 찢는 굉음과 충격파 터뜨리기",
+
+  // Gaze / Guard / Stealth
+  目: "충혈된 눈으로 일거수일투족을 주시하며 빈틈 노리기",
+  見: "움직임을 꿰뚫어 보며 반격 각 재기",
+  眼: "살기 어린 안광으로 위압하며 약점 포착하기",
+  視: "차갑게 응시하며 행동을 간파하기",
+  看: "방어 태세를 갖추고 침입자의 움직임 감시하기",
+  察: "주변 기척을 살피며 기습과 반격 준비하기",
+  望: "멀리서 노려보며 공격 궤적 계산하기",
+  伺: "어둠 속에서 틈을 엿보며 암습 노리기",
+  凝: "시선과 살기를 한 점에 응축해 노려보기",
+  眺: "높은 곳에서 내려다보며 빈틈 포착하기",
+  狙: "급소를 정밀하게 조준해 일격 노리기",
+  覗: "심연과 사각에서 엿보며 허점 찌르기",
+  睨: "몸이 굳을 만큼 흉포한 안광으로 노려보기",
+  偵: "전력을 탐색하며 포위 공격 유도하기",
+  守: "단단히 방어 자세를 굳히고 반격 준비하기",
+  固: "몸과 갑주를 단단히 굳혀 피해 흘려내기",
+  防: "전면을 막아선 채 카운터 노리기",
+  護: "수호 장막을 펼쳐 공격을 막아내기",
+  盾: "방패를 세워 정면 공격을 막고 밀쳐내기",
+  錮: "철벽처럼 껍질과 방어를 잠그고 버티기",
+  殻: "단단한 껍데기 속에 숨어 충격 흡수하기",
+  潜: "어둠이나 수면 아래로 몸을 숨겨 기습 노리기",
+  伏: "낮게 매복해 있다가 급소를 노려 튀어나오기",
+  隠: "자취를 감추고 사각에서 공격 준비하기",
+  幻: "환영을 피워올려 감각과 조준 흐트러뜨리기",
+  惑: "정신을 홀려 공격 방향을 어지럽히기",
+  妖: "요사스러운 술법으로 감각을 현혹하기",
+  術: "주술과 기이한 도술을 펼쳐 압박하기",
+
+  // Bind / Curse / Poison / Mental
+  糸: "질긴 실을 뿜어 손발을 휘감아 묶기",
+  縄: "오랏줄을 던져 몸을 포박하기",
+  束: "움직이지 못하게 강제로 속박하기",
+  縛: "사슬과 주박으로 전신을 꽁꽁 묶어 봉쇄하기",
+  緊: "숨조차 쉴 수 없게 팽팽히 조여 묶기",
+  絞: "목과 숨통을 강하게 조여 질식시키기",
+  鎖: "무거운 쇠사슬로 휘감아 후려치고 구속하기",
+  囲: "사방에서 포위해 도주로와 회피 공간 차단하기",
+  包: "전후좌우를 에워싸 퇴로를 차단하기",
+  封: "부적과 주술로 행동과 힘을 봉인하기",
+  塞: "숨통과 퇴로를 틀어막아 고립시키기",
+  閉: "공간을 닫아걸어 가두어 압박하기",
+  毒: "치명적인 맹독을 퍼뜨려 중독시키기",
+  猛: "맹렬한 독성과 흉포한 기세로 덮치기",
+  蝕: "살과 영혼을 서서히 좀먹어 들어가기",
+  酸: "살과 무기를 녹이는 강산성 액체 뿌리기",
+  病: "병마와 독기를 불어넣어 기력 갉아먹기",
+  疫: "역병 균을 퍼뜨려 전신을 쇠약하게 하기",
+  菌: "부패한 포자와 균을 퍼뜨려 감염시키기",
+  腐: "살점을 썩게 만드는 부패 기운 퍼뜨리기",
+  蠱: "고독의 독충과 저주로 내부부터 갉아먹기",
+  呪: "사악한 저주를 걸어 생명력을 깎아내리기",
+  咒: "피의 주문을 외워 영혼을 짓누르기",
+  祟: "재앙과 살을 내려 몸과 마음을 갉아먹기",
+  詛: "죽음에 이르는 저주로 숨통을 조이기",
+  怨: "깊은 원한과 원념으로 정신과 육체 할퀴기",
+  恨: "사무친 한으로 집요하게 물고 늘어지기",
+  脅: "살기 어린 협박으로 판단력을 흔들기",
+  迫: "숨 막히게 거리를 좁혀 압박하기",
+  侮: "조롱과 모욕으로 평정심을 무너뜨리기",
+  辱: "굴욕적인 기습으로 빈틈을 후벼파기",
+  拷: "고문 도구로 살점을 찢으며 고통 주기",
+  問: "죄를 추궁하듯 몰아붙여 압박하기",
+  悪: "순수한 악의로 정신을 뒤흔들고 타격하기",
+  邪: "사악한 요기로 방어를 무너뜨리기",
+  凶: "불길한 흉조로 치명적인 급소 노리기",
+  狂: "이성을 잃은 광기로 무차별 난타하기",
+  暴: "폭주하며 사방을 거칠게 휘젓기",
+  乱: "어지러운 난격으로 방어 틈 무너뜨리기",
+  迷: "방향 감각을 잃게 하는 안개로 교란하기",
+  夢: "악몽과 환각 속에 가두어 빈틈 만들기",
+
+  // Sound / Command / Execution / Death
+  音: "불길한 공명음으로 고막과 신경 흔들기",
+  声: "기괴한 괴성으로 얼어붙게 만들기",
+  鳴: "날카로운 울음소리로 기세를 꺾고 급습하기",
+  叫: "귀를 찢는 비명과 포효로 정신을 뒤흔들기",
+  吠: "맹수의 포효로 위압하며 덮치기",
+  咆: "천지를 뒤흔드는 포효와 함께 돌진하기",
+  哮: "사나운 포효로 공기를 찢으며 위압하기",
+  嚇: "살기 어린 위협으로 움직임을 움츠러들게 하기",
+  喝: "벼락같은 일갈로 기선을 제압하기",
+  命: "거역할 수 없는 어명으로 압박하기",
+  令: "차갑게 처형 명령을 내리며 공격 개시하기",
+  号: "돌격 신호를 울리며 일제 공격 준비하기",
+  連: "연속 공격 진형을 갖추어 몰아치기",
+  群: "무리를 지어 사방에서 동시에 덮치기",
+  斉: "일제 사격과 합동 타격 준비하기",
+  揮: "무기를 지휘하며 맹공 퍼붓기",
+  操: "꼭두각시 실로 무기와 시체를 조종해 공격하기",
+  討: "인정사정없이 토벌 타격 가하기",
+  戦: "전장의 살기를 끌어올려 정면 승부 걸기",
+  武: "무예의 기세로 빈틈없이 베고 찌르기",
+  急: "대응할 틈도 없이 급작스럽게 덮치기",
+  奇: "예상치 못한 기책과 사각에서 기습하기",
+  襲: "예상치 못한 타이밍에 맹렬히 습격하기",
+  奪: "가진 힘과 기운을 강제로 빼앗으며 타격하기",
+  虐: "무자비하고 잔혹하게 유린해 죽이기",
+  殺: "오직 숨통을 끊기 위한 살수 펼치기",
+  死: "죽음의 기운을 직접 내리꽂는 치명타",
+  絶: "모든 희망과 퇴로를 끊는 절멸의 일격",
+  滅: "흔적도 없이 지워버리는 파멸의 대공격",
+  殲: "일대를 남김없이 몰살하는 섬멸 필살기",
+  処: "가차 없는 처단과 단죄의 일격",
+  刑: "잔혹한 형벌로 육신을 베고 부수기",
+  罰: "거역할 수 없는 징벌의 일격 내리꽂기",
+  審: "죄업을 심판하며 처형 각 재기",
+  裁: "심판의 칼날로 내려치기",
+  判: "유죄 판결과 함께 처형 공격 개시하기",
+  臨: "압도적인 위엄으로 군림하며 짓누르기",
+  威: "제왕의 위압감으로 숨통을 조이기",
+  覇: "패왕의 기세로 모든 방어를 찍어 누르기",
+  冥: "명부의 어둠으로 산 자의 영혼을 거두기",
+  深: "심연의 깊은 어둠으로 끌어당기기",
+  淵: "나락의 심연 속에서 집어삼키기",
+  闇: "칠흑의 어둠으로 시야와 공간을 집어삼키기",
+  暗: "어둠 속에 숨어 급소를 노리기",
+  夜: "깊은 밤의 어둠 속에서 급습하기",
+  黒: "검은 그림자 칼날로 베어내기",
+  紅: "검붉은 선혈과 홍련의 기운으로 베고 태우기",
+  白: "창백한 백골의 한기로 짓누르기",
+  血: "피보라를 일으키며 흉포하게 할퀴고 베기",
+  肉: "살점을 직접 뜯어내고 짓이기기",
+  臓: "오장육부와 치명적인 내장을 노려 도려내기",
+  喉: "숨통과 목구멍을 정확히 노려 물어뜯기",
+  骨: "날카로운 뼈 창과 해골로 타격하기",
+  骸: "유골 더미를 몰아쳐 짓누르기",
+  屍: "썩어가는 주검의 몸으로 덮쳐 물어뜯기",
+  鬼: "악귀의 괴력과 살기로 후려치기",
+  魔: "마계의 사악한 마력으로 짓누르기",
+  魂: "영혼을 직접 타격해 생명력 깎아내리기",
+  魄: "혼백을 흔들어 의식과 생기를 앗아가기",
+  霊: "원령의 냉기로 몸을 통과하며 할퀴기"
+};
+
+function describeSingleIntentKanji(k) {
+  const str = String(k || "").trim();
+  if (!str) return "";
+  if (INTENT_KANJI_MEANINGS[str]) return `${str}(${INTENT_KANJI_MEANINGS[str]})`;
+  const chars = Array.from(str);
+  if (chars.length > 1) {
+    const subMeanings = chars
+      .map(c => INTENT_KANJI_MEANINGS[c] ? `${c}:${INTENT_KANJI_MEANINGS[c]}` : c)
+      .join(" + ");
+    return `${str}[${subMeanings}]`;
+  }
+  return `${str}(【${str}】의 한자 뜻을 실은 공격)`;
+}
+
+/*
+ * Build a deterministic, concrete intention object (`{ type, summary, detail }`)
+ * stored on `state.enemyIntentType` and `state.enemyIntentDesc` every turn.
+ * Passed directly into the AI judge prompt so the AI never interprets enemy intent arbitrarily.
+ */
+function buildEnemyIntentDetail(foe, hand, rank = "normal", isEscape = false) {
+  const safeHand = Array.isArray(hand) && hand.length ? hand : ["力"];
+  const foeName = getEnemyShortName(foe);
+  const handStr = safeHand.map(k => `【${k}】`).join("·");
+  const actionParts = safeHand.map(describeSingleIntentKanji).join(" + ");
+
+  if (isEscape) {
+    return {
+      type: "escape",
+      summary: `도주 시도 (${handStr})`,
+      detail: `[도주 시도] 체력이 크게 줄어든 ${foeName}【${foe}】이(가) ${handStr} 인텐션을 띄우며 전장에서 도망치려 합니다 (${actionParts}). 플레이어가 이동 차단·속박·추격하거나 이번 턴에 적을 처치하지 못하면 적이 그대로 도주합니다.`
+    };
+  }
+
+  const primary = safeHand[0] || "";
+  const allChars = safeHand.flatMap(k => Array.from(String(k || "")));
+  const isCountdownPrep = COUNTDOWN_PREP_INTENTS.has(primary) || primary === "三" || primary === "二" || primary === "兆" || primary === "号";
+  const hasLethal = safeHand.some(k => LETHAL_INTENTS.has(k)) || allChars.some(c => LETHAL_INTENTS.has(c));
+  const hasEvadeDefend = safeHand.some(k => EVADE_DEFEND_INTENTS.has(k)) || allChars.some(c => EVADE_DEFEND_INTENTS.has(c));
+  const hasCurseDebuff = safeHand.some(k => CURSE_DEBUFF_INTENTS.has(k)) || allChars.some(c => CURSE_DEBUFF_INTENTS.has(c));
+
+  if (isCountdownPrep && !hasLethal) {
+    return {
+      type: "countdown_prep",
+      summary: `필살 전조 / 기운 응축 (${handStr})`,
+      detail: `[필살기 카운트다운 전조] ${foeName}【${foe}】이(가) ${handStr} 인텐션을 띄우며 대공격을 앞두고 불길한 기운을 응축합니다 (${actionParts}). 이번 턴의 반격 피해는 낮지만 다음 턴의 치명타를 준비하는 단계입니다.`
+    };
+  }
+
+  if (hasLethal || primary === "一") {
+    return {
+      type: "lethal_attack",
+      summary: `치명타 / 필살 공격 (${handStr})`,
+      detail: `[치명타/필살 공격] ${foeName}【${foe}】이(가) ${handStr} 인텐션으로 ${actionParts} 방식의 치명적인 대공격을 가합니다. 플레이어가 이 구체적인 공격 방식을 직접 상쇄·차단·회피하지 못하면 큰 피해를 입습니다.`
+    };
+  }
+
+  if (hasEvadeDefend && !hasCurseDebuff) {
+    return {
+      type: "guard_counter",
+      summary: `경계·방어 및 반격 (${handStr})`,
+      detail: `[경계/방어 및 반격] ${foeName}【${foe}】이(가) ${handStr} 인텐션으로 ${actionParts} 태세를 취하며 플레이어의 움직임을 살피고 날카롭게 반격합니다. 시야를 가리거나 방어를 깨뜨리는 행동으로 파훼해야 합니다.`
+    };
+  }
+
+  if (hasCurseDebuff) {
+    return {
+      type: "curse_bind",
+      summary: `저주·속박·상태이상 공격 (${handStr})`,
+      detail: `[저주/속박/교란 공격] ${foeName}【${foe}】이(가) ${handStr} 인텐션으로 ${actionParts} 방식의 저주·독·속박 공격을 가합니다. 묶이거나 침식당하지 않도록 끊어내거나 정화·차단하는 대응이 필요합니다.`
+    };
+  }
+
+  return {
+    type: "normal_attack",
+    summary: `직접 타격 (${handStr})`,
+    detail: `[직접 공격] ${foeName}【${foe}】이(가) ${handStr} 인텐션으로 ${actionParts} 공격을 가합니다. 해당 공격 수단을 막아내거나 받아치는 행동으로 방어할 수 있습니다.`
+  };
+}
 
 /* Events that "event:*" can roll (rest is reserved for 寺/shrines, quiz, stranger, and forge are included!). */
 const RANDOM_EVENT_POOL = ["quiz", "stranger", "forge", "swarm", "dice", "mirror", "lantern", "shrine", "well", "corpse", "flower"];
@@ -923,3 +1616,4 @@ const FORK_WIDTH = 3;
 
 /* Icons shown when a fork's outcome is revealed. */
 const OUTCOME_ICONS = { battle: "⚔", elite: "💀", treasure: "🎁", event: "❔", rest: "🕯" };
+

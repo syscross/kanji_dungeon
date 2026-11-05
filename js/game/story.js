@@ -992,9 +992,9 @@ function renderVillageSpotChoices(spotKey) {
             )), "event-log");
           } else if (cur === 1) {
             logMd(pickLang(ST_L(
-              "🔥 **【老】** — *\"Throw two weak characters into my ash brazier with 80 Yen of echoes, and the fire will weld them into a higher-grade character. Or if your satchel is cluttered, burn unwanted script into pure Yen.\"*",
-              "🔥 **【老】** — *\"낮은 급수의 글자 두 장에 잔향 80엔을 얹어 내 화로에 던져 넣으면, 불길이 두 획을 녹여 한층 깊은 옥문의 글자로 벼려 내지. 쓸모없는 패가 가방에 넘치거든 불에 태워 잔향으로 환원해도 좋고.\"*",
-              "🔥 **【老】** — *「低い級の文字二枚に残響80円を添えてわしの火炉へ投げ入れれば、炎が画を溶かしてより深い獄門の文字へと鍛え直す。不要な札が袋に溢れているなら、焼いて残響に還すがよい。」*"
+              "🔥 **【老】** — *\"Cast any two characters into my ash brazier with 80 Yen of echoes, and the fire will bind them side by side into a single compound card. Or if your satchel is cluttered, burn unwanted script into pure Yen.\"*",
+              "🔥 **【老】** — *\"가방의 글자 두 장에 잔향 80엔을 얹어 내 화로에 던져 넣으면, 불길이 두 글자를 그대로 이어 붙여 한 장의 합자 카드로 묶어 주지. 쓸모없는 패가 넘치거든 불에 태워 잔향으로 환원해도 좋고.\"*",
+              "🔥 **【老】** — *「袋の文字二枚に残響80円を添えてわしの火炉へ投げ入れれば、炎が二字をそのまま繋ぎ合わせて一枚の合字札に束ねてくれる。不要な札が溢れているなら、焼いて残響に還すがよい。」*"
             )), "event-log");
           } else if (cur === 2) {
             logMd(pickLang(ST_L(
@@ -1384,58 +1384,68 @@ function openVillageBrazierFuse() {
 
   let selectedIndices = [];
   const renderFuseModal = () => {
+    let desc = t("fuseDescEmpty");
+    if (selectedIndices.length === 1) {
+      desc = t("fuseDescOne")(st.deck[selectedIndices[0]]);
+    } else if (selectedIndices.length === 2) {
+      const k1 = st.deck[selectedIndices[0]];
+      const k2 = st.deck[selectedIndices[1]];
+      desc = t("fuseDescTwo")(k1, k2, k1 + k2);
+    }
+
+    const actions = [];
+    if (selectedIndices.length === 2) {
+      const previewFused = st.deck[selectedIndices[0]] + st.deck[selectedIndices[1]];
+      actions.push({
+        label: t("fuseConfirmBtn")(previewFused),
+        gold: true,
+        onClick: () => {
+          if (selectedIndices.length < 2) return;
+          const k1 = st.deck[selectedIndices[0]];
+          const k2 = st.deck[selectedIndices[1]];
+          const fused = k1 + k2;
+          const sortedIdx = [...selectedIndices].sort((a, b) => b - a);
+          sortedIdx.forEach(idx => st.deck.splice(idx, 1));
+          st.deck.push(fused);
+          state.deck = [...st.deck];
+          addStoryYen(-80);
+          persistStoryState();
+          closePicker();
+          playSealStampSfx();
+          logMd(pickLang(ST_L(
+            `🔥 Cast **【${k1}】 + 【${k2}】** into the Elder's brazier (-80 円) → Combined into **【${fused}】**!`,
+            `🔥 노인의 화로에 **【${k1}】 + 【${k2}】** 두 장을 던져 넣어 합자 카드 **【${fused}】**로 묶어냈습니다! (-80 円)`,
+            `🔥 老人の火炉に **【${k1}】 + 【${k2}】** を投げ入れ、合字カード **【${fused}】** を錬成した！（-80 円）`
+          )), "fx-log");
+          updateBattleHUD(false);
+          renderVillageSpotChoices("炉");
+        }
+      });
+    }
+    actions.push({
+      label: pickLang(ST_L("Cancel", "취소", "キャンセル")),
+      onClick: () => closePicker()
+    });
+
     openPicker({
-      title: pickLang(ST_L("🔥 Cast 2 Kanji Into the Brazier · 80 円", "🔥 화로 합자 연성 · 80 円", "🔥 火炉の合字錬成 · 80 円")),
-      desc: pickLang(ST_L(
-        "Choose 2 Kanji from your bag to fuse in the Elder's ash brazier.",
-        "노인의 화로에 던져 넣어 하나로 합칠 한자 2장을 고르세요.",
-        "老人の火炉に投げ入れて一つに掛け合わせる漢字を2枚選べ。"
-      )),
+      title: pickLang(ST_L("🔥 Kanji Fusion · 80 円", "🔥 화로 합자 연성 · 80 円", "🔥 火炉の合字錬成 · 80 円")),
+      desc,
       cards: st.deck,
       multiSelect: true,
       selectedIndices,
       showOrderBadge: true,
       onCard: (_k, idx) => {
         const pos = selectedIndices.indexOf(idx);
-        if (pos >= 0) selectedIndices.splice(pos, 1);
-        else if (selectedIndices.length < 2) selectedIndices.push(idx);
+        if (pos >= 0) {
+          selectedIndices.splice(pos, 1);
+        } else if (selectedIndices.length < 2) {
+          selectedIndices.push(idx);
+        } else {
+          selectedIndices = [selectedIndices[0], idx];
+        }
         renderFuseModal();
       },
-      actions: [
-        {
-          label: pickLang(ST_L("Fuse in Brazier", "화로에 던져 연성", "火炉で錬成")),
-          gold: selectedIndices.length === 2,
-          onClick: () => {
-            if (selectedIndices.length < 2) return;
-            const sortedIdx = [...selectedIndices].sort((a, b) => b - a);
-            const k1 = st.deck[selectedIndices[0]];
-            const k2 = st.deck[selectedIndices[1]];
-            sortedIdx.forEach(idx => st.deck.splice(idx, 1));
-            closePicker();
-
-            const maxD = Math.min(12, Math.max(2, (st.unlockedDepth || 1) + 1));
-            const dKey = `depth_${maxD}`;
-            const pool = (KANKEN_DATA[dKey] && KANKEN_DATA[dKey].kanji) ? KANKEN_DATA[dKey].kanji : ["炎", "雷", "斬", "魂", "龍"];
-            const fused = pool[Math.floor(Math.random() * pool.length)] || "炎";
-            st.deck.push(fused);
-            state.deck = [...st.deck];
-            addStoryYen(-80);
-            persistStoryState();
-            playSealStampSfx();
-            logMd(pickLang(ST_L(
-              `🔥 Cast **【${k1}】 + 【${k2}】** into the Elder's brazier (-80 円) → Forged **【${fused}】**!`,
-              `🔥 노인의 화로에 **【${k1}】 + 【${k2}】** 두 장을 던져 넣었습니다 (-80 円) → 불길 속에서 새로운 한자 **【${fused}】** 연성!`,
-              `🔥 老人の火炉に **【${k1}】 + 【${k2}】** を投げ入れた（-80 円） → 炎の中から新たな漢字 **【${fused}】** が錬成された！`
-            )), "fx-log");
-            updateBattleHUD(false);
-            renderVillageSpotChoices("炉");
-          }
-        },
-        {
-          label: pickLang(ST_L("Cancel", "취소", "キャンセル")),
-          onClick: () => closePicker()
-        }
-      ]
+      actions
     });
   };
   renderFuseModal();

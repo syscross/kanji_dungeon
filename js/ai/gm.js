@@ -23,9 +23,10 @@ const DEFAULT_GM_RULES = `[READING THE MOVE]
 - CLEVER: cards that reinforce each other, resonate with the stage 【Sign】, exploit the foe's nature (e.g. fire vs bugs/beasts/woods, blunt/lightning vs stone/iron), or counter the foe's telegraphed INTENT KANJI.
 - MASTERFUL: CLEVER and exceptional — a brilliant compound, a conceptual gimmick break (e.g. declaring recess 休 against the teacher 先's countdown), or a razor-sharp radical decomposition (破字).
 
-[ENEMY INTENT (TELEGRAPH) & DEFENSE]
-- ENEMY INTENT shows the 1–2 kanji the foe is telegraphing this turn (e.g. 【口·足】 bite/rush, 【目】 watch/evade, 【三】→【二】→【一】 countdown, 【出·足】 or 【逃·避】 enemy trying to flee).
-- "defense": "full" ONLY if the move reads and directly counters/nullifies/blocks the telegraphed ENEMY INTENT; "partial" for general blocking/evasion/hindrance; "none" if the move ignores the threat.
+[ENEMY INTENT (TELEGRAPH) & DEFENSE — STRICTLY LOCKED, NO ARBITRARY INTERPRETATION]
+- Each turn, the game engine deterministically locks the foe's exact intention in "CONCRETE ENEMY INTENTION (LOCKED BY ENGINE)" alongside its telegraphed kanji (1-char in Depths 1–6, 2-char compounds in Depths 7–10, 3-char in Depth 11, and up to 4-char abyssal compounds in Depth 12).
+- NEVER reinterpret, soften, or invent a different meaning for the enemy's intent kanji! You MUST judge "defense" and narrate "enemy_action" strictly according to the locked "CONCRETE ENEMY INTENTION".
+- "defense": "full" ONLY if the player's move directly counters, nullifies, blocks, or evades the exact attack/action described in "CONCRETE ENEMY INTENTION"; "partial" for partial blocking/evasion/hindrance; "none" if the player's move ignores the locked threat.
 - If ENEMY ESCAPE OMEN is active, "defense": "full" or "partial" means the player successfully blocked, bound, or chased down the fleeing enemy; "defense": "none" means the player failed to stop the enemy from escaping.
 
 [ESCAPE / FLEEING ("escape")]
@@ -40,7 +41,7 @@ const DEFAULT_GM_RULES = `[READING THE MOVE]
   - "TIME_REWIND": combines time/reversal/memory/dream kanji (時, 逆, 戻, 昔, 夢, 輪) to rewind fate/turn.
   - "INSTANT_PACIFY": conceptually resolves the foe without brute force (e.g. ringing recess 休/鐘 for teacher 先, feeding 肉/酒 to a hungry beast, laying a ghost 霊/亡 to rest with 寺/仏).
   - "STEAL_KANJI": uses 奪, 盗, 鏡, 吸, 食 to snatch or devour the foe's kanji into the player's bag.
-  - "MUTATE_ENEMY": alters the foe's character/radical (e.g. dousing 熊's fire 灬 with 水 to turn it into 能, melting 氷 into 水) — set "mutated_kanji" to the resulting single CJK kanji character (never Hangul/English).
+  - "MUTATE_ENEMY": alters the foe's character/radical (e.g. dousing 熊's fire 灬 with 水 to turn it into 能, melting 氷 into 水) — set "mutated_kanji" to the resulting CJK kanji character (never Hangul/English).
 
 [STYLE]
 - Terse, visceral dark-fantasy narration. No cheering, no exclamation spam.
@@ -65,12 +66,25 @@ function pickLangEN(map) {
   return map && (map.EN || Object.values(map)[0]);
 }
 
+function getLockedIntentDescription() {
+  if (state.enemyIntentDesc) return state.enemyIntentDesc;
+  if (typeof buildEnemyIntentDetail === "function") {
+    const info = buildEnemyIntentDetail(state.enemyKanji, state.enemyHand, state.enemyRank, Boolean(state.enemyEscapeIntent));
+    state.enemyIntentType = info.type || "normal_attack";
+    state.enemyIntentDesc = info.detail || "";
+    return state.enemyIntentDesc;
+  }
+  return `${JSON.stringify(state.enemyHand)}`;
+}
+
 function buildJudgePrompt(rawInput, summonDirective = "", fleeDirective = "") {
   const recent = state.recentActions.length
     ? state.recentActions.map((a, i) => `  ${i + 1}) "${a}"`).join("\n")
     : "  (none)";
   const signInfo = STAGE_SIGNS[state.sign];
   const sign = signInfo ? `【${state.sign}】 (${pickLangEN(signInfo.omen)})` : `【${state.sign || "門"}】`;
+  const foeShortName = typeof getEnemyShortName === "function" ? getEnemyShortName(state.enemyKanji) : "";
+  const lockedIntent = getLockedIntentDescription();
   const enemyEscapeNote = state.enemyEscapeIntent
     ? `\n- ENEMY ESCAPE OMEN: 【${state.enemyKanji}】 is at low HP and trying to FLEE via ${JSON.stringify(state.enemyHand)}! Set "defense" to "full" or "partial" ONLY if the player's action traps, blocks, binds, or chases the fleeing foe (or kills it). If the player ignores the escape attempt, set "defense": "none" and describe 【${state.enemyKanji}】 bolting away in "enemy_action".`
     : "";
@@ -88,18 +102,19 @@ function buildJudgePrompt(rawInput, summonDirective = "", fleeDirective = "") {
 - CRITICAL WHEN THE FOE DIES: Because 【${state.enemyKanji}】 dies right here before it can act, its telegraphed intent ${JSON.stringify(state.enemyHand)} is NEVER executed! Do NOT write "however, you failed to stop its intent" or narrate as if the fight continues. Instead, write "gm_judgment" as the final blow that finishes 【${state.enemyKanji}】 off (whether a glorious execution for CLEVER/MASTERFUL or a scrappy, barely-enough finisher for WEAK/SOLID)!
 - Only if you judge this move as ${survivingVerdicts.join(" or ")} (or "attack": false) does 【${state.enemyKanji}】 survive and execute its intent.`
     : `\n\n[LETHAL CHECK — Enemy HP is ${state.enemyHp}/${state.enemyMaxHp}]
-- Even a MASTERFUL strike (up to 55 dmg) will NOT kill 【${state.enemyKanji}】 from ${state.enemyHp} HP this turn (unless "special_event": "INSTANT_PACIFY" triggers). Narrate the clash and how the surviving 【${state.enemyKanji}】 executes or is thwarted in its intent.`;
+- Even a MASTERFUL strike (up to 95 dmg) will NOT kill 【${state.enemyKanji}】 from ${state.enemyHp} HP this turn (unless "special_event": "INSTANT_PACIFY" triggers). Narrate the clash and how the surviving 【${state.enemyKanji}】 executes or is thwarted in its locked intention.`;
 
   return `You are the Game Master of KANJI DUNGEON, a dark-fantasy TRPG roguelike where kanji are the only weapons. Judge ONE turn.
 
 ## Situation
 - Gaol: ${depthName(state.depthId)} (${pickLangEN(DEPTHS[state.depthId].gloss)}), ${kankenLabel(state.depthId)} (Depth ${depthNumber(state.depthId)}/12)
 - Stage: ${sign} — moves that use the stage environment are judged favourably.
-- Foe: 【${state.enemyKanji}】 — ${RANK_WORDS[state.enemyRank]} · Turn ${state.turn} · HP ${state.enemyHp}/${state.enemyMaxHp} · ${state.enemyState || "watchful"}
+- Foe: 【${state.enemyKanji}】 (${foeShortName}) — ${RANK_WORDS[state.enemyRank]} · Turn ${state.turn} · HP ${state.enemyHp}/${state.enemyMaxHp} · ${state.enemyState || "watchful"}
 - Field: ${state.fieldState || "darkness"}
 - Player: HP ${state.playerHp}/${state.maxHp} · ${state.playerState || "steady"}
 - PLAYER HAND (only these give power): ${JSON.stringify(state.playerHand)}
-- ENEMY TELEGRAPHED INTENT (what the foe prepares/executes this turn): ${JSON.stringify(state.enemyHand)}${enemyEscapeNote}
+- ENEMY TELEGRAPHED INTENT KANJI: ${JSON.stringify(state.enemyHand)}
+- CONCRETE ENEMY INTENTION (LOCKED BY ENGINE — DO NOT REINTERPRET ARBITRARILY): ${lockedIntent}${enemyEscapeNote}
 - Player's recent moves:
 ${recent}${summonDirective}${fleeDirective}
 
@@ -129,7 +144,7 @@ Write every text field in ${langName()}. Reply with ONLY this JSON object, keys 
   "mutated_kanji": null,
   "gm_judgment": "1-3 sentences",
   "enemy_used_kanji": ["kanji from ENEMY TELEGRAPHED INTENT"],
-  "enemy_action": "1-2 sentences: the foe's concrete move executing its telegraphed intent",
+  "enemy_action": "1-2 sentences: the foe's concrete move executing its CONCRETE ENEMY INTENTION",
   "new_field_state": "max 4 words",
   "new_player_state": "1-2 words",
   "new_enemy_state": "1-2 words"
@@ -144,11 +159,13 @@ Write every text field in ${langName()}. Reply with ONLY this JSON object, keys 
  * - Realistic constraint: if the current 5 hand cards are terrible/mismatched junk with no synergy, even the ancient god cannot work miracles — it grumbles at the pathetic hand and lands a WEAK or SOLID (or FIZZLE if the player demanded the impossible).
  */
 function buildSummonDirective(paid, direction) {
+  const lockedIntent = getLockedIntentDescription();
   return `
 
 ## SUMMON — AN ANCIENT GOD TAKES THE TURN
 The player sacrificed ${paid} HP to summon an Ancient God to play their hand (${JSON.stringify(state.playerHand)}) this turn.
-- Direction from player: ${direction ? `"${direction}" (follow this tactical preference if the hand cards allow it)` : "NONE (autonomously choose the best tactical play using the hand cards against 【" + state.enemyKanji + "】 and its intent " + JSON.stringify(state.enemyHand) + ")"}.
+- Locked enemy intention to counter: ${lockedIntent}
+- Direction from player: ${direction ? `"${direction}" (follow this tactical preference if the hand cards allow it)` : "NONE (autonomously choose the best tactical play using the hand cards against 【" + state.enemyKanji + "】 and its locked intention)"}.
 - Write the god's concrete action/incantation in "god_chant" (in ${langName()}, weaving the chosen hand kanji naturally).
 - CRITICAL REALISM: The Ancient God is bound by the actual meanings of the 5 cards in PLAYER HAND (${JSON.stringify(state.playerHand)}).
   * If the hand contains strong, fitting kanji or a great compound/synergy for this foe and stage → compose a CLEVER or MASTERFUL move.
@@ -168,17 +185,19 @@ The player is attempting to flee from 【${state.enemyKanji}】 this turn!
 }
 
 function buildHintPrompt() {
+  const lockedIntent = getLockedIntentDescription();
   const escHint = state.enemyEscapeIntent
     ? ` (WARNING: 【${state.enemyKanji}】 is trying to FLEE this turn! Explain how to block/chase it with the hand cards!)`
     : "";
   return `You are the Game Master of KANJI DUNGEON. Give a terse tactical briefing in ${langName()} (max 7 lines, no headers):
-- Stage 【${state.sign || "門"}】 & Player hand ${JSON.stringify(state.playerHand)}: each as 字(exact single-kanji reading: meaning), on one or two lines.
-- Foe 【${state.enemyKanji}】 telegraphed intent ${JSON.stringify(state.enemyHand)}: explain what attack/gimmick this intent kanji portends!${escHint}
-- Two one-line ideas that use the hand cards' meanings to strike 【${state.enemyKanji}】 AND counter/evade its intent ${JSON.stringify(state.enemyHand)} (or escape). Mention a real 熟語 if two hand cards form one.`;
+- Stage 【${state.sign || "門"}】 & Player hand ${JSON.stringify(state.playerHand)}: each as 字(exact reading: meaning), on one or two lines.
+- Foe 【${state.enemyKanji}】 telegraphed intent ${JSON.stringify(state.enemyHand)} — Concrete locked intention: ${lockedIntent}${escHint}
+- Two one-line ideas that use the hand cards' meanings to strike 【${state.enemyKanji}】 AND counter/evade its concrete locked intention (or escape). Mention a real 熟語 if two hand cards form one.`;
 }
 
 function buildQuestionPrompt(question) {
-  return `You are the Game Master of KANJI DUNGEON. Answer tersely in ${langName()} (max 4 lines). Context — stage: 【${state.sign || "門"}】, player hand: ${JSON.stringify(state.playerHand)}, enemy intent: ${JSON.stringify(state.enemyHand)}, foe: 【${state.enemyKanji}】.
+  const lockedIntent = getLockedIntentDescription();
+  return `You are the Game Master of KANJI DUNGEON. Answer tersely in ${langName()} (max 4 lines). Context — stage: 【${state.sign || "門"}】, player hand: ${JSON.stringify(state.playerHand)}, enemy intent: ${JSON.stringify(state.enemyHand)} (${lockedIntent}), foe: 【${state.enemyKanji}】.
 Question: "${question}"`;
 }
 
@@ -220,7 +239,7 @@ function normalizeJudgment(res) {
   const specialEvent = (verdict !== "FIZZLE" && ALLOWED_SPECIAL_EVENTS.includes(rawSpecial)) ? rawSpecial : null;
 
   const rawMutated = res.mutated_kanji && !isNullish(res.mutated_kanji)
-    ? String(res.mutated_kanji).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "").slice(0, 1)
+    ? String(res.mutated_kanji).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "").slice(0, 4)
     : "";
 
   return {

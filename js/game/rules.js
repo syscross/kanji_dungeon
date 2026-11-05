@@ -73,10 +73,19 @@ function resolveTurnNumbers(j) {
   const base = enemyCounterBaseline(state.depthId);
   let counter = randInt(base.min, base.max) * RANK_DAMAGE_MULT[state.enemyRank];
 
-  // Check enemy's telegraphed Intent Kanji (`state.enemyHand`)
+  // Check enemy's telegraphed Intent Kanji (`state.enemyHand`) and locked `state.enemyIntentType`
   const primaryIntent = (state.enemyHand && state.enemyHand[0]) || "";
-  const hasLethalIntent = (state.enemyHand || []).some(k => typeof LETHAL_INTENTS !== "undefined" && LETHAL_INTENTS.has(k));
-  const isCountdownPrep = primaryIntent === "三" || primaryIntent === "二" || primaryIntent === "兆" || primaryIntent === "号";
+  const allIntentChars = (state.enemyHand || []).flatMap(k => Array.from(String(k || "")));
+  const hasLethalIntent =
+    state.enemyIntentType === "lethal_attack" ||
+    (state.enemyHand || []).some(k => typeof LETHAL_INTENTS !== "undefined" && LETHAL_INTENTS.has(k)) ||
+    allIntentChars.some(c => typeof LETHAL_INTENTS !== "undefined" && LETHAL_INTENTS.has(c));
+  const isCountdownPrep =
+    state.enemyIntentType === "countdown_prep" ||
+    primaryIntent === "三" ||
+    primaryIntent === "二" ||
+    primaryIntent === "兆" ||
+    primaryIntent === "号";
 
   if (isCountdownPrep) {
     counter *= 0.35; // Ominous countdown turn before the storm

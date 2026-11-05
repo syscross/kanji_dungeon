@@ -118,7 +118,7 @@ function updateBattleHUD(animateCards = false) {
   }
   const signInfo = state.sign ? STAGE_SIGNS[state.sign] : null;
   $("b-sign").textContent = state.sign || "門";
-  $("b-sign").title = signInfo ? pickLang(signInfo.omen) : t("forkFieldState");
+  $("b-sign").title = signInfo ? `${pickLang(signInfo.omen)}` : t("forkFieldState");
   updateTimerBadge();
   renderRunRosterBar();
 
@@ -132,6 +132,7 @@ function updateBattleHUD(animateCards = false) {
   const bossTier = typeof getKanjiTier === "function" ? getKanjiTier(card.kanji) : "edu";
   bossKanjiEl.dataset.tier = bossTier;
   const bossCardEl = $("b-boss-card");
+  bossCardEl.dataset.len = String(Math.min(5, Math.max(1, bossLen)));
   const isEndSeal = Boolean(card.abandoned || card.returned);
   bossCardEl.classList.toggle("neutral", Boolean(card.neutral));
   bossCardEl.classList.remove("player-dead", "completed");

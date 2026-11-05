@@ -6,7 +6,8 @@
 function localKanjiEngine(expectJson, opts = {}) {
   const hand = state.playerHand;
   const boss = state.enemyKanji;
-  if (!expectJson) return t("leHint")(hand.join(" · "), state.enemyHand.join(" · "), boss);
+  const intentInfo = state.enemyIntentDesc || state.enemyHand.join(" · ");
+  if (!expectJson) return t("leHint")(hand.join(" · "), intentInfo, boss);
 
   const raw = state._lastRawInput || "";
   const summoning = Boolean(opts.summon);
@@ -72,7 +73,7 @@ function localKanjiEngine(expectJson, opts = {}) {
         ? t("leKill")(used.join(" · "), boss)
         : t("leHit")(used.join(" · "), used.length),
     enemy_used_kanji: [...state.enemyHand],
-    enemy_action: t("leCounter")(boss),
+    enemy_action: state.enemyIntentDesc ? `${t("leCounter")(boss)} (${state.enemyIntentDesc})` : t("leCounter")(boss),
     new_field_state: state.fieldState,
     new_player_state: verdict === "FIZZLE" ? "Off-Balance" : "Focused",
     new_enemy_state: isKillingBlow ? "Slain" : state.enemyState

@@ -120,7 +120,11 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
   playGongSfx();
   curtain.className = "active";
   if ($("curtain-badge")) $("curtain-badge").textContent = "";
-  $("curtain-title").textContent = curtainKanji;
+  const titleEl = $("curtain-title");
+  if (titleEl) {
+    titleEl.textContent = curtainKanji;
+    titleEl.dataset.len = "";
+  }
   $("curtain-sub").textContent = curtainSub;
   if ($("curtain-stages")) $("curtain-stages").textContent = "";
   setTimeout(() => {
@@ -146,7 +150,11 @@ function enterGaolCinematic(depthId, onReady) {
   if ($("curtain-badge")) {
     $("curtain-badge").textContent = `第 ${depthNumStr(depthId)} 獄 · ${kankenLabel(depthId)}`;
   }
-  $("curtain-title").textContent = `【 ${depthName(depthId)} 】`;
+  const titleEl = $("curtain-title");
+  if (titleEl) {
+    titleEl.textContent = `【 ${depthName(depthId)} 】`;
+    titleEl.dataset.len = "";
+  }
   $("curtain-sub").textContent = depthGloss(depthId);
   if ($("curtain-stages")) {
     $("curtain-stages").textContent = "";

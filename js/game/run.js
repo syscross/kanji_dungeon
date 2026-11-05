@@ -304,16 +304,18 @@ function advance() {
   if (nextStep >= PATH_STEPS) {
     const boss = state.runBoss || depthRoster(state.depthId).boss;
     const bossStageSign = pickBossStageSign(state.depthId, boss);
-    state.fork = [{ sign: bossStageSign, boss, outcome: "boss", revealed: true }];
-    logMd(t("bossPrompt")(boss), "sys-log");
-  } else {
-    state.fork = generateFork(nextStep);
-    if (state.revealNext) {
-      state.fork.forEach(f => { f.revealed = true; });
-      state.revealNext = false;
-    }
-    logMd(`◆ ${nextStep}/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
+    const def = STAGE_SIGNS[bossStageSign];
+    const omenTxt = def ? ` — *${pickLang(def.omen)}*` : "";
+    logMd(`→ 【${bossStageSign}】${omenTxt}`, "choice-log");
+    enterNode({ sign: bossStageSign, boss, outcome: "boss", revealed: true });
+    return;
   }
+  state.fork = generateFork(nextStep);
+  if (state.revealNext) {
+    state.fork.forEach(f => { f.revealed = true; });
+    state.revealNext = false;
+  }
+  logMd(`◆ ${nextStep}/${PATH_STEPS} — ${t("pathPrompt")}`, "sys-log");
   state.phase = "path";
   saveRunToStorage();
   renderPhase();
@@ -384,17 +386,7 @@ function outcomeIcon(outcome) {
 
 function renderFork() {
   if (state.fork.length === 1 && state.fork[0].outcome === "boss") {
-    const boss = state.fork[0].boss || state.runBoss || depthRoster(state.depthId).boss;
-    const bossKnown = Boolean(
-      state.bossEncountered ||
-      (state.encounteredEnemies || []).includes(boss) ||
-      (state.defeatedEnemies || []).includes(boss)
-    );
-    const labelKanji = bossKnown ? boss : "";
-    setDockActions([
-      { label: t("bossBtn")(labelKanji), onClick: () => choosePath(0), gold: true, cls: "boss-door" },
-      { label: t("returnGaolBtn"), onClick: () => triggerFormalReturn(), cls: "fork-return-btn" }
-    ]);
+    enterNode(state.fork[0]);
     return;
   }
   const tiles = state.fork.map((f, i) => {
@@ -576,6 +568,8 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   for (let i = 0; i < HAND_SIZE; i++) playCardDealSfx(i * 65);
 
   resetBattleChrome();
+  const shortName = typeof getEnemyShortName === "function" ? getEnemyShortName(kanji) : "";
+  const nameTag = shortName ? ` ${shortName}` : "";
   const encounterLine = typeof getEnemyEncounterLine === "function"
     ? getEnemyEncounterLine(kanji, actualRank, Boolean(prevWoundedHp), Boolean(ambush))
     : "";
@@ -587,12 +581,12 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   const descLine = encounterLine || fallbackTail;
   if (prevWoundedHp) {
     logMd(
-      `🩸 ${t("reEncounterChallenger")(kanji, startHp, maxHp)} — ${descLine}`,
+      `🩸 ${t("reEncounterChallenger")(kanji, startHp, maxHp)}${nameTag} — ${descLine}`,
       "foe-log"
     );
   } else {
     logMd(
-      `🩸 ${t("nextChallenger")(kanji)} — ${descLine}`,
+      `🩸 ${t("nextChallenger")(kanji)}${nameTag} — ${descLine}`,
       "foe-log"
     );
   }
@@ -668,29 +662,31 @@ function triggerEnemyCinematicReveal(kanji, actualRank) {
   playSealStampSfx();
   if (typeof playDamageSfx === "function") setTimeout(() => playDamageSfx(), 160);
   const curtain = $("cinematic-curtain");
-  const prevWounded = Boolean(state.woundedEnemies && state.woundedEnemies[kanji]);
-  const encounterLine = typeof getEnemyEncounterLine === "function"
-    ? getEnemyEncounterLine(kanji, actualRank, prevWounded, false)
-    : "";
   if (curtain) {
     if ($("curtain-badge")) {
-      $("curtain-badge").textContent = actualRank === "boss"
-        ? "【 옥문의 주인 현현 】"
+      const badgeMap = actualRank === "boss"
+        ? { EN: "MASTER ENCOUNTER", KO: "주인 조우", JA: "主 遭 遇", ZH_CN: "主 遭 遇", ZH_TW: "主 遭 遇" }
         : actualRank === "elite"
-        ? "【 강적 출현 】"
-        : "【 원령 출현 】";
+        ? { EN: "ELITE ENCOUNTER", KO: "강적 조우", JA: "強 敵 遭 遇", ZH_CN: "强 敌 遭 遇", ZH_TW: "強 敵 遭 遇" }
+        : { EN: "ENCOUNTER", KO: "적 조우", JA: "敵 遭 遇", ZH_CN: "敌 遭 遇", ZH_TW: "敵 遭 遇" };
+      $("curtain-badge").textContent = pickLang(badgeMap);
     }
-    $("curtain-title").textContent = kanji;
-    $("curtain-sub").textContent = encounterLine || "칠흑 같은 어둠을 찢고 핏빛 원령이 모습을 드러낸다…";
+    const titleEl = $("curtain-title");
+    if (titleEl) {
+      titleEl.textContent = kanji;
+      titleEl.dataset.len = String(Array.from(String(kanji || "")).length);
+    }
+    const shortName = typeof getEnemyShortName === "function" ? getEnemyShortName(kanji) : "";
+    $("curtain-sub").textContent = shortName;
     if ($("curtain-stages")) $("curtain-stages").textContent = "";
-    curtain.className = "active foe-reveal";
+    curtain.className = `active foe-reveal rank-${actualRank || "normal"}`;
     setTimeout(() => {
       curtain.classList.remove("active");
-    }, 1750);
+    }, 1650);
   }
 
   setTimeout(() => {
     state.phase = "battle_encounter_ready";
     startBattle(actualRank, kanji);
-  }, 1150);
+  }, 1050);
 }

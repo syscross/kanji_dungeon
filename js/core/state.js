@@ -150,6 +150,8 @@ function createRunState() {
     playerHand: [],          // ["火", ...]
     playerHandSources: [],   // ["bag"|"stage", ...] matching playerHand indices
     enemyHand: [],           // 1-2 telegraphed Intent Kanji for the foe
+    enemyIntentType: "",     // deterministic locked intention category
+    enemyIntentDesc: "",     // deterministic locked intention description passed to AI GM
 
     maxHp: 100,
     playerHp: 100,

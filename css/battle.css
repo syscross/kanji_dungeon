@@ -95,11 +95,15 @@
   text-shadow: 0 0 16px rgba(215, 58, 73, 0.6);
   white-space: nowrap;
 }
+.boss-card[data-len="2"] { width: 96px; }
+.boss-card[data-len="3"] { width: 106px; }
+.boss-card[data-len="4"],
+.boss-card[data-len="5"] { width: 116px; }
 .boss-kanji.multi,
-.boss-kanji[data-len="2"] { font-size: 1.85rem; letter-spacing: -1px; }
-.boss-kanji[data-len="3"] { font-size: 1.25rem; letter-spacing: -1.5px; }
+.boss-kanji[data-len="2"] { font-size: 2.05rem; letter-spacing: -1px; }
+.boss-kanji[data-len="3"] { font-size: 1.52rem; letter-spacing: -1.5px; }
 .boss-kanji[data-len="4"],
-.boss-kanji[data-len="5"] { font-size: 0.96rem; letter-spacing: -1.5px; }
+.boss-kanji[data-len="5"] { font-size: 1.18rem; letter-spacing: -1.5px; }
 .boss-info { display: flex; flex-direction: column; gap: 7px; min-width: 0; font-size: 0.8rem; }
 .boss-tags { display: flex; gap: 6px; min-width: 0; }
 .hp-line { display: flex; align-items: center; gap: 8px; }
@@ -342,8 +346,13 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   z-index: 5;
 }
 .kanji-card .dict-link:hover { color: var(--gold); }
-.kanji-card.enemy-sm { width: 44px; height: 56px; border-color: #46262e; border-radius: 5px; }
-.kanji-card.enemy-sm .char { font-size: 1.45rem; color: #e87680; }
+.kanji-card.enemy-sm { width: 44px; min-width: 44px; height: 56px; border-color: #46262e; border-radius: 5px; padding: 0 4px; }
+.kanji-card.enemy-sm.multi { width: auto; padding: 0 8px; }
+.kanji-card.enemy-sm .char { font-size: 1.45rem; color: #e87680; white-space: nowrap; letter-spacing: 0; }
+.kanji-card.enemy-sm[data-len="2"] .char { font-size: 1.22rem; letter-spacing: -0.5px; }
+.kanji-card.enemy-sm[data-len="3"] .char { font-size: 1.08rem; letter-spacing: -0.5px; }
+.kanji-card.enemy-sm[data-len="4"] .char,
+.kanji-card.enemy-sm[data-len="5"] .char { font-size: 0.98rem; letter-spacing: -0.5px; }
 .kanji-card.enemy-sm .dict-link { display: none; }
 .kanji-card.enemy-sm:hover { transform: translateY(-3px); }
 
@@ -394,19 +403,24 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .bb-info .badge { padding: 2px 5px; }
   .enemy-stage { gap: 10px; padding: 8px 10px; }
   .boss-card { width: 64px; height: 76px; }
+  .boss-card[data-len="2"] { width: 74px; }
+  .boss-card[data-len="3"] { width: 84px; }
+  .boss-card[data-len="4"],
+  .boss-card[data-len="5"] { width: 94px; }
   .boss-kanji { font-size: 2.4rem; }
   .boss-kanji.multi,
-  .boss-kanji[data-len="2"] { font-size: 1.28rem; white-space: nowrap; }
-  .boss-kanji[data-len="3"] { font-size: 0.88rem; }
+  .boss-kanji[data-len="2"] { font-size: 1.48rem; white-space: nowrap; }
+  .boss-kanji[data-len="3"] { font-size: 1.12rem; }
   .boss-kanji[data-len="4"],
-  .boss-kanji[data-len="5"] { font-size: 0.68rem; }
+  .boss-kanji[data-len="5"] { font-size: 0.9rem; }
   .enemy-hand-wrap .mini-label { display: none; }
-  .kanji-card.enemy-sm { width: 34px; height: 42px; }
+  .kanji-card.enemy-sm { width: 34px; min-width: 34px; height: 42px; padding: 0 3px; }
+  .kanji-card.enemy-sm.multi { width: auto; padding: 0 7px; }
   .kanji-card.enemy-sm .char { font-size: 1.15rem; }
-  .kanji-card.enemy-sm[data-len="2"] .char { font-size: 0.72rem; }
-  .kanji-card.enemy-sm[data-len="3"] .char,
+  .kanji-card.enemy-sm[data-len="2"] .char { font-size: 0.98rem; letter-spacing: -0.5px; }
+  .kanji-card.enemy-sm[data-len="3"] .char { font-size: 0.88rem; letter-spacing: -0.5px; }
   .kanji-card.enemy-sm[data-len="4"] .char,
-  .kanji-card.enemy-sm[data-len="5"] .char { font-size: 0.56rem; }
+  .kanji-card.enemy-sm[data-len="5"] .char { font-size: 0.8rem; letter-spacing: -0.5px; }
   .gm-box { padding: 8px; font-size: 0.8rem; }
   .log-entry { padding: 6px 8px; }
   .player-dock { padding: 7px 8px; gap: 7px; }
@@ -605,20 +619,28 @@ body.kb-open .gm-box { min-height: 48px; }
   white-space: nowrap;
 }
 
-/* Battle bar right side: current stage sign */
-.bb-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+/* Battle bar right side: current stage sign + deck button + menu */
+.bb-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .sign-badge {
   font-family: 'Noto Serif JP', serif;
   font-weight: 900;
   font-size: 1.1rem;
   color: var(--gold);
-  border: 1px solid #6e5931;
+  border: 1.5px solid #6e5931;
   background: rgba(229,192,123,0.08);
   width: 34px;
   height: 32px;
-  display: flex;
+  padding: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.sign-badge:hover {
+  border-color: var(--gold);
+  background: rgba(229,192,123,0.18);
+  box-shadow: 0 0 12px rgba(229,192,123,0.35);
 }
 
 /* Run encounter roster bar (top of battle view) */

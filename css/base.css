@@ -110,41 +110,69 @@ button { font-family: inherit; }
   text-shadow: 0 0 42px rgba(255, 59, 78, 0.95), 0 0 14px #000;
   animation: abyssGateTremor 0.55s ease;
 }
-/* Enemy Encounter Full-Screen Crimson Reveal */
+/* Enemy Encounter Full-Screen Crimson Reveal (3-tier: 적/강적/주인 조우 -> 적 한자 -> 적 이름) */
 #cinematic-curtain.foe-reveal {
   background: radial-gradient(circle at 50% 45%, #3c0610 0%, #140206 58%, #020204 88%);
   box-shadow: inset 0 0 200px rgba(220, 20, 48, 0.65);
   transition: opacity 0.55s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+#cinematic-curtain.foe-reveal.rank-boss {
+  background: radial-gradient(circle at 50% 45%, #4a0512 0%, #1a0207 62%, #020103 90%);
+  box-shadow: inset 0 0 240px rgba(255, 36, 59, 0.82);
+}
 #cinematic-curtain.foe-reveal .curtain-badge {
   color: #ff6b7b;
-  font-size: 0.96rem;
-  font-weight: 700;
-  letter-spacing: 0.28rem;
-  text-shadow: 0 0 16px rgba(255, 36, 59, 0.8);
-  margin-bottom: 12px;
+  font-size: clamp(0.95rem, 2.8vw, 1.15rem);
+  font-weight: 800;
+  letter-spacing: 0.32rem;
+  text-shadow: 0 0 18px rgba(255, 36, 59, 0.85);
+  margin-bottom: 14px;
   word-break: keep-all;
+  opacity: 1;
+}
+#cinematic-curtain.foe-reveal.rank-elite .curtain-badge {
+  color: #ffb366;
+  text-shadow: 0 0 18px rgba(255, 150, 50, 0.85);
+}
+#cinematic-curtain.foe-reveal.rank-boss .curtain-badge {
+  color: #ffd166;
+  text-shadow: 0 0 22px rgba(255, 209, 102, 0.9), 0 0 36px rgba(255, 36, 59, 0.8);
 }
 #cinematic-curtain.foe-reveal .curtain-title {
   color: #ff243b !important;
-  font-size: clamp(4.2rem, 18vw, 9.2rem);
+  font-size: clamp(4.6rem, 20vw, 9.2rem);
   font-weight: 900;
   letter-spacing: 0.12rem;
-  line-height: 1.05;
+  line-height: 1.08;
+  white-space: nowrap;
   text-shadow: 0 0 48px rgba(255, 36, 59, 0.98), 0 0 96px rgba(215, 20, 48, 0.82), 0 0 18px #000 !important;
   animation: foeRevealLoom 1.5s cubic-bezier(0.16, 0.85, 0.25, 1) forwards;
 }
+#cinematic-curtain.foe-reveal .curtain-title[data-len="2"] {
+  font-size: clamp(3.6rem, 15vw, 7.2rem);
+  letter-spacing: 0.18rem;
+}
+#cinematic-curtain.foe-reveal .curtain-title[data-len="3"] {
+  font-size: clamp(2.8rem, 12vw, 5.6rem);
+  letter-spacing: 0.12rem;
+}
+#cinematic-curtain.foe-reveal .curtain-title[data-len="4"],
+#cinematic-curtain.foe-reveal .curtain-title[data-len="5"] {
+  font-size: clamp(2.2rem, 9.5vw, 4.5rem);
+  letter-spacing: 0.08rem;
+}
 #cinematic-curtain.foe-reveal .curtain-sub {
-  color: #ff9aa6;
-  font-size: clamp(0.88rem, 2.3vw, 1.08rem);
+  color: #f5d8dc;
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(1rem, 3.2vw, 1.32rem);
   font-weight: 700;
-  line-height: 1.55;
-  max-width: 92vw;
-  margin-top: 18px;
-  letter-spacing: 0.5px;
+  line-height: 1.45;
+  max-width: 90vw;
+  margin-top: 16px;
+  letter-spacing: 0.08rem;
   word-break: keep-all;
   overflow-wrap: break-word;
-  text-shadow: 0 2px 14px #000, 0 0 18px rgba(215, 30, 56, 0.65);
+  text-shadow: 0 2px 14px #000, 0 0 20px rgba(215, 30, 56, 0.75);
 }
 @keyframes foeRevealLoom {
   0% { transform: scale(1.55); filter: blur(8px) brightness(2.8); opacity: 0; }
@@ -178,7 +206,7 @@ button { font-family: inherit; }
   border-top: 1px solid rgba(229, 192, 123, 0.22);
   border-bottom: 1px solid rgba(229, 192, 123, 0.22);
 }
-.curtain-badge:empty, .curtain-stages:empty { display: none; }
+.curtain-badge:empty, .curtain-sub:empty, .curtain-stages:empty { display: none; }
 
 #damage-vignette {
   position: fixed;

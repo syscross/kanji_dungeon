@@ -32,7 +32,9 @@ function buildStageCards(depthId, sign) {
 }
 
 function resetPilesForFight() {
-  state.stageCards = buildStageCards(state.depthId, state.sign);
+  if (!state.stageCards || !state.stageCards.length) {
+    state.stageCards = buildStageCards(state.depthId, state.sign);
+  }
   const combined = [
     ...state.stageCards.map(kanji => ({ kanji, source: "stage" })),
     ...state.deck.map(kanji => ({ kanji, source: "bag" }))
@@ -72,13 +74,18 @@ function drawHand() {
 /*
  * Generate the enemy's telegraphed Intent Kanji (1-2 kanji shown on the enemy bar).
  * - Strictly uses kanji from the current Kanken grade or lower.
- * - When a non-final enemy drops to <= 38% HP, it can telegraph an Escape Intent (e.g. 出/足, 走/帰, 逃/避)!
+ * - Computes and locks `state.enemyIntentType` and `state.enemyIntentDesc` so the AI GM never interprets enemy intentions arbitrarily.
  */
 function recordSeenEnemyHands() {
   if (!Array.isArray(state.enemyIntentsSeen)) state.enemyIntentsSeen = [];
   (state.enemyHand || []).forEach(k => {
     if (k && !state.enemyIntentsSeen.includes(k)) state.enemyIntentsSeen.push(k);
   });
+  if (typeof buildEnemyIntentDetail === "function") {
+    const info = buildEnemyIntentDetail(state.enemyKanji, state.enemyHand, state.enemyRank, Boolean(state.enemyEscapeIntent));
+    state.enemyIntentType = info.type || "normal_attack";
+    state.enemyIntentDesc = info.detail || "";
+  }
 }
 
 function dealEnemyHand() {

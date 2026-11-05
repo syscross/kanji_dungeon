@@ -3,7 +3,7 @@
  * Strategy: network-first for same-origin GETs (so deploys show up immediately),
  * falling back to the cache when offline. Cross-origin requests (AI APIs, fonts) are untouched.
  */
-const CACHE = "kd-shell-v5";
+const CACHE = "kd-shell-v6";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["/", "/index.html", "/manifest.json", "/kanken_data.json"])));
