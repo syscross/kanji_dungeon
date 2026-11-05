@@ -531,21 +531,21 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
     const omenLines = actualRank === "boss"
       ? [
           "대지가 갈라지는 듯한 육중한 진동과 함께, 숨통을 틀어쥐는 거대한 살기가 안개 너머에서 밀려온다…",
-          "주변의 모든 글자(漢字)들이 공포에 질려 바르르 떨며 핏빛으로 물들기 시작한다.",
+          "주변의 모든 글자들이 공포에 질려 바르르 떨며 핏빛으로 물들기 시작한다.",
           "*이 옥문을 지배하는 주인이 모습을 드러내려 합니다. 무기를 고쳐 쥐고 진명을 마주하세요.*"
         ]
       : actualRank === "elite"
       ? [
           "칠흑 같은 어둠 저편에서 바닥을 긁는 날카로운 소리와 함께 짙은 피비린내가 코끝을 찌른다…",
-          "심상치 않은 흉기(凶氣)를 품은 정예 원령의 그림자가 안개를 가르며 성큼성큼 다가온다.",
+          "심상치 않은 살기를 품은 정예 원령의 그림자가 안개를 가르며 성큼성큼 다가온다.",
           "*숨을 가다듬고 다가오는 적의 진명을 마주해야 합니다.*"
         ]
       : [
           "자욱한 안개 너머에서… 으스스하게 삐걱거리며 무언가 기어 다가오는 소리가 들린다…",
-          "산 자의 온기와 피 냄새를 맡은 원령의 일그러진 획(画)이 어둠 속에서 번뜩인다.",
+          "산 자의 온기와 피 냄새를 맡은 원령의 일그러진 획이 어둠 속에서 번뜩인다.",
           "*물러설 곳은 없습니다. 무기를 쥐고 기척의 정체를 마주하세요.*"
         ];
-    logBeat("foe-omen-log", "🩸 【 살기의 전조 (前兆) 】", omenLines);
+    logBeat("foe-omen-log", "🩸 【 살기의 전조 】", omenLines);
 
     setDockActions([
       {
@@ -597,7 +597,7 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
   const rankTail = actualRank === "boss"
     ? " 옥문을 지배하는 압도적인 원념이 사방의 퇴로를 완전히 틀어막고 당신의 숨통을 겨눈다!"
     : actualRank === "elite"
-    ? " 범상치 않은 흉기를 두른 강적이 살기를 뿜어내며 단숨에 거리를 좁혀 온다!"
+    ? " 범상치 않은 살기를 두른 강적이 단숨에 거리를 좁혀 온다!"
     : " 어둠 속에서 굶주린 원령이 핏빛 획을 번뜩이며 당신의 빈틈을 노린다!";
   if (prevWoundedHp) {
     logMd(
@@ -610,7 +610,7 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
       "foe-log"
     );
   }
-  logMd(`🎴 **${t("stageCardsLog")}(【${state.sign}】)**: ${state.stageCards.join(" · ")}`, "fx-log");
+  logMd(`🎴 **${t("stageCardsLog")}**: ${state.stageCards.join(" · ")}`, "fx-log");
 
   saveRunToStorage();
   renderPhase();

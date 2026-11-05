@@ -140,7 +140,7 @@ const STAGE_SIGNS = {
     outcomes: [["battle", 70], ["event:quiz", 15], ["event:*", 15]]
   },
   畑: {
-    omen: STG_L("scorched dry field", "검게 탄 화전(畑)", "焼け焦げた畑", "焦黑旱田", "焦黑旱田"),
+    omen: STG_L("scorched dry field", "검게 탄 화전", "焼け焦げた畑", "焦黑旱田", "焦黑旱田"),
     cards: ["火", "土", "炭", "油", "豆", "葉", "根", "草", "放"],
     foes: ["羊", "病", "暗", "者"],
     outcomes: [["battle", 65], ["event:flower", 20], ["event:quiz", 15]]
@@ -167,38 +167,38 @@ const STAGE_SIGNS = {
 
   /* ---- Depth 4 (Kanken 7: Prefectures & Old Battlefield) ---- */
   茨: {
-    omen: STG_L("Ibaraki briar wasteland", "가시나무 들판 (이바라키)", "茨の荒野 (いばらき)", "荆棘荒原", "荊棘荒原"),
+    omen: STG_L("briar wasteland", "가시나무 들판", "茨の荒野", "荆棘荒原", "荊棘荒原"),
     cards: ["茨", "木", "草", "火", "焼", "松", "芽", "縄", "風", "折"],
     foes: ["熊", "鹿", "兵", "徒", "卒"],
     outcomes: [["battle", 55], ["event:quiz", 25], ["event:flower", 20]]
   },
   潟: {
-    omen: STG_L("Niigata black mudflats", "검은 개펄과 석호 (니가타)", "黒い干潟 (にいがた)", "黑泥泻湖", "黑泥潟湖"),
+    omen: STG_L("black mudflats", "검은 개펄과 석호", "黒い干潟", "黑泥泻湖", "黑泥潟湖"),
     cards: ["潟", "水", "塩", "浅", "冷", "漁", "氷", "土", "石", "県"],
     foes: ["兵", "熊", "徒", "隊", "官"],
     outcomes: [["battle", 55], ["event:quiz", 25], ["event:well", 20]]
   },
   栃: {
-    omen: STG_L("Tochigi horse-chestnut woods", "상수리 고목림 (토치기)", "栃の古木林 (とちぎ)", "七叶树林", "七葉樹林"),
+    omen: STG_L("ancient chestnut woods", "상수리 고목림", "栃の古木林", "七叶树林", "七葉樹林"),
     cards: ["栃", "木", "松", "梅", "梨", "巣", "材", "火", "焼", "風"],
     foes: ["熊", "鹿", "卒", "隊", "徒"],
     outcomes: [["battle", 60], ["event:quiz", 20], ["elite", 20]]
   },
   阪: {
-    omen: STG_L("Osaka blood-soaked embankment", "피로 물든 비탈길 (오사카)", "血塗られた阪 (おおさか)", "染血坡道", "染血坡道"),
+    omen: STG_L("blood-soaked embankment", "피로 물든 비탈길", "血塗られた坂", "染血坡道", "染血坡道"),
     cards: ["阪", "石", "土", "戦", "刀", "火", "熱", "旗", "輪", "囲"],
     foes: ["兵", "隊", "官", "臣", "軍", "勇"],
     outcomes: [["battle", 55], ["elite", 30], ["event:quiz", 15]],
     risky: true
   },
   岐: {
-    omen: STG_L("Gifu mountain crossroads", "험한 갈림 산길 (기후)", "険しき岐路 (ぎふ)", "险峻岐路", "險峻岐路"),
+    omen: STG_L("steep mountain crossroads", "험한 갈림 산길", "険しき岐路", "险峻岐路", "險峻岐路"),
     cards: ["岐", "山", "石", "木", "風", "縄", "灯", "鏡", "刀", "飛"],
     foes: ["鹿", "熊", "兵", "卒", "勇"],
     outcomes: [["battle", 50], ["event:quiz", 30], ["event:*", 20]]
   },
   城: {
-    omen: STG_L("sieged fortress ruins", "불타는 고성(古城)", "燃える古城", "燃烧古城", "燃燒古城"),
+    omen: STG_L("burning fortress ruins", "불타는 고성", "燃える古城", "燃烧古城", "燃燒古城"),
     cards: ["城", "石", "火", "焼", "戦", "械", "刀", "鉄", "旗", "固"],
     foes: ["兵", "機", "官", "臣", "司", "軍"],
     outcomes: [["elite", 50], ["battle", 35], ["treasure", 15]],

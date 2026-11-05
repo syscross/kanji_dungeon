@@ -559,7 +559,7 @@ function renderVillageFork() {
     const displayKanji = k;
     return {
       html: `<span class="fork-kanji tier-${getKanjiTier(displayKanji)}">${escapeHtml(displayKanji)}</span>` +
-        `<span class="fork-omen">${escapeHtml(pickLang(def.title))} — ${escapeHtml(pickLang(def.omen))}</span>`,
+        `<span class="fork-omen">${escapeHtml(pickLang(def.title))}</span>`,
       onClick: () => enterVillageSpot(k),
       cls: "fork-tile"
     };
@@ -568,9 +568,9 @@ function renderVillageFork() {
   // Always allow returning to the Gaol Select screen without any artificial fog roadblock
   tiles.push({
     label: pickLang(ST_L(
-      "⛩ Leave Village (Gaol Select)",
-      "⛩ 마을 어귀를 나선다 (옥문 선택으로)",
-      "⛩ 里の外れへ出る（獄門選択へ）"
+      "⛩ Leave Village",
+      "⛩ 마을 어귀를 나선다",
+      "⛩ 里の外れへ出る"
     )),
     onClick: () => leaveVillageToSelect(),
     gold: st.unlockedDepth >= 1,
@@ -598,7 +598,7 @@ function enterVillageSpot(spotKey) {
   // Stage sign remains strictly the place/building kanji (塾, 炉, 橋, 家, etc.)
   state.sign = spotKey;
   state.enemyKanji = "";
-  state.fieldState = `${pickLang(def.title)} — ${pickLang(def.omen)}`;
+  state.fieldState = pickLang(def.title);
 
   // Record met NPC in st.metNpcs (never place kanji!)
   if (def.npcKanji) {
@@ -672,7 +672,7 @@ function logSenseiArrival() {
   if (st.introStage < 2 || st.unlockedDepth < 1) {
     logMd(pickLang(ST_L(
       "🕯 **【先】** — Inside the half-collapsed study hall, your old Sensei guards a single paper lantern against the creeping mist.\n*\"You returned to this ruined hometown after all… Take this talisman before the fog devours your name too.\"*",
-      "🕯 **【先】** — 반쯤 무너진 서당 안에서 백발의 옛 스승이 흩어진 목간(木簡)을 모아 등불의 심지를 돋우고 있다.\n*\"하필 고향이 이 지경이 된 때에 돌아왔구나… 절벽의 안개에 네 이름마저 먹히기 전에 어서 이 부적을 받아 두거라.\"*",
+      "🕯 **【先】** — 반쯤 무너진 서당 안에서 백발의 옛 스승이 흩어진 목간을 모아 등불의 심지를 돋우고 있다.\n*\"하필 고향이 이 지경이 된 때에 돌아왔구나… 절벽의 안개에 네 이름마저 먹히기 전에 어서 이 부적을 받아 두거라.\"*",
       "🕯 **【先】** — 半ば崩れた書堂の中で、白髪の師が散らばった木簡を集めて提灯の芯をかき立てている。\n*「よりによって故郷がこのような時に戻ったか……崖の霧にお前の名まで喰われる前に、この護符を受け取れ。」*"
     )), "event-log");
     return;
@@ -681,7 +681,7 @@ function logSenseiArrival() {
   if (phase === "shura_12") {
     logMd(pickLang(ST_L(
       "🕯 **【先】** — As you step across the threshold, the lantern flame shrinks back and Sensei's hand trembles on his cane.\n*\"Stay back…! The stench of the 12th Abyss clings to your blade. In trying to slay the curses, you have become a Shura yourself…\"*",
-      "🕯 **【先】** — 당신이 문턱을 넘자 서당의 등불이 파르르 오그라들고, 스승은 지팡이를 쥔 손을 떨며 뒷걸음질 친다.\n*\"다가오지 마라…! 네 칼끝에서 제12옥 나락의 역겨운 묵향(墨香)이 진동하는구나. 괴물을 베려다 스스로 수라(修羅)가 되었어…\"*",
+      "🕯 **【先】** — 당신이 문턱을 넘자 서당의 등불이 파르르 오그라들고, 스승은 지팡이를 쥔 손을 떨며 뒷걸음질 친다.\n*\"다가오지 마라…! 네 칼끝에서 제12옥 나락의 역겨운 묵향이 진동하는구나. 괴물을 베려다 스스로 수라가 되었어…\"*",
       "🕯 **【先】** — お前が敷居を跨ぐと書堂の灯が縮こまり、師は杖を握る手を震わせて後ずさった。\n*「近づくな……！ お前の刃から第十二獄・奈落の悍ましい墨香が漂っている。怪物を斬ろうとして自ら修羅と化したか……」*"
     )), "event-log");
   } else if (phase === "abyss_11") {
@@ -693,7 +693,7 @@ function logSenseiArrival() {
   } else if (phase === "peace_10") {
     logMd(pickLang(ST_L(
       "🕯 **【先】** — Warm light fills the study hall as Sensei looks over the restored wooden tablets with quiet relief.\n*\"You felled the lord of the 10th Gaol… The 2,136 Common Kanji have returned to the villagers' lips. Do not look beneath the floor—rest now.\"*",
-      "🕯 **【先】** — 서당 창살 너머로 맑은 볕이 스며들고, 스승은 글자가 되돌아온 서책들을 어루만지며 깊은 안도의 한숨을 내쉰다.\n*\"기어이 제10옥의 주인을 베었구나… 마을 사람들의 입술에 상용(常用)의 말들이 돌아오고 있다. 이제 바닥 너머의 기척은 잊고 칼을 놓아라.\"*",
+      "🕯 **【先】** — 서당 창살 너머로 맑은 볕이 스며들고, 스승은 글자가 되돌아온 서책들을 어루만지며 깊은 안도의 한숨을 내쉰다.\n*\"기어이 제10옥의 주인을 베었구나… 마을 사람들의 입술에 상용의 말들이 돌아오고 있다. 이제 바닥 너머의 기척은 잊고 칼을 놓아라.\"*",
       "🕯 **【先】** — 書堂の格子から澄んだ陽差しが差し込み、師は文字の戻った書物を撫でながら深い安堵の息をついた。\n*「ついに第十獄の主を斬り伏せたか……里人の唇に常用の言葉が戻ってきている。もう底の気配など忘れて刃を置け。」*"
     )), "event-log");
   } else {
@@ -712,19 +712,19 @@ function logElderArrival() {
   if (phase === "shura_12") {
     logMd(pickLang(ST_L(
       "🔥 **【老】** — The blind Elder inhales the dark miasma trailing behind you and lets out a dry, rasping laugh.\n*\"Heh… you swallowed even the 12th Abyss. No need to read characters anymore—you are the living lexicon of nightmares itself.\"*",
-      "🔥 **【老】** — 눈먼 노인이 당신의 뒤를 따르는 검붉은 마기를 들이마시더니 갈라진 목소리로 껄껄 웃는다.\n*\"허허… 기어이 제12옥 나락의 글자들까지 남김없이 삼켰구먼. 이제 자네는 글자를 읽는 자가 아니라, 걸어 다니는 심연의 자전(字典) 그 자체야.\"*",
+      "🔥 **【老】** — 눈먼 노인이 당신의 뒤를 따르는 검붉은 마기를 들이마시더니 갈라진 목소리로 껄껄 웃는다.\n*\"허허… 기어이 제12옥 나락의 글자들까지 남김없이 삼켰구먼. 이제 자네는 글자를 읽는 자가 아니라, 걸어 다니는 심연의 자전 그 자체야.\"*",
       "🔥 **【老】** — 盲目の老人はお前の背後に漂う黒き瘴気を吸い込み、乾いた声でくっくと笑った。\n*「ふふ……ついに第十二獄・奈落の文字まで呑み込んだか。もはや貴様は文字を読む者ではなく、歩く深淵の字典そのものよ。」*"
     )), "event-log");
   } else if (phase === "abyss_11") {
     logMd(pickLang(ST_L(
       "🔥 **【老】** — Greenish flames dance in the ash brazier as the Elder turns his milky eyes toward you.\n*\"Once a swordsman tastes the primeval strokes beyond the Common fence, lukewarm mortal words never satisfy the blade again.\"*",
-      "🔥 **【老】** — 화로 속에서 푸르스름한 불길이 일렁이고, 노인이 희뿌연 눈동자를 들어 당신을 바라본다.\n*\"상용(常用)의 울타리 너머에 잠든 태고의 획 맛을 본 자는, 다시는 미지근한 인간 세상의 말로 만족하지 못하는 법이지.\"*",
+      "🔥 **【老】** — 화로 속에서 푸르스름한 불길이 일렁이고, 노인이 희뿌연 눈동자를 들어 당신을 바라본다.\n*\"상용의 울타리 너머에 잠든 태고의 획 맛을 본 자는, 다시는 미지근한 인간 세상의 말로 만족하지 못하는 법이지.\"*",
       "🔥 **【老】** — 火炉の中で青白い炎が揺らめき、老人は白濁した瞳を向けて呟いた。\n*「常用の垣根を越えた太古の画の味を知った者は、二度と生ぬるい人の世の言葉などでは満たされぬものよ。」*"
     )), "event-log");
   } else {
     logMd(pickLang(ST_L(
       "🔥 **【老】** — Sitting cross-legged before an iron brazier of glowing ash, a blind old man warms his withered hands.\n*\"Every Kanji is a cage binding an ancient spirit inside its strokes. If you carry spare characters, cast them into my flames.\"*",
-      "🔥 **【老】** — 불씨만 남은 무쇠 화로 앞에서 백내장 낀 눈의 노인이 마른 손바닥을 쬐며 중얼거린다.\n*\"한자란 본디 태고의 악귀와 사념을 획(画)이라는 창살 안에 가둔 감옥이지. 남는 글자가 있거든 내 화로에 던져 넣어 보게.\"*",
+      "🔥 **【老】** — 불씨만 남은 무쇠 화로 앞에서 백내장 낀 눈의 노인이 마른 손바닥을 쬐며 중얼거린다.\n*\"한자란 본디 태고의 악귀와 사념을 획이라는 창살 안에 가둔 감옥이지. 남는 글자가 있거든 내 화로에 던져 넣어 보게.\"*",
       "🔥 **【老】** — 熾火の残る鉄火炉の前で、白濁した目の老人が枯れ枝のような手をかざして呟いている。\n*「漢字とは本来、太古の悪鬼や思念を画という格子に閉じ込めた牢獄よ。余った文字があるならわしの火炉へ投げ入れてみよ。」*"
     )), "event-log");
   }
@@ -739,7 +739,7 @@ function logFriendArrival() {
   if (phase === "shura_12") {
     logMd(pickLang(ST_L(
       "🗡 **【友】** — Your old friend instinctively grips his broken hilt, cold sweat running down his pale jaw.\n*\"…For a heartbeat just now, I didn't see my childhood friend walking across the bridge. I saw a towering blood-red 【殺】.\"*",
-      "🗡 **【友】** — 돌다리 난간에 기대어 있던 옛 벗이 무의식중에 부러진 칼자루를 움켜쥐며 창백하게 굳는다.\n*\"…방금 안개 속에서 네가 걸어오는데, 내 어릴 적 친구가 아니라 피로 휘갈겨 쓴 거대한 살(殺) 자가 걸어오는 줄 알았어.\"*",
+      "🗡 **【友】** — 돌다리 난간에 기대어 있던 옛 벗이 무의식중에 부러진 칼자루를 움켜쥐며 창백하게 굳는다.\n*\"…방금 안개 속에서 네가 걸어오는데, 내 어릴 적 친구가 아니라 피로 휘갈겨 쓴 거대한 살 자가 걸어오는 줄 알았어.\"*",
       "🗡 **【友】** — 石橋の欄干に凭れていた旧友は無意識に折れた柄を握りしめ、青ざめて凍りついた。\n*「……今、霧の中からお前が歩いてきた時、幼馴染ではなく血で殴り書きされた巨大な『殺』の字が迫ってくるのかと思ったよ。」*"
     )), "event-log");
   } else if (!st.friendGiftClaimed) {
@@ -770,9 +770,9 @@ function logHomeArrival() {
   const st = ensureStoryConfig();
   if (st.catRescued) {
     logMd(pickLang(ST_L(
-      "🐱 **【猫】** — Beneath the collapsed beams of your childhood home, the rescued black cat curls up beside the warm hearthstone and purrs softly. Having a living soul waiting at home steadies your breathing. (Home bonus: Max HP +15)",
-      "🐱 **【猫】** — 무너진 본가 처마 아래, 옥문에서 구출한 검은 고양이가 아궁이의 온기 곁에 몸을 말고 앉아 반갑게 골골거린다. 돌아올 집에 살아 숨 쉬는 생명이 기다리고 있다는 사실만으로도 마음이 한결 놓인다. (본가 정착: 최대 체력 +15 상시 적용)",
-      "🐱 **【猫】** — 崩れた生家の軒下で、獄門から救い出した黒猫がかまどの温もりの傍らで丸くなり喉を鳴らしている。帰るべき家に生きる命が待っているというだけで、荒れた呼吸が静かに整っていく。（生家定着：最大HP+15常時適用）"
+      "🐱 **【猫】** — Beneath the collapsed beams of your childhood home, the rescued black cat curls up beside the warm hearthstone and purrs softly. Having a living soul waiting at home steadies your breathing.",
+      "🐱 **【猫】** — 무너진 본가 처마 아래, 옥문에서 구출한 검은 고양이가 아궁이의 온기 곁에 몸을 말고 앉아 반갑게 골골거린다. 돌아올 집에 살아 숨 쉬는 생명이 기다리고 있다는 사실만으로도 마음이 한결 놓인다.",
+      "🐱 **【猫】** — 崩れた生家の軒下で、獄門から救い出した黒猫がかまどの温もりの傍らで丸くなり喉を鳴らしている。帰るべき家に生きる命が待っているというだけで、荒れた呼吸が静かに整っていく。"
     )), "event-log");
   } else {
     logMd(pickLang(ST_L(
@@ -794,9 +794,9 @@ function renderVillageSpotChoices(spotKey) {
     if (st.introStage < 2 || st.unlockedDepth < 1 || countSpecialItem("talisman_life") === 0) {
       actions.push({
         label: pickLang(ST_L(
-          "🕯 Receive 【生】 Talisman of Return to Life (Unlocks 01 獄門 · 10級)",
-          "🕯 【生】 생환의 부적을 받고 제1옥(10급) 위치를 듣는다",
-          "🕯 【生】生還の護符を受け取り、第一獄（10級）のありかを聞く"
+          "🕯 Receive 【生】 Talisman of Return to Life",
+          "🕯 【生】 생환의 부적을 받는다",
+          "🕯 【生】生還の護符を受け取る"
         )),
         gold: true,
         onClick: () => {
@@ -806,14 +806,14 @@ function renderVillageSpotChoices(spotKey) {
           addSpecialItem("talisman_life", 1);
           persistStoryState();
           logMd(pickLang(ST_L(
-            "🕯 **【先】** — *\"Fasten this **【生】 Talisman** to your chest. Even if the wraiths tear your body apart, my lantern will pull your soul back to this village. The path to the **1st Gaol (10級)** lies beneath the northern cliff.\"*",
-            "🕯 **【先】** — *\"이 **【生】 생환의 부적**을 가슴 깊이 품어라. 설령 옥문 아래에서 몸이 부서지더라도 이 등불이 네 혼백과 기억을 마을로 되불러들일 것이다. 북쪽 절벽 아래 **제1옥(10급)**으로 내려가는 길이 열렸으니 조심하거라.\"*",
-            "🕯 **【先】** — *「この**【生】生還の護符**を懐深くに収めよ。たとえ獄門の底で身が砕けようとも、この灯がお前の魂と記憶を里へ呼び戻す。北の崖下に**第一獄（10級）**への道が開いたゆえ、気をつけて行け。」*"
+            "🕯 **【先】** — *\"Fasten this **【生】 Talisman** to your chest. Even if the wraiths tear your body apart, my lantern will pull your soul back to this village. The path to the **1st Gaol** lies beneath the northern cliff.\"*",
+            "🕯 **【先】** — *\"이 **【生】 생환의 부적**을 가슴 깊이 품어라. 설령 옥문 아래에서 몸이 부서지더라도 이 등불이 네 혼백과 기억을 마을로 되불러들일 것이다. 북쪽 절벽 아래 **제1옥**으로 내려가는 길이 열렸으니 조심하거라.\"*",
+            "🕯 **【先】** — *「この**【生】生還の護符**を懐深くに収めよ。たとえ獄門の底で身が砕けようとも、この灯がお前の魂と記憶を里へ呼び戻す。北の崖下に**第一獄**への道が開いたゆえ、気をつけて行け。」*"
           )), "event-log");
           logMd(pickLang(ST_L(
-            "🕯 Received **【生】 Talisman of Return to Life** — **【01 獄門 (漢検10級)】** is now unlocked!",
-            "🕯 **【특수 소지: 【生】 생환의 부적】** 획득 — 북쪽 절벽 아래 **【01 獄門 (漢検10級)】**이 해금되었습니다!",
-            "🕯 **【特殊所持：【生】生還の護符】** 獲得 — 北の崖下 **【01 獄門（漢検10級）】** が解禁された！"
+            "🕯 Received **【生】 Talisman of Return to Life** — **【01 獄門】** is now unlocked!",
+            "🕯 **【특수 소지: 【生】 생환의 부적】** 획득 — 북쪽 절벽 아래 **【01 獄門】**이 해금되었습니다!",
+            "🕯 **【特殊所持：【生】生還の護符】** 獲得 — 北の崖下 **【01 獄門】** が解禁された！"
           )), "fx-log");
           updateBattleHUD(false);
           renderVillageSpotChoices("塾");
@@ -821,16 +821,13 @@ function renderVillageSpotChoices(spotKey) {
       });
     }
 
-    // 2. Multi-step progressive conversation with Sensei 【先】
-    const senseiStep = (st.senseiTalkStep || 0) % 4;
-    const senseiTalkLabels = [
-      pickLang(ST_L("💬 Ask Sensei 【先】 what befell the village (1/4)", "💬 스승【先】에게 마을에 닥친 재앙에 대해 묻는다 (대화 1/4)", "💬 師【先】に里を襲った災厄について聞く (1/4)")),
-      pickLang(ST_L("💬 Ask about the Lantern and the Talisman of Life (2/4)", "💬 등불과 생환의 이치에 대해 묻는다 (대화 2/4)", "💬 灯と生還の理について聞く (2/4)")),
-      pickLang(ST_L("💬 Ask about the 10 Gaols of Common Kanji (3/4)", "💬 열 개의 옥문과 상용(常用)의 결계에 대해 묻는다 (대화 3/4)", "💬 十の獄門と常用の結界について聞く (3/4)")),
-      pickLang(ST_L("💬 Ask about the forbidden seal beneath the 10th Gaol (4/4)", "💬 제10옥 바닥 너머의 금제에 대해 묻는다 (대화 4/4)", "💬 第十獄の底の禁制について聞く (4/4)"))
-    ];
+    // 2. Natural cycling conversation with Sensei 【先】 (no (1/4) counters)
     actions.push({
-      label: senseiTalkLabels[senseiStep],
+      label: pickLang(ST_L(
+        "💬 Speak with Sensei 【先】",
+        "💬 스승【先】과 이야기를 나눈다",
+        "💬 師【先】と語り合う"
+      )),
       onClick: () => {
         playClickSfx();
         const cur = (st.senseiTalkStep || 0) % 4;
@@ -850,9 +847,9 @@ function renderVillageSpotChoices(spotKey) {
           )), "event-log");
         } else if (cur === 2) {
           logMd(pickLang(ST_L(
-            "🕯 **【先】** — *\"From the 1st Gaol (10級) to the 6th Gaol (5級) are the fundamental Education Kanji we taught children in this very hall. From the 7th to the 10th Gaol lie the rest of the 2,136 Common Kanji—slay each Gaol's master to break the seal to the next depth.\"*",
-            "🕯 **【先】** — *\"제1옥(10급)부터 제6옥(5급)까지는 바로 이 서당에서 아이들에게 가르치던 교육한자(教育漢字)들이고, 제7옥부터 제10옥까지가 인간 세상의 상용한자(常用漢字) 2,136자이니라. 각 옥문의 우두머리를 베어야만 다음 층으로 내려가는 봉인이 풀린다.\"*",
-            "🕯 **【先】** — *「第一獄（10級）から第六獄（5級）まではこの書堂で童たちに教えていた教育漢字であり、第七獄から第十獄までが人の世の常用漢字2,136字だ。各獄門の主を斬り伏せねば次の階層への封印は解かれぬ。」*"
+            "🕯 **【先】** — *\"From the 1st Gaol to the 6th Gaol are the fundamental Education Kanji we taught children in this very hall. From the 7th to the 10th Gaol lie the rest of the 2,136 Common Kanji—slay each Gaol's master to break the seal to the next depth.\"*",
+            "🕯 **【先】** — *\"제1옥부터 제6옥까지는 바로 이 서당에서 아이들에게 가르치던 교육한자들이고, 제7옥부터 제10옥까지가 인간 세상의 상용한자 2,136자이니라. 각 옥문의 우두머리를 베어야만 다음 층으로 내려가는 봉인이 풀린다.\"*",
+            "🕯 **【先】** — *「第一獄から第六獄まではこの書堂で童たちに教えていた教育漢字であり、第七獄から第十獄までが人の世の常用漢字2,136字だ。各獄門の主を斬り伏せねば次の階層への封印は解かれぬ。」*"
           )), "event-log");
         } else {
           logMd(pickLang(ST_L(
@@ -871,9 +868,9 @@ function renderVillageSpotChoices(spotKey) {
         const cost = 80;
         actions.push({
           label: pickLang(ST_L(
-            `📿 Lantern Offering (${cost} 円) — 【持】 Cord of Retention (Random 5 kept on death)`,
-            `📿 등불 공양 (${cost} 円) — 【持】 소지의 부적 (사망 시 무작위 5장 보존)`,
-            `📿 灯への供養（${cost} 円） — 【持】所持の護符（死亡時ランダム5枚保全）`
+            `📿 Lantern Offering · 【持】 Cord of Retention · ${cost} 円`,
+            `📿 등불 공양 · 【持】 소지의 부적 · ${cost} 円`,
+            `📿 灯への供養 · 【持】所持の護符 · ${cost} 円`
           )),
           gold: st.yen >= cost,
           onClick: () => {
@@ -888,9 +885,9 @@ function renderVillageSpotChoices(spotKey) {
             addSpecialItem("talisman_keep", 1);
             persistStoryState();
             logMd(pickLang(ST_L(
-              "📿 Acquired **【持】 Cord of Retention (Permanent)** — Preserves up to **5 random Kanji** on death/retreat.",
-              "📿 **【특수 소지: 【持】 소지의 부적 (영구)】** 획득 — 사망·후퇴 시 일반 소지 한자 중 **무작위 최대 5장**을 지켜냅니다.",
-              "📿 **【特殊所持：【持】所持の護符（永久）】** 獲得 — 死亡・撤退時に一般所持から**ランダム最大5枚**を保全する。"
+              "📿 Acquired **【持】 Cord of Retention** — Preserves up to **5 random Kanji** on death or retreat.",
+              "📿 **【특수 소지: 【持】 소지의 부적】** 획득 — 사망·후퇴 시 일반 소지 한자 중 **무작위 최대 5장**을 지켜냅니다.",
+              "📿 **【特殊所持：【持】所持の護符】** 獲得 — 死亡・撤退時に一般所持から**ランダム最大5枚**を保全する。"
             )), "fx-log");
             updateBattleHUD(false);
             renderVillageSpotChoices("塾");
@@ -900,9 +897,9 @@ function renderVillageSpotChoices(spotKey) {
         const cost = 160;
         actions.push({
           label: pickLang(ST_L(
-            `🔔 Altar Offering (${cost} 円) — 【帰】 Bell of Return (1-Time: keeps 100% of bag once)`,
-            `🔔 제단 공양 (${cost} 円) — 【帰】 귀환의 방울 (1회용: 사망 시 전량 보존 후 소멸)`,
-            `🔔 祭壇供養（${cost} 円） — 【帰】帰還の鈴（1回使い切り：死亡時全量保全）`
+            `🔔 Altar Offering · 【帰】 Bell of Return · ${cost} 円`,
+            `🔔 제단 공양 · 【帰】 귀환의 방울 · ${cost} 円`,
+            `🔔 祭壇供養 · 【帰】帰還の鈴 · ${cost} 円`
           )),
           gold: st.yen >= cost,
           onClick: () => {
@@ -917,9 +914,9 @@ function renderVillageSpotChoices(spotKey) {
             addSpecialItem("talisman_return", 1);
             persistStoryState();
             logMd(pickLang(ST_L(
-              "🔔 Acquired **【帰】 Bell of Unbroken Return (1-Time Consumable)** — Shatters on death/retreat to preserve 100% of your bag.",
-              "🔔 **【특수 소지: 【帰】 귀환의 방울 (1회용 소모품)】** 획득 — 사망·후퇴 시 방울이 부서지며 가방 한자를 **100% 보전**합니다.",
-              "🔔 **【特殊所持：【帰】帰還の鈴（1回使い切り）】** 獲得 — 死亡・撤退時に砕け散り、袋の漢字を**100%保全**する。"
+              "🔔 Acquired **【帰】 Bell of Unbroken Return** — Shatters on death or retreat to preserve 100% of your bag once.",
+              "🔔 **【특수 소지: 【帰】 귀환의 방울】** 획득 — 사망·후퇴 시 방울이 부서지며 가방 한자를 **100% 보전**합니다.",
+              "🔔 **【特殊所持：【帰】帰還の鈴】** 獲得 — 死亡・撤退時に砕け散り、袋の漢字を**100%保全**する。"
             )), "fx-log");
             updateBattleHUD(false);
             renderVillageSpotChoices("塾");
@@ -931,9 +928,9 @@ function renderVillageSpotChoices(spotKey) {
         const cost = 50;
         actions.push({
           label: pickLang(ST_L(
-            `🍵 Medicinal Tea (${cost} 円 · Next run Max HP +15 & Reroll +1)`,
-            `🍵 쓴 약차 마시기 (${cost} 円 · 다음 출정 최대 HP +15 · 리롤 +1)`,
-            `🍵 薬茶を飲む（${cost} 円・次回出陣 最大HP+15・リロール+1）`
+            `🍵 Medicinal Tea · ${cost} 円`,
+            `🍵 쓴 약차 마시기 · ${cost} 円`,
+            `🍵 薬茶を飲む · ${cost} 円`
           )),
           onClick: () => {
             if (st.yen < cost) {
@@ -956,22 +953,12 @@ function renderVillageSpotChoices(spotKey) {
       }
     }
   } else if (spotKey === "炉") {
-    const elderStep = (st.elderTalkStep || 0) % 4;
-    const elderTalkLabel = !st.elderRelicClaimed
-      ? pickLang(ST_L(
-          "💬 Listen to the blind Elder 【老】 (Receive 【眼】 Mind's Eye)",
-          "💬 화로 너머 노인【老】의 이야기에 귀를 기울인다 (【眼】 심안의 부적)",
-          "💬 火炉の老人【老】の話に耳を傾ける（【眼】心眼の護符）"
-        ))
-      : [
-          pickLang(ST_L("💬 Ask the Elder 【老】 about the nature of Kanji (1/4)", "💬 노인【老】에게 한자에 깃든 주술의 기원을 묻는다 (대화 1/4)", "💬 老人【老】に漢字に宿る呪の起源を聞く (1/4)")),
-          pickLang(ST_L("💬 Ask about Kanji Fusion and Burning (2/4)", "💬 합자 연성과 소각의 이치에 대해 묻는다 (대화 2/4)", "💬 合字錬成と焼却の理について聞く (2/4)")),
-          pickLang(ST_L("💬 Ask about summoning Ancient Gods (3/4)", "💬 고신(古神) 소환과 대가에 대해 묻는다 (대화 3/4)", "💬 古神召喚と代償について聞く (3/4)")),
-          pickLang(ST_L("💬 Ask about the 4,000 excised characters of the Abyss (4/4)", "💬 상용(常用) 밖으로 도려내진 고대 한자에 대해 묻는다 (대화 4/4)", "💬 常用の外へ切り捨てられた古代文字について聞く (4/4)"))
-        ][elderStep];
-
     actions.push({
-      label: elderTalkLabel,
+      label: pickLang(ST_L(
+        "💬 Speak with the blind Elder 【老】",
+        "💬 화로 너머 노인【老】과 이야기를 나눈다",
+        "💬 火炉の老人【老】と語り合う"
+      )),
       gold: !st.elderRelicClaimed,
       onClick: () => {
         if (!st.elderRelicClaimed) {
@@ -983,13 +970,13 @@ function renderVillageSpotChoices(spotKey) {
           playSealStampSfx();
           logMd(pickLang(ST_L(
             "🔥 **【老】** — *\"Mortals think characters are mere marks of ink, yet every stroke is an iron bar caging an ancient spirit. Take this obsidian bead—it will let you call upon a slumbering god once without shedding your own blood.\"*",
-            "🔥 **【老】** — *\"범인(凡人)들은 글자를 그저 종이 위의 먹물 자국으로 여기지만, 본디 한자의 획 하나하나는 태고의 사념을 가둔 쇠창살일세. 자, 내 옛 눈동자 대신 지니고 있던 이 흑요석을 가져가게. 피를 흘리지 않고도 잠든 고신을 한 번 불러낼 수 있을 거야.\"*",
+            "🔥 **【老】** — *\"범인들은 글자를 그저 종이 위의 먹물 자국으로 여기지만, 본디 한자의 획 하나하나는 태고의 사념을 가둔 쇠창살일세. 자, 내 옛 눈동자 대신 지니고 있던 이 흑요석을 가져가게. 피를 흘리지 않고도 잠든 고신을 한 번 불러낼 수 있을 거야.\"*",
             "🔥 **【老】** — *「凡人は文字をただの墨の跡と思うが、本来一画一画は太古の思念を閉じ込めた鉄格子よ。ほれ、わしの目の代わりに持っていたこの黒曜石を持っていけ。血を流さずとも眠れる古神を一度だけ呼び出せるはずじゃ。」*"
           )), "event-log");
           logMd(pickLang(ST_L(
-            "👁 Acquired **【眼】 Bead of the Mind's Eye (Permanent)** — Every run starts with **Free Summon +1 & Free Reroll +1**!",
-            "👁 **【특수 소지: 【眼】 심안의 부적 (영구)】** 획득 — 매 출정마다 **무료 고신 소환 +1 · 무료 리롤 +1**이 부여됩니다!",
-            "👁 **【特殊所持：【眼】心眼の護符（永久）】** 獲得 — 毎回の出陣時に**無料古神召喚+1・無料リロール+1**が付与される！"
+            "👁 Acquired **【眼】 Bead of the Mind's Eye** — Every run starts with **Free Summon +1 & Free Reroll +1**!",
+            "👁 **【특수 소지: 【眼】 심안의 부적】** 획득 — 매 출정마다 **무료 고신 소환 +1 · 무료 리롤 +1**이 부여됩니다!",
+            "👁 **【特殊所持：【眼】心眼の護符】** 獲得 — 毎回の出陣時に**無料古神召喚+1・無料リロール+1**が付与される！"
           )), "fx-log");
           updateBattleHUD(false);
         } else {
@@ -1000,19 +987,19 @@ function renderVillageSpotChoices(spotKey) {
           if (cur === 0) {
             logMd(pickLang(ST_L(
               "🔥 **【老】** — *\"In the beginning, shaman-kings carved tortoise shells with red-hot bronze to bind rampaging calamities into shapes. When you combine two Kanji in battle, you are clashing two cages together to unleash their trapped fury.\"*",
-              "🔥 **【老】** — *\"태초에 무왕(巫王)들이 달군 청동 송곳으로 거북 등딱지를 지져, 날뛰는 재앙을 모양 속에 가둔 것이 한자의 시작이었지. 전장에서 두 글자를 합쳐 내리치는 건 두 감옥을 충돌시켜 그 안의 원념을 폭발시키는 주술일세.\"*",
+              "🔥 **【老】** — *\"태초에 무왕들이 달군 청동 송곳으로 거북 등딱지를 지져, 날뛰는 재앙을 모양 속에 가둔 것이 한자의 시작이었지. 전장에서 두 글자를 합쳐 내리치는 건 두 감옥을 충돌시켜 그 안의 원념을 폭발시키는 주술일세.\"*",
               "🔥 **【老】** — *「太古の昔、巫王たちが焼いた青銅の錐で亀甲を穿ち、荒ぶる災厄を形の中に封じたのが漢字の始まりよ。戦場で二字を合わせて叩き込むのは、二つの牢獄をぶつけて中の怨念を爆発させる呪術なのじゃ。」*"
             )), "event-log");
           } else if (cur === 1) {
             logMd(pickLang(ST_L(
               "🔥 **【老】** — *\"Throw two weak characters into my ash brazier with 80 Yen of echoes, and the fire will weld them into a higher-grade character. Or if your satchel is cluttered, burn unwanted script into pure Yen.\"*",
-              "🔥 **【老】** — *\"낮은 급수의 글자 두 장에 잔향 80엔을 얹어 내 화로에 던져 넣으면, 불길이 두 획을 녹여 한층 깊은 옥문의 글자로 벼려 내지. 쓸모없는 패가 가방에 넘치거든 불에 태워 잔향(円)으로 환원해도 좋고.\"*",
-              "🔥 **【老】** — *「低い級の文字二枚に残響80円を添えてわしの火炉へ投げ入れれば、炎が画を溶かしてより深い獄門の文字へと鍛え直す。不要な札が袋に溢れているなら、焼いて残響（円）に還すがよい。」*"
+              "🔥 **【老】** — *\"낮은 급수의 글자 두 장에 잔향 80엔을 얹어 내 화로에 던져 넣으면, 불길이 두 획을 녹여 한층 깊은 옥문의 글자로 벼려 내지. 쓸모없는 패가 가방에 넘치거든 불에 태워 잔향으로 환원해도 좋고.\"*",
+              "🔥 **【老】** — *「低い級の文字二枚に残響80円を添えてわしの火炉へ投げ入れれば、炎が画を溶かしてより深い獄門の文字へと鍛え直す。不要な札が袋に溢れているなら、焼いて残響に還すがよい。」*"
             )), "event-log");
           } else if (cur === 2) {
             logMd(pickLang(ST_L(
               "🔥 **【老】** — *\"When your hand lacks the right element in combat, calling an Ancient God forces a high-tier character into your palm. My 【眼】 bead covers the first toll, but further summons will drink your own lifeblood.\"*",
-              "🔥 **【老】** — *\"전투 중에 적의 약점을 찌를 마땅한 패가 없을 땐 고신(古神)을 불러내어 강력한 글자를 강제로 쥐는 수밖에 없지. 내가 준 【眼】 부적이 첫 대가를 대신 치러 주겠지만, 그다음부턴 자네의 생혈을 갉아먹을 걸세.\"*",
+              "🔥 **【老】** — *\"전투 중에 적의 약점을 찌를 마땅한 패가 없을 땐 고신을 불러내어 강력한 글자를 강제로 쥐는 수밖에 없지. 내가 준 【眼】 부적이 첫 대가를 대신 치러 주겠지만, 그다음부턴 자네의 생혈을 갉아먹을 걸세.\"*",
               "🔥 **【老】** — *「戦いの最中に敵の弱点を突く札がない時は、古神を呼び出して強い文字を強引に握るほかない。わしがやった【眼】の護符が最初の代償を肩代わりするが、次からは貴様の生血を啜ることになるぞ。」*"
             )), "event-log");
           } else {
@@ -1029,18 +1016,18 @@ function renderVillageSpotChoices(spotKey) {
 
     actions.push({
       label: pickLang(ST_L(
-        `🔥 Kanji Fusion (2 cards · 80 円 · Bag: ${st.deck.length})`,
-        `🔥 합자 연성 (2장 합성 · 80 円 · 소지 ${st.deck.length}장)`,
-        `🔥 合字錬成（2枚合成・80 円・所持 ${st.deck.length}枚）`
+        "🔥 Kanji Fusion · 80 円",
+        "🔥 합자 연성 · 80 円",
+        "🔥 合字錬成 · 80 円"
       )),
       onClick: () => openVillageBrazierFuse()
     });
 
     actions.push({
       label: pickLang(ST_L(
-        `🕯 Burn Kanji (+35 円 · Bag: ${st.deck.length})`,
-        `🕯 한자 소각 (+35 円 · 소지 ${st.deck.length}장)`,
-        `🕯 漢字焼却（+35 円・所持 ${st.deck.length}枚）`
+        "🕯 Burn Kanji · +35 円",
+        "🕯 한자 소각 · +35 円",
+        "🕯 漢字焼却 · +35 円"
       )),
       onClick: () => openVillageBrazierBurn()
     });
@@ -1048,9 +1035,9 @@ function renderVillageSpotChoices(spotKey) {
     if ((st.defeatedFoes || []).length > 0) {
       actions.push({
         label: pickLang(ST_L(
-          `💀 Re-summon Slain Wraiths (${st.defeatedFoes.length} foes · 60 円)`,
-          `💀 토벌한 일반·정예 원령 재소환 (${st.defeatedFoes.length}종 · 60 円)`,
-          `💀 討伐した通常・精鋭怨霊の再召喚（${st.defeatedFoes.length}種・60 円）`
+          "💀 Re-summon Slain Wraiths · 60 円",
+          "💀 토벌한 원령 재소환 · 60 円",
+          "💀 討伐した怨霊の再召喚 · 60 円"
         )),
         onClick: () => {
           if (st.yen < 60) {
@@ -1070,21 +1057,12 @@ function renderVillageSpotChoices(spotKey) {
       });
     }
   } else if (spotKey === "橋") {
-    const friendStep = (st.friendTalkStep || 0) % 3;
-    const friendLabel = !st.friendGiftClaimed
-      ? pickLang(ST_L(
-          "💬 Talk with your friend 【友】 (Receive supplies & 【富】 Knot)",
-          "💬 옛 벗【友】에게 다가가 안부를 묻는다 (초기 물자 · 【富】 잔향의 매듭)",
-          "💬 旧友【友】に歩み寄り安否を尋ねる（初期物資・【富】残響の結び）"
-        ))
-      : [
-          pickLang(ST_L("💬 Ask 【友】 about the battle at the cliff (1/3)", "💬 옛 벗【友】에게 절벽 안개가 덮치던 날에 대해 묻는다 (대화 1/3)", "💬 旧友【友】に崖の霧が襲った日のことを聞く (1/3)")),
-          pickLang(ST_L("💬 Talk with 【友】 about the black cat 【猫】 (2/3)", "💬 검은 고양이【猫】와 옛 본가에 대해 이야기한다 (대화 2/3)", "💬 黒猫【猫】と生家について話す (2/3)")),
-          pickLang(ST_L("💬 Reminisce with 【友】 about childhood days (3/3)", "💬 어릴 적 서당에서 함께 글자를 배우던 시절을 이야기한다 (대화 3/3)", "💬 幼い頃に書堂で共に学んだ日々を語り合う (3/3)"))
-        ][friendStep];
-
     actions.push({
-      label: friendLabel,
+      label: pickLang(ST_L(
+        "💬 Speak with your old friend 【友】",
+        "💬 옛 벗【友】과 이야기를 나눈다",
+        "💬 旧友【友】と語り合う"
+      )),
       gold: !st.friendGiftClaimed,
       onClick: () => {
         if (!st.friendGiftClaimed) {
@@ -1100,13 +1078,13 @@ function renderVillageSpotChoices(spotKey) {
           persistStoryState();
           logMd(pickLang(ST_L(
             "🗡 **【友】** — *\"My right arm is ruined, so I can't swing a blade anymore. Take the Kanji and Yen I gathered before my sword snapped—and tie this 【富】 knot to your hilt so the slain wraiths leave more echoes behind.\"*",
-            "🗡 **【友】** — *\"난 오른팔이 으스러져서 더는 칼을 쥘 수가 없어. 내 칼이 부러지기 전에 건져 둔 글자들과 잔향을 네게 넘길게. 그리고 이 【富】 매듭을 칼자루에 매어 두면 원령을 베었을 때 더 많은 잔향(円)을 거둘 수 있을 거야.\"*",
-            "🗡 **【友】** — *「俺は右腕が砕けてもう刀を握れそうにない。刀が折れる前に集めた文字と残響をお前に託すよ。それと、この【富】の結び紐を柄に結んでおけば、怨霊を斬った時により多くの残響（円）が集まるはずだ。」*"
+            "🗡 **【友】** — *\"난 오른팔이 으스러져서 더는 칼을 쥘 수가 없어. 내 칼이 부러지기 전에 건져 둔 글자들과 잔향을 네게 넘길게. 그리고 이 【富】 매듭을 칼자루에 매어 두면 원령을 베었을 때 더 많은 잔향을 거둘 수 있을 거야.\"*",
+            "🗡 **【友】** — *「俺は右腕が砕けてもう刀を握れそうにない。刀が折れる前に集めた文字と残響をお前に託すよ。それと、この【富】の結び紐を柄に結んでおけば、怨霊を斬った時により多くの残響が集まるはずだ。」*"
           )), "event-log");
           logMd(pickLang(ST_L(
-            "🎁 Received **+80 円**, **【火 · 水 · 刀】**, and **【富】 Knot of Residual Echoes (+50% 円 gain)**!",
-            "🎁 옛 벗에게서 **+80 円**, 한자 **【火 · 水 · 刀】**, **【특수 소지: 【富】 잔향의 매듭 (円 획득 +50%)】**을 받았습니다!",
-            "🎁 旧友から **+80 円**、**【火・水・刀】**、**【特殊所持：【富】残響の結び（円+50%）】** を受け取った！"
+            "🎁 Received **+80 円**, **【火 · 水 · 刀】**, and **【富】 Knot of Residual Echoes**!",
+            "🎁 옛 벗에게서 **+80 円**, 한자 **【火 · 水 · 刀】**, **【특수 소지: 【富】 잔향의 매듭】**을 받았습니다!",
+            "🎁 旧友から **+80 円**、**【火・水・刀】**、**【特殊所持：【富】残響の結び】** を受け取った！"
           )), "fx-log");
           updateBattleHUD(false);
         } else {
@@ -1150,9 +1128,9 @@ function renderVillageSpotChoices(spotKey) {
       if (!st.catBlessedNextRun) {
         actions.push({
           label: pickLang(ST_L(
-            "🐾 Stroke 【猫】 (Next run Max HP +15 & Reroll +1)",
-            "🐾 고양이 【猫】 쓰다듬기 (다음 출정 최대 HP +15 · 리롤 +1)",
-            "🐾 黒猫【猫】を撫でる（次回出陣 最大HP+15・リロール+1）"
+            "🐾 Stroke 【猫】",
+            "🐾 고양이 【猫】를 쓰다듬는다",
+            "🐾 黒猫【猫】を撫でる"
           )),
           gold: true,
           onClick: () => {
@@ -1208,17 +1186,12 @@ function renderVillageSpotChoices(spotKey) {
       });
     }
   } else if (spotKey === "井") {
-    const womanStep = (st.womanTalkStep || 0) % 3;
-    const womanLabel = !state.wellVisited
-      ? pickLang(ST_L("💧 Approach the woman 【女】 by the well (Receive 【水】)", "💧 우물가 여인【女】에게 말을 건넨다 (한자 【水】 획득)", "💧 井戸端の女【女】に声をかける（漢字【水】獲得）"))
-      : [
-          pickLang(ST_L("💬 Ask 【女】 about the bloodstained cloth (1/3)", "💬 여인【女】에게 핏물 배인 무명천에 대해 묻는다 (대화 1/3)", "💬 女【女】に血の滲んだ木綿布について聞く (1/3)")),
-          pickLang(ST_L("💬 Ask about those who lost their names (2/3)", "💬 이름을 빼앗긴 마을 사람들에 대해 묻는다 (대화 2/3)", "💬 名を奪われた里人たちについて聞く (2/3)")),
-          pickLang(ST_L("💬 Listen to her prayer for your safe return (3/3)", "💬 여인【女】의 당부를 듣는다 (대화 3/3)", "💬 女【女】の祈りに耳を傾ける (3/3)"))
-        ][womanStep];
-
     actions.push({
-      label: womanLabel,
+      label: pickLang(ST_L(
+        "💧 Speak with the woman 【女】 by the well",
+        "💧 우물가 여인【女】과 이야기를 나눈다",
+        "💧 井戸端の女【女】と語り合う"
+      )),
       gold: !state.wellVisited,
       onClick: () => {
         playClickSfx();
@@ -1264,17 +1237,12 @@ function renderVillageSpotChoices(spotKey) {
       }
     });
   } else if (spotKey === "鍛") {
-    const smithStep = (st.smithTalkStep || 0) % 3;
-    const smithLabel = !state.smithVisited
-      ? pickLang(ST_L("⚒ Show your blade to the Smith 【男】 (Receive 【鉄】)", "⚒ 대장장이【男】에게 칼날을 내보인다 (한자 【鉄】 획득)", "⚒ 鍛冶屋【男】に刀身を見せる（漢字【鉄】獲得）"))
-      : [
-          pickLang(ST_L("💬 Ask 【男】 about striking enemy weaknesses (1/3)", "💬 대장장이【男】에게 원령의 약점 공략에 대해 묻는다 (대화 1/3)", "💬 鍛冶屋【男】に怨霊の弱点突きについて聞く (1/3)")),
-          pickLang(ST_L("💬 Ask about high-grade Kanji power (2/3)", "💬 높은 급수의 한자와 화력에 대해 묻는다 (대화 2/3)", "💬 高い級の漢字と威力について聞く (2/3)")),
-          pickLang(ST_L("💬 Hear the Smith's advice on deck tempering (3/3)", "💬 가방의 글자를 정예로 유지하는 법을 듣는다 (대화 3/3)", "💬 袋の文字を精鋭に保つ秘訣を聞く (3/3)"))
-        ][smithStep];
-
     actions.push({
-      label: smithLabel,
+      label: pickLang(ST_L(
+        "⚒ Speak with the Smith 【男】",
+        "⚒ 대장장이【男】와 이야기를 나눈다",
+        "⚒ 鍛冶屋【男】と語り合う"
+      )),
       gold: !state.smithVisited,
       onClick: () => {
         playClickSfx();
@@ -1322,7 +1290,7 @@ function renderVillageSpotChoices(spotKey) {
   } else if (spotKey === "祠") {
     if (!state.shrinePrayed) {
       actions.push({
-        label: pickLang(ST_L("⛩ Bow before the shrine (Reroll +1)", "⛩ 당산 사당 앞에 묵념한다 (조율/리롤 +1)", "⛩ 石祠の前で黙祷する（調律/リロール +1）")),
+        label: pickLang(ST_L("⛩ Bow before the shrine", "⛩ 당산 사당 앞에 묵념한다", "⛩ 石祠の前で黙祷する")),
         gold: true,
         onClick: () => {
           playGongSfx();
@@ -1381,9 +1349,9 @@ function renderVillageSpotChoices(spotKey) {
 
   actions.push({
     label: pickLang(ST_L(
-      "↩ Back to Village Crossroads (【里】)",
-      "↩ 마을 갈림길(【里】)로",
-      "↩ 里の辻（【里】）へ"
+      "↩ Back to Village Crossroads",
+      "↩ 마을 갈림길로",
+      "↩ 里の辻へ"
     )),
     onClick: () => returnToVillageCrossroads()
   });
@@ -1417,7 +1385,7 @@ function openVillageBrazierFuse() {
   let selectedIndices = [];
   const renderFuseModal = () => {
     openPicker({
-      title: pickLang(ST_L("🔥 Cast 2 Kanji Into the Brazier (80 円)", "🔥 화로 합자 연성 (2장 선택 · 80 円)", "🔥 火炉の合字錬成（2枚選択・80 円）")),
+      title: pickLang(ST_L("🔥 Cast 2 Kanji Into the Brazier · 80 円", "🔥 화로 합자 연성 · 80 円", "🔥 火炉の合字錬成 · 80 円")),
       desc: pickLang(ST_L(
         "Choose 2 Kanji from your bag to fuse in the Elder's ash brazier.",
         "노인의 화로에 던져 넣어 하나로 합칠 한자 2장을 고르세요.",
@@ -1435,7 +1403,7 @@ function openVillageBrazierFuse() {
       },
       actions: [
         {
-          label: `${pickLang(ST_L("Fuse in Brazier", "화로에 던져 연성", "火炉で錬成"))} (${selectedIndices.length}/2)`,
+          label: pickLang(ST_L("Fuse in Brazier", "화로에 던져 연성", "火炉で錬成")),
           gold: selectedIndices.length === 2,
           onClick: () => {
             if (selectedIndices.length < 2) return;
@@ -1486,7 +1454,7 @@ function openVillageBrazierBurn() {
   }
 
   openPicker({
-    title: pickLang(ST_L("🕯 Burn Kanji Into Echoes (+35 円)", "🕯 화로 한자 소각 환원 (+35 円)", "🕯 火炉の漢字焼却還元（+35 円）")),
+    title: pickLang(ST_L("🕯 Burn Kanji Into Echoes · +35 円", "🕯 화로 한자 소각 · +35 円", "🕯 火炉の漢字焼却 · +35 円")),
     desc: pickLang(ST_L(
       "Click 1 Kanji from your bag to burn in the brazier for +35 円.",
       "화로에 태워 +35 円의 잔향으로 환원할 한자 1장을 클릭하세요.",
@@ -1537,16 +1505,16 @@ function renderSpecialItemsBannerHtml() {
   const owned = (st.specialItems || []).filter(it => it.count > 0 && STORY_SPECIAL_ITEMS[it.id]);
 
   const title = pickLang(ST_L(
-    `📿 Special Possessions (Not drawn in combat · Click a card to inspect) · 🪙 ${(st.yen || 0).toLocaleString()} 円`,
-    `📿 특수 소지 (전투 중 드로우 제외 · 카드를 눌러 상세 확인) · 🪙 ${(st.yen || 0).toLocaleString()} 円`,
-    `📿 特殊所持（戦闘中はドロー対象外・カードを押して詳細確認） · 🪙 ${(st.yen || 0).toLocaleString()} 円`
+    `📿 Special Possessions · 🪙 ${(st.yen || 0).toLocaleString()} 円`,
+    `📿 특수 소지 · 🪙 ${(st.yen || 0).toLocaleString()} 円`,
+    `📿 特殊所持 · 🪙 ${(st.yen || 0).toLocaleString()} 円`
   ));
 
   if (!owned.length) {
     const emptyTxt = pickLang(ST_L(
-      "No Special Possessions yet — explore the Village of the Lantern (【里】) and speak with its survivors.",
-      "보유한 특수 소지 카드가 없습니다 — 등불의 마을(【里】)을 탐방하며 주민들과 대화를 나눠 보세요.",
-      "特殊所持カードなし — 灯の里（【里】）を巡り、里人たちと語り合ってみよう。"
+      "No Special Possessions yet — explore the Village of the Lantern and speak with its survivors.",
+      "보유한 특수 소지 카드가 없습니다 — 등불의 마을을 탐방하며 주민들과 대화를 나눠 보세요.",
+      "特殊所持カードなし — 灯の里を巡り、里人たちと語り合ってみよう。"
     ));
     return `<div class="special-bag-box"><div class="special-bag-title">${escapeHtml(title)}</div><div class="special-bag-empty">${escapeHtml(emptyTxt)}</div></div>`;
   }

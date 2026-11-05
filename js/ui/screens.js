@@ -138,7 +138,7 @@ function renderDepthSpine() {
       const btnsWrap = expBar.querySelector(".select-exp-btns");
       if (btnsWrap) {
         btnsWrap.innerHTML = `
-          <button class="btn btn-gold" onclick="openDeckViewer()">📿/🀄 ${escapeHtml(t("deckBtn"))} (${st.deck.length})</button>
+          <button class="btn btn-gold" onclick="openDeckViewer()">${escapeHtml(t("deckBtn"))}</button>
         `;
       }
     } else if (!storyMode && hasActiveArcadeRun() && state.phase === "returned") {
@@ -148,7 +148,7 @@ function renderDepthSpine() {
       const btnsWrap = expBar.querySelector(".select-exp-btns");
       if (btnsWrap) {
         btnsWrap.innerHTML = `
-          <button class="btn btn-gold" id="select-bag-btn" onclick="openDeckViewer()">${escapeHtml(t("deckBtn"))} (${state.deck.length})</button>
+          <button class="btn btn-gold" id="select-bag-btn" onclick="openDeckViewer()">${escapeHtml(t("deckBtn"))}</button>
           <button class="btn" onclick="promptExitFromSelect()">${escapeHtml(t("exit"))}</button>
         `;
       }
@@ -167,15 +167,6 @@ function renderDepthSpine() {
     const villageNode = document.createElement("div");
     villageNode.className = `abyss-node village-node ${nPhase === "abyss_11" || nPhase === "shura_12" ? "shura" : ""}`;
     villageNode.onclick = () => openDepthEnterModal("depth_0");
-    const villageSubHint = st.unlockedDepth === 0
-      ? pickLang({
-          EN: "🕯 Ash-covered hometown.",
-          KO: "🕯 검은 재와 안개에 잠긴 고향.",
-          JA: "🕯 黒い灰と霧に沈んだ故郷。",
-          ZH_CN: "🕯 沉入黑灰与浓雾的故乡。",
-          ZH_TW: "🕯 沉入黑灰與濃霧的故鄉。"
-        })
-      : t("villageNodeHint");
     const validNpcs = ["先", "老", "友", "猫", "女", "男"];
     const metNpcs = Array.isArray(st.metNpcs) ? st.metNpcs.filter(k => validNpcs.includes(k)) : [];
     const npcsHtml = metNpcs
@@ -186,7 +177,6 @@ function renderDepthSpine() {
       <div class="node-body">
         <div class="node-title">${escapeHtml(t("villageNodeTitle"))} <span class="node-gloss">${escapeHtml(t("villageNodeGloss"))}</span></div>
         <div class="node-meta">故郷 · 燈火之里</div>
-        <div class="node-scores">${escapeHtml(villageSubHint)}</div>
       </div>
       <div class="node-bosses">${npcsHtml}</div>
     `;
