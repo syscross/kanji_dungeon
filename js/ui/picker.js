@@ -80,12 +80,9 @@ function openDeckViewer() {
     ? ((config.story && config.story.deck) || [])
     : (state.deck || []);
   const sorted = [...bagSource].sort((a, b) => a.localeCompare(b, "ja"));
-  const stagePreview = (state.active && state.stageCards && state.stageCards.length)
-    ? state.stageCards.join(" · ")
-    : "—";
   const desc = sorted.length === 0
-    ? t("bagEmptyDesc")(stagePreview)
-    : t("bagDesc")(stagePreview);
+    ? t("bagEmptyDesc")()
+    : t("bagDesc")();
   const specialHtml = (storyMode && typeof renderSpecialItemsBannerHtml === "function")
     ? renderSpecialItemsBannerHtml()
     : "";

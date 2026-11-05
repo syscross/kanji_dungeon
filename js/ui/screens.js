@@ -292,11 +292,11 @@ function openDepthEnterModal(did) {
     $("dm-title").textContent = `【${t("villageNodeTitle")}】 — ${t("villageNodeGloss")}`;
     $("dm-meta").textContent = "故郷 · 燈火之里";
     $("dm-lore").textContent = pickLang({
-      EN: "Broken roofs lie buried under black ash, and the characters on the signposts have been gouged out.",
-      KO: "검은 재에 파묻힌 처마들 너머로, 글자가 흉측하게 파여 나간 이정표와 희미한 불빛만이 어둠 속에 남아 있습니다.",
-      JA: "黒い灰に埋もれた軒並みの向こうに、文字の抉り取られた道標と仄かな灯だけが残っている。",
-      ZH_CN: "坍塌的屋檐埋在黑灰之下，唯余字迹被挖去的路标与微弱灯火。",
-      ZH_TW: "坍塌的屋簷埋在黑灰之下，唯餘字跡被挖去的路標與微弱燈火。"
+      EN: "Broken roofs lie buried under black ash, and the characters on the village signposts have been gouged out as if clawed by unseen beasts. Through the suffocating fog, only a faint paper lantern sways in the distance.",
+      KO: "오랜만에 돌아온 고향의 처마들은 검은 재에 파묻혀 있고, 어귀의 이정표와 현판은 누군가 후벼 판 듯 글자가 흉측하게 파여 나갔습니다. 숨 막히는 잿빛 안개 너머로 오직 꺼져가는 등불만이 희미하게 흔들리며 돌아온 이를 맞이합니다.",
+      JA: "久方ぶりに戻った故郷の軒並みは黒い灰に埋もれ、道標や扁額は抉られたように文字が削り取られている。息詰まる灰色の霧の向こうで、ただ一つ消えかけの灯だけが揺れていた。",
+      ZH_CN: "久违的故乡屋檐埋在黑灰之下，路标与牌匾上的字迹被残忍挖去。令人窒息的灰雾深处，唯有微弱的灯火仍在摇曳。",
+      ZH_TW: "久違的故鄉屋簷埋在黑灰之下，路標與牌匾上的字跡被殘忍挖去。令人窒息的灰霧深處，唯有微弱的燈火仍在搖曳。"
     });
     $("dm-lore").classList.remove("warn-step");
 

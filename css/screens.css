@@ -384,15 +384,15 @@
 .node-bosses span.boss.encountered { color: #9aa2b2; }
 .node-bosses span.boss.seen { color: var(--gold); text-shadow: 0 0 8px rgba(229, 192, 123, 0.45); }
 
-/* Kanji picker (scavenge / picks / deck viewer) — centered flex row */
+/* Kanji picker (scavenge / picks / deck viewer) — left-aligned flex row */
 .pick-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
-  max-width: 460px;
+  max-width: 100%;
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
 }
 .pick-tile {
   width: calc(20% - 7px);
@@ -892,10 +892,11 @@
 .special-bag-empty {
   font-size: 0.75rem;
   color: var(--muted);
-  text-align: center;
+  text-align: left;
   padding: 4px 0;
 }
 .pick-grid.special-card-grid {
+  justify-content: flex-start;
   max-height: none;
   overflow: visible;
   padding: 2px 0 0;
