@@ -677,23 +677,45 @@ function startVillageStage() {
 }
 
 function enterVillageCinematic(onReady) {
+  closeDropdowns();
+  cancelPendingCinematics();
+  const curtain = $("cinematic-curtain");
   const titleName = pickLang(ST_L("Village of the Lantern", "등불의 마을", "灯の里"));
   const titleGloss = pickLang(ST_L("Ruined Hometown", "안개에 잠긴 고향", "霧に沈んだ故郷"));
-  transitionToView("battle", titleName, titleGloss);
-  const seal = $("seal-overlay");
-  if (!seal) {
-    if (onReady) onReady();
-    return;
-  }
-  $("seal-num").textContent = "00";
-  $("seal-kanji").textContent = "里";
-  $("seal-gloss").textContent = titleName;
-  seal.classList.remove("active");
-  void seal.offsetWidth;
-  seal.classList.add("active");
+  const badgeLabel = pickLang(ST_L("00 · SANCTUARY", "第 00 里 · 據點", "第 00 里 · 拠点"));
+  const nPhase = typeof getStoryNarrativePhase === "function" ? getStoryNarrativePhase() : "normal";
+  const tier = nPhase === "shura_12" ? "abyss" : "common";
+
   playGongSfx();
-  if (onReady) onReady();
-  setTimeout(() => seal.classList.remove("active"), 1350);
+  registerCinematicTimer(() => {
+    if (typeof playSealStampSfx === "function") playSealStampSfx();
+  }, 340);
+
+  if ($("curtain-badge")) {
+    $("curtain-badge").textContent = badgeLabel;
+  }
+  const titleEl = $("curtain-title");
+  if (titleEl) {
+    titleEl.textContent = `【 ${titleName} 】`;
+    titleEl.dataset.len = "";
+  }
+  if ($("curtain-sub")) {
+    $("curtain-sub").textContent = titleGloss;
+  }
+  if ($("curtain-stages")) {
+    $("curtain-stages").textContent = "";
+  }
+
+  if (curtain) {
+    curtain.className = `active descent tier-${tier}`;
+  }
+  registerCinematicTimer(() => {
+    switchDomView("battle", true);
+    if (typeof onReady === "function") onReady();
+    registerCinematicTimer(() => {
+      if (curtain) curtain.classList.remove("active");
+    }, 460);
+  }, 1150);
 }
 
 function renderVillagePhase() {

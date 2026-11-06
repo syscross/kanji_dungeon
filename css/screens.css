@@ -422,15 +422,15 @@
 .pick-tile.tier-common { color: #f5b066; border-color: #7a5228; }
 .pick-tile.tier-abyss { color: #ff5c6c; border-color: #8c2633; text-shadow: 0 0 10px rgba(255, 77, 94, 0.4); }
 .pick-tile.multi,
-.pick-tile[data-len="2"] { font-size: min(1.18rem, 39cqw); white-space: nowrap; letter-spacing: -0.04em; }
+.pick-tile[data-len="2"] { font-size: min(1.38rem, 42cqw); white-space: nowrap; letter-spacing: -0.04em; }
 .pick-tile.multi.multi-long,
-.pick-tile[data-len="3"] { font-size: min(0.82rem, 26cqw); white-space: nowrap; letter-spacing: -0.05em; }
-.pick-tile[data-len="4"] { font-size: min(0.62rem, 19.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
-.pick-tile[data-len="5"] { font-size: min(0.5rem, 15.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-tile[data-len="3"] { font-size: min(0.98rem, 28.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-tile[data-len="4"] { font-size: min(0.74rem, 21.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-tile[data-len="5"] { font-size: min(0.6rem, 17.2cqw); white-space: nowrap; letter-spacing: -0.05em; }
 .pick-tile[data-len="6"],
 .pick-tile[data-len="7"],
 .pick-tile[data-len="8"] {
-  font-size: calc(78cqw / var(--char-len, 6));
+  font-size: calc(84cqw / var(--char-len, 6));
   white-space: nowrap;
   letter-spacing: -0.05em;
 }
