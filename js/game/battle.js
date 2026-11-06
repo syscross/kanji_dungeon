@@ -403,7 +403,7 @@ function onEnemyDefeated() {
     if (typeof syncStoryKillProgress === "function") {
       syncStoryKillProgress(state.enemyKanji, isRunBoss, state.depthId);
     }
-    if ((state.enemyKanji === "猫" || state.enemyKanji === "怪猫") && typeof rescueStoryCat === "function") {
+    if (state.enemyKanji === "猫" && typeof rescueStoryCat === "function") {
       if (rescueStoryCat()) {
         logMd(`🐱 **${t("fxCatRescued")}**`, "fx-log");
       }

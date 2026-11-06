@@ -14,7 +14,7 @@ function shuffle(arr) {
 }
 
 function depthPool() {
-  return (KANKEN_DATA[state.depthId] && KANKEN_DATA[state.depthId].kanji) || [];
+  return playableDepthPool(state.depthId);
 }
 
 /* Build the 10 environment cards present in the current stage, strictly within the current Kanken grade or lower. */
@@ -24,7 +24,7 @@ function buildStageCards(depthId, sign) {
   const allFoesInDepth = typeof allRosterKanji === "function" ? allRosterKanji(targetDepth) : [];
   const info = STAGE_SIGNS[sign] || STAGE_SIGNS.田;
   const rawThemed = (info.cards || ["火", "水", "木", "石", "土"])
-    .filter(k => k !== sign && !allFoesInDepth.includes(k) && getKanjiDepthNum(k) <= maxD);
+    .filter(k => k !== sign && !allFoesInDepth.includes(k) && getKanjiDepthNum(k) <= maxD && isPlayableKanji(k));
   const themed = sample(rawThemed.length ? rawThemed : ["火", "水", "土", "風", "光"], 5);
   const pool = depthPool().filter(k => k !== sign && !themed.includes(k) && !allFoesInDepth.includes(k));
   const localGradeCards = sample(pool, 5);
@@ -149,7 +149,7 @@ function dealEnemyHand() {
 function addCardToDeck(k) {
   if (!k) return;
   const clean = String(k).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "");
-  if (clean) state.deck.push(clean);
+  if (clean && isPlayableKanji(clean)) state.deck.push(clean);   // place-name / radical kanji never enter the bag
 }
 
 function removeCardFromDeck(k) {

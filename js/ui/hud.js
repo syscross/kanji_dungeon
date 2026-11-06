@@ -118,6 +118,7 @@ function updateBattleHUD(animateCards = false) {
   }
   const signInfo = state.sign ? STAGE_SIGNS[state.sign] : null;
   $("b-sign").textContent = state.sign || "門";
+  $("b-sign").classList.toggle("multi", [...(state.sign || "")].length > 1);
   $("b-sign").title = signInfo ? `${pickLang(signInfo.omen)}` : t("forkFieldState");
   updateTimerBadge();
   renderRunRosterBar();

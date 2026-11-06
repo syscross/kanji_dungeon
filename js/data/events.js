@@ -83,43 +83,43 @@ const QUIZ_BANK = [
     kanji: "茨", depth: 4,
     ans: EVT_L("Ibara — Briar (茨 of Ibaraki 茨城)?", "가시나무 자 (いばら · 이바라키현 茨城의 茨)?", "いばら・ばら (茨城の茨)?"),
     wrong: EVT_L("Kusa — Grass (草)?", "풀 초 (훈독: くさ / 음독: そう)?", "くさ・そう (草)?"),
-    prize: ["茨", "焼"]
+    prize: ["焼", "草"]
   },
   {
     kanji: "潟", depth: 4,
     ans: EVT_L("Kata / Seki — Lagoon (潟 of Niigata 新潟)?", "개펄 석 (かた · 니가타현 新潟의 潟)?", "かた・せき (新潟の潟)?"),
     wrong: EVT_L("Shima / Tou — Island (島)?", "섬 도 (훈독: しま / 음독: とう)?", "しま・とう (島)?"),
-    prize: ["潟", "塩"]
+    prize: ["塩", "氷"]
   },
   {
     kanji: "栃", depth: 4,
     ans: EVT_L("Tochi — Horse-chestnut (栃 of Tochigi 栃木)?", "상수리나무 (일본 국자: とち · 토치기현 栃木의 栃)?", "とち (栃木の栃)?"),
     wrong: EVT_L("Matsu — Pine (松)?", "소나무 송 (훈독: まつ / 음독: しょう)?", "まつ・しょう (松)?"),
-    prize: ["栃", "折"]
+    prize: ["折", "木"]
   },
   {
     kanji: "阪", depth: 4,
     ans: EVT_L("Saka / Han — Embankment (阪 of Osaka 大阪)?", "비탈 판 (さか·はん · 오사카부 大阪의 阪)?", "さか・はん (大阪の阪)?"),
     wrong: EVT_L("Oka — Hill (岡)?", "언덕 강 (훈독: おか / 오카)?", "おか (岡)?"),
-    prize: ["阪", "戦"]
+    prize: ["戦", "旗"]
   },
   {
     kanji: "埼", depth: 4,
     ans: EVT_L("Saki / Ki — Cape (埼 of Saitama 埼玉)?", "갑 기 (さき·き · 사이타마현 埼玉의 埼)?", "さき・き (埼玉の埼)?"),
     wrong: EVT_L("Saki — Promontory (崎)?", "산비탈·갑 기 (산 뫼변 崎)?", "さき (山偏の崎)?"),
-    prize: ["埼", "固"]
+    prize: ["固", "玉"]
   },
   {
     kanji: "媛", depth: 4,
     ans: EVT_L("Hime / En — Noble lady (媛 of Ehime 愛媛)?", "미인·아씨 원 (ひめ·えん · 에히메현 愛媛의 媛)?", "ひめ・えん (愛媛の媛)?"),
     wrong: EVT_L("Dan / Atataka — Warm (暖)?", "따뜻할 난 (훈독: あたたかい)?", "あたたかい・だん (暖)?"),
-    prize: ["媛", "鏡"]
+    prize: ["鏡", "愛"]
   },
   {
     kanji: "阜", depth: 4,
     ans: EVT_L("Fu — Mound (阜 of Gifu 岐阜)?", "언덕 부 (음독: ふ · 기후현 岐阜의 阜)?", "ふ (岐阜の阜)?"),
     wrong: EVT_L("Sato — Village (里)?", "마을 리 (훈독: さと / 음독: り)?", "さと・り (里)?"),
-    prize: ["阜", "岐"]
+    prize: ["山", "鏡"]
   },
 
   // Depth 5 (Kanken 6)

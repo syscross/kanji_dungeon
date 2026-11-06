@@ -69,6 +69,7 @@ function startRun(depthId) {
       runBoss,
       bossEncountered,
       hasClearedBoss: false,
+      elapsedSec: (st.sectorTime && st.sectorTime[depthId]) || 0,   // the sector's clock continues across visits
       deck: keptDeck,
       encounteredEnemies,
       defeatedEnemies,
@@ -392,7 +393,7 @@ function renderFork() {
   const tiles = state.fork.map((f, i) => {
     const def = STAGE_SIGNS[f.sign] || STAGE_SIGNS.田;
     return {
-      html: `<span class="fork-kanji tier-${getKanjiTier(f.sign)}">${escapeHtml(f.sign)}</span>` +
+      html: `<span class="fork-kanji tier-${getKanjiTier(f.sign)}${[...f.sign].length > 1 ? " multi" : ""}">${escapeHtml(f.sign)}</span>` +
         `<span class="fork-omen">${escapeHtml(pickLang(def.omen))}</span>` +
         (f.revealed ? `<span class="fork-reveal">${outcomeIcon(f.outcome)}</span>` : ""),
       onClick: () => choosePath(i),

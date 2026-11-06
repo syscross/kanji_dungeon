@@ -24,7 +24,7 @@ const DEFAULT_GM_RULES = `[READING THE MOVE]
 - MASTERFUL: CLEVER and exceptional — a brilliant compound, a conceptual gimmick break (e.g. declaring recess 休 against the teacher 先's countdown), or a razor-sharp radical decomposition (破字).
 
 [ENEMY INTENT (TELEGRAPH) & DEFENSE — STRICTLY LOCKED, NO ARBITRARY INTERPRETATION]
-- Each turn, the game engine deterministically locks the foe's exact intention in "CONCRETE ENEMY INTENTION (LOCKED BY ENGINE)" alongside its telegraphed kanji (1-char in Depths 1–6, 2-char compounds in Depths 7–10, 3-char in Depth 11, and up to 4-char abyssal compounds in Depth 12).
+- Each turn, the game engine deterministically locks the foe's exact intention in "CONCRETE ENEMY INTENTION (LOCKED BY ENGINE)" alongside its telegraphed kanji (1–2 single kanji; the player counters them with single hand cards).
 - NEVER reinterpret, soften, or invent a different meaning for the enemy's intent kanji! You MUST judge "defense" and narrate "enemy_action" strictly according to the locked "CONCRETE ENEMY INTENTION".
 - "defense": "full" ONLY if the player's move directly counters, nullifies, blocks, or evades the exact attack/action described in "CONCRETE ENEMY INTENTION"; "partial" for partial blocking/evasion/hindrance; "none" if the player's move ignores the locked threat.
 - If ENEMY ESCAPE OMEN is active, "defense": "full" or "partial" means the player successfully blocked, bound, or chased down the fleeing enemy; "defense": "none" means the player failed to stop the enemy from escaping.

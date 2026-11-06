@@ -10,6 +10,10 @@ async function initApp() {
 
   const res = await fetch("/kanken_data.json");
   KANKEN_DATA = await res.json();
+  try {
+    const cur = await fetch("/kanken_curated.json");
+    if (cur.ok) PLAYABLE_POOLS = await cur.json();   // optional per-depth whitelist (GUIDELINE §5)
+  } catch (_) { /* none shipped */ }
   if (typeof buildKanjiDepthMap === "function") buildKanjiDepthMap();
 
   buildAchievementCatalog();

@@ -187,9 +187,9 @@ function getStoryNarrativePhase() {
 /* Ominous final words spoken by the Depth 10 Boss (冥 / 闇 / 鬱) upon defeat */
 function getDepth10BossLastWords(bossKanji) {
   return pickLang(ST_L(
-    `💀 **【${bossKanji}】's Dying Curse**: *"…Hah… hahaha… Foolish mortal. You severed the mere fence of 'Common Kanji' and think it ends here? Beyond this floor lies the Beast-King's Sanctum (第11獄) that humans excised from their language in terror… and it has already caught the scent of your blood…"*`,
-    `💀 **【${bossKanji}】의 단말마**: *"…크크크… 어리석은 인간이여. 고작 '상용(常用)'의 울타리 안을 베어냈다고… 여기서 끝일 거라 생각하나? 인간들이 두려워 문자 밖으로 도려낸 심연의 문(第11獄 獣王廟)이… 이미 네 피 냄새를 맡았다…"*`,
-    `💀 **【${bossKanji}】の断末魔**: *「……ククク……愚かな人間よ。たかだか『常用』の檻の中を斬り伏せた程度で……これで終わりだと思うか？ 人が恐れて文字の外へ切り捨てた深淵の門（第十一獄・獣王廟）は……すでにお前の血の匂いを嗅ぎつけたぞ……」*`
+    `💀 **【${bossKanji}】's Dying Curse**: *"…Foolish mortal. You cut down what men still dare to name and think it ends here? Beyond this floor lies the Beast-King's Sanctum (第11獄) that humans excised from their language in terror… and it has already caught the scent of your blood…"*`,
+    `💀 **【${bossKanji}】의 단말마**: *"…어리석은 인간이여. 고작 사람이 아직 이름 붙일 수 있는 것들을 베어냈다고… 여기서 끝일 거라 생각하나? 인간들이 두려워 문자 밖으로 도려낸 심연의 문(第11獄 獣王廟)이… 이미 네 피 냄새를 맡았다…"*`,
+    `💀 **【${bossKanji}】の断末魔**: *「……愚かな人間よ。人がまだ名を呼べるものを斬り伏せた程度で……これで終わりだと思うか？ 人が恐れて文字の外へ切り捨てた深淵の門（第十一獄・獣王廟）は……すでにお前の血の匂いを嗅ぎつけたぞ……」*`
   ));
 }
 
@@ -201,14 +201,14 @@ function getHumanWorldHappyEndingLines() {
       "第十獄（冥府）の主が倒れると、故郷を覆っていた灰色の霧が晴れ、ついに灯の里へ暖かい陽差しが降り注いだ。"
     )),
     pickLang(ST_L(
-      "🌸 **Mortal World Restored (Happy Ending)** — The 2,136 Common Kanji have returned to human speech. In the Village, Sensei 【先】 and your Friend 【友】 await the hero's return.",
-      "🌸 **【인간계 평정 — 해피엔딩 달성】** — 인간 세상의 문자(상용한자 2,136자)가 모두 제자리를 되찾았습니다. 등불의 마을에서 옛 스승【先】과 벗【友】이 영웅의 귀환을 기다립니다.",
-      "🌸 **【人間界平定 — ハッピーエンド達成】** — 人の世の文字（常用漢字2,136字）はすべて取り戻された。灯の里で先生【先】と友【友】が英雄の帰還を待っている。"
+      "🌸 **Mortal World Restored (Happy Ending)** — The words of men have returned to human speech. In the Village, Sensei 【先】 and your Friend 【友】 await the hero's return.",
+      "🌸 **【인간계 평정 — 해피엔딩 달성】** — 사람의 말이 모두 제자리를 되찾았습니다. 등불의 마을에서 옛 스승【先】과 벗【友】이 영웅의 귀환을 기다립니다.",
+      "🌸 **【人間界平定 — ハッピーエンド達成】** — 人の世の言葉はすべて取り戻された。灯の里で先生【先】と友【友】が英雄の帰還を待っている。"
     )),
     pickLang(ST_L(
       "…Yet beneath the floor of the Underworld, the forbidden seal of the 11th Gaol (獣王廟) begins to pulse.",
-      "…허나 저승의 바닥 너머에서, 결코 열려서는 안 될 제11옥 수왕묘(獣王廟 · 漢検準1級)의 금제가 불길하게 맥동하기 시작합니다.",
-      "……だが冥府の底のさらに奥で、決して開けてはならぬ第十一獄・獣王廟（漢検準1級）の禁制が不気味に脈動し始めていた。"
+      "…허나 저승의 바닥 너머에서, 결코 열려서는 안 될 제11옥 수왕묘(獣王廟)의 금제가 불길하게 맥동하기 시작합니다.",
+      "……だが冥府の底のさらに奥で、決して開けてはならぬ第十一獄・獣王廟の禁制が不気味に脈動し始めていた。"
     ))
   ];
 }
@@ -692,9 +692,9 @@ function logSenseiArrival() {
     )), "event-log");
   } else if (phase === "peace_10") {
     logMd(pickLang(ST_L(
-      "🕯 **【先】** — Warm light fills the study hall as Sensei looks over the restored wooden tablets with quiet relief.\n*\"You felled the lord of the 10th Gaol… The 2,136 Common Kanji have returned to the villagers' lips. Do not look beneath the floor—rest now.\"*",
-      "🕯 **【先】** — 서당 창살 너머로 맑은 볕이 스며들고, 스승은 글자가 되돌아온 서책들을 어루만지며 깊은 안도의 한숨을 내쉰다.\n*\"기어이 제10옥의 주인을 베었구나… 마을 사람들의 입술에 상용의 말들이 돌아오고 있다. 이제 바닥 너머의 기척은 잊고 칼을 놓아라.\"*",
-      "🕯 **【先】** — 書堂の格子から澄んだ陽差しが差し込み、師は文字の戻った書物を撫でながら深い安堵の息をついた。\n*「ついに第十獄の主を斬り伏せたか……里人の唇に常用の言葉が戻ってきている。もう底の気配など忘れて刃を置け。」*"
+      "🕯 **【先】** — Warm light fills the study hall as Sensei looks over the restored wooden tablets with quiet relief.\n*\"You felled the lord of the 10th Gaol… Words have returned to the villagers' lips. Do not look beneath the floor—rest now.\"*",
+      "🕯 **【先】** — 서당 창살 너머로 맑은 볕이 스며들고, 스승은 글자가 되돌아온 서책들을 어루만지며 깊은 안도의 한숨을 내쉰다.\n*\"기어이 제10옥의 주인을 베었구나… 마을 사람들의 입술에 말이 돌아오고 있다. 이제 바닥 너머의 기척은 잊고 칼을 놓아라.\"*",
+      "🕯 **【先】** — 書堂の格子から澄んだ陽差しが差し込み、師は文字の戻った書物を撫でながら深い安堵の息をついた。\n*「ついに第十獄の主を斬り伏せたか……里人の唇に言葉が戻ってきている。もう底の気配など忘れて刃を置け。」*"
     )), "event-log");
   } else {
     logMd(pickLang(ST_L(
@@ -711,15 +711,15 @@ function logElderArrival() {
   const phase = getStoryNarrativePhase();
   if (phase === "shura_12") {
     logMd(pickLang(ST_L(
-      "🔥 **【老】** — The blind Elder inhales the dark miasma trailing behind you and lets out a dry, rasping laugh.\n*\"Heh… you swallowed even the 12th Abyss. No need to read characters anymore—you are the living lexicon of nightmares itself.\"*",
-      "🔥 **【老】** — 눈먼 노인이 당신의 뒤를 따르는 검붉은 마기를 들이마시더니 갈라진 목소리로 껄껄 웃는다.\n*\"허허… 기어이 제12옥 나락의 글자들까지 남김없이 삼켰구먼. 이제 자네는 글자를 읽는 자가 아니라, 걸어 다니는 심연의 자전 그 자체야.\"*",
-      "🔥 **【老】** — 盲目の老人はお前の背後に漂う黒き瘴気を吸い込み、乾いた声でくっくと笑った。\n*「ふふ……ついに第十二獄・奈落の文字まで呑み込んだか。もはや貴様は文字を読む者ではなく、歩く深淵の字典そのものよ。」*"
+      "🔥 **【老】** — The blind Elder inhales the dark miasma trailing behind you and speaks in a dry rasp.\n*\"So you swallowed even the twelfth floor. No need to read characters anymore—you are the living lexicon of nightmares itself.\"*",
+      "🔥 **【老】** — 눈먼 노인이 당신의 뒤를 따르는 검붉은 마기를 들이마시더니 갈라진 목소리로 말한다.\n*\"기어이 제12옥 나락의 글자들까지 남김없이 삼켰구먼. 이제 자네는 글자를 읽는 자가 아니라, 걸어 다니는 심연의 자전 그 자체야.\"*",
+      "🔥 **【老】** — 盲目の老人はお前の背後に漂う黒き瘴気を吸い込み、乾いた声で言った。\n*「ついに第十二獄・奈落の文字まで呑み込んだか。もはや貴様は文字を読む者ではなく、歩く深淵の字典そのものよ。」*"
     )), "event-log");
   } else if (phase === "abyss_11") {
     logMd(pickLang(ST_L(
-      "🔥 **【老】** — Greenish flames dance in the ash brazier as the Elder turns his milky eyes toward you.\n*\"Once a swordsman tastes the primeval strokes beyond the Common fence, lukewarm mortal words never satisfy the blade again.\"*",
-      "🔥 **【老】** — 화로 속에서 푸르스름한 불길이 일렁이고, 노인이 희뿌연 눈동자를 들어 당신을 바라본다.\n*\"상용의 울타리 너머에 잠든 태고의 획 맛을 본 자는, 다시는 미지근한 인간 세상의 말로 만족하지 못하는 법이지.\"*",
-      "🔥 **【老】** — 火炉の中で青白い炎が揺らめき、老人は白濁した瞳を向けて呟いた。\n*「常用の垣根を越えた太古の画の味を知った者は、二度と生ぬるい人の世の言葉などでは満たされぬものよ。」*"
+      "🔥 **【老】** — Greenish flames dance in the ash brazier as the Elder turns his milky eyes toward you.\n*\"Once a swordsman tastes the primeval strokes beyond the fence of men's words, lukewarm mortal words never satisfy the blade again.\"*",
+      "🔥 **【老】** — 화로 속에서 푸르스름한 불길이 일렁이고, 노인이 희뿌연 눈동자를 들어 당신을 바라본다.\n*\"사람의 말 너머에 잠든 태고의 획 맛을 본 자는, 다시는 미지근한 인간 세상의 말로 만족하지 못하는 법이지.\"*",
+      "🔥 **【老】** — 火炉の中で青白い炎が揺らめき、老人は白濁した瞳を向けて呟いた。\n*「人の言葉の垣根を越えた太古の画の味を知った者は、二度と生ぬるい人の世の言葉などでは満たされぬものよ。」*"
     )), "event-log");
   } else {
     logMd(pickLang(ST_L(
@@ -847,9 +847,9 @@ function renderVillageSpotChoices(spotKey) {
           )), "event-log");
         } else if (cur === 2) {
           logMd(pickLang(ST_L(
-            "🕯 **【先】** — *\"From the 1st Gaol to the 6th Gaol are the fundamental Education Kanji we taught children in this very hall. From the 7th to the 10th Gaol lie the rest of the 2,136 Common Kanji—slay each Gaol's master to break the seal to the next depth.\"*",
-            "🕯 **【先】** — *\"제1옥부터 제6옥까지는 바로 이 서당에서 아이들에게 가르치던 교육한자들이고, 제7옥부터 제10옥까지가 인간 세상의 상용한자 2,136자이니라. 각 옥문의 우두머리를 베어야만 다음 층으로 내려가는 봉인이 풀린다.\"*",
-            "🕯 **【先】** — *「第一獄から第六獄まではこの書堂で童たちに教えていた教育漢字であり、第七獄から第十獄までが人の世の常用漢字2,136字だ。各獄門の主を斬り伏せねば次の階層への封印は解かれぬ。」*"
+            "🕯 **【先】** — *\"The first six gaols hold the characters we taught children in this very hall. Below them lie the words grown men use—slay each Gaol's master to break the seal to the next depth.\"*",
+            "🕯 **【先】** — *\"제1옥부터 제6옥까지는 바로 이 서당에서 아이들에게 가르치던 글자들이 갇혀 있고, 그 아래 제10옥까지는 어른들이 쓰던 말이 갇혀 있느니라. 각 옥문의 우두머리를 베어야만 다음 층으로 내려가는 봉인이 풀린다.\"*",
+            "🕯 **【先】** — *「第一獄から第六獄まではこの書堂で童たちに教えていた文字が囚われ、その下の第十獄までは大人の使う言葉が囚われている。各獄門の主を斬り伏せねば次の階層への封印は解かれぬ。」*"
           )), "event-log");
         } else {
           logMd(pickLang(ST_L(
@@ -938,6 +938,11 @@ function renderVillageSpotChoices(spotKey) {
               logMd(`🕯 잔향이 부족합니다 (**${cost} 円** 필요).`, "hint-log");
               return;
             }
+            if (st.senseiBlessedNextRun) {
+              playClickSfx();
+              logMd("🍵 이미 약차의 기운이 몸에 돌고 있습니다. 다음 출정 뒤에 다시 달여 주겠다고 합니다.", "hint-log");
+              return;
+            }
             playHealSfx();
             addStoryYen(-cost);
             st.senseiBlessedNextRun = true;
@@ -1004,9 +1009,9 @@ function renderVillageSpotChoices(spotKey) {
             )), "event-log");
           } else {
             logMd(pickLang(ST_L(
-              "🔥 **【老】** — *\"Your Sensei fears the 11th and 12th depths because humans trimmed their language down to 2,136 tame characters. Yet the 4,000 abandoned characters below the 10th floor hold the rawest power in existence… heh.\"*",
-              "🔥 **【老】** — *\"서당의 스승은 제11옥과 제12옥을 두려워하지만, 본디 상용한자 2,136자란 인간들이 다루기 쉬운 글자만 남기고 나머지를 도려낸 울타리에 불과해. 진짜배기 태고의 힘은 버려진 사천 글자가 잠든 심연 밑바닥에 있지… 허허.\"*",
-              "🔥 **【老】** — *「書堂の師は第十一獄と第十二獄を恐れておるが、常用漢字2,136字など人間が扱いやすい文字だけを残した檻にすぎぬ。本物の太古の力は、捨てられた四千の文字が眠る深淵の底にあるのよ……ふふ。」*"
+              "🔥 **【老】** — *\"Your Sensei fears the 11th and 12th depths because men trimmed their language down to what is tame. Yet the countless characters they abandoned below the tenth floor hold the rawest power there is.\"*",
+              "🔥 **【老】** — *\"서당의 스승은 제11옥과 제12옥을 두려워하지만, 본디 사람의 말이란 다루기 쉬운 글자만 남기고 나머지를 도려낸 울타리에 불과해. 진짜배기 태고의 힘은 버려진 수천 글자가 잠든 심연 밑바닥에 있지.\"*",
+              "🔥 **【老】** — *「書堂の師は第十一獄と第十二獄を恐れておるが、人の言葉など扱いやすい文字だけを残した檻にすぎぬ。本物の太古の力は、捨てられた幾千の文字が眠る深淵の底にあるのよ。」*"
             )), "event-log");
           }
         }
@@ -1134,6 +1139,11 @@ function renderVillageSpotChoices(spotKey) {
           )),
           gold: true,
           onClick: () => {
+            if (st.catBlessedNextRun) {
+              playClickSfx();
+              logMd("🐾 고양이는 이미 당신의 손길에 만족한 듯 몸을 말고 잠들어 있습니다.", "hint-log");
+              return;
+            }
             playHealSfx();
             st.catBlessedNextRun = true;
             state.maxHp += 15;
@@ -1272,8 +1282,8 @@ function renderVillageSpotChoices(spotKey) {
           } else if (cur === 1) {
             logMd(pickLang(ST_L(
               "⚒ **【男】** — *\"The deeper you descend past the 6th Gaol, the thicker the wraiths' hides become. Don't hoard 10th-kyu pebbles forever—claim the heavy Kanji dropped by elites.\"*",
-              "⚒ **【男】** — *\"제6옥을 넘어 상용한자 영역으로 내려갈수록 원령들의 가죽은 무쇠보다 단단해진다. 초반에 주운 낮은 급수의 자갈 같은 글자만 고집하지 말고, 정예 원령을 베어 묵직한 상위 한자를 수거해라.\"*",
-              "⚒ **【男】** — *「第六獄を越えて常用漢字の領域へ降りるほど、怨霊どもの皮は鋼よりも硬くなる。序盤に拾った小石のような低い級の文字ばかりに頼らず、精鋭を斬って重みのある上位漢字を奪い取れ。」*"
+              "⚒ **【男】** — *\"제6옥을 넘어 어른들의 글자가 갇힌 곳으로 내려갈수록 원령들의 가죽은 무쇠보다 단단해진다. 초반에 주운 낮은 급수의 자갈 같은 글자만 고집하지 말고, 정예 원령을 베어 묵직한 상위 한자를 수거해라.\"*",
+              "⚒ **【男】** — *「第六獄を越えて大人の文字の領域へ降りるほど、怨霊どもの皮は鋼よりも硬くなる。序盤に拾った小石のような低い級の文字ばかりに頼らず、精鋭を斬って重みのある上位漢字を奪い取れ。」*"
             )), "event-log");
           } else {
             logMd(pickLang(ST_L(

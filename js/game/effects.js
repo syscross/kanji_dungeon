@@ -45,10 +45,10 @@ function runEffects(list) {
       logMd(t("fxReveal"), "fx-log");
     } else if (fx.foeScavenge) {
       const count = typeof fx.foeScavenge === "number" ? fx.foeScavenge : 5;
-      return beginPick("foeScavenge", foeScavengeChoices(count), queue);
+      return beginPick("foeScavenge", foeScavengeChoices(count), queue, [], scavengeLimit());
     } else if (fx.scavenge) {
       const count = typeof fx.scavenge === "number" ? fx.scavenge : 5;
-      return beginPick("scavenge", scavengeChoices(count), queue);
+      return beginPick("scavenge", scavengeChoices(count), queue, [], scavengeLimit());
     } else if (fx.addCard) {
       if (fx.addCard === "pick") return beginPick("add", cardChoices(Math.min(5, fx.choices || 4)), queue);
       const k = fx.addCard === "random" ? cardChoices(1)[0] : fx.addCard;
@@ -129,11 +129,18 @@ const PICK_PROMPTS = {
   foeScavenge: "pickFoeScavengePrompt"
 };
 
-function beginPick(mode, choices, rest, thenEffects = []) {
+/* How many kanji a scavenge may keep (GUIDELINE §7: picking up everything made the bag meaningless). */
+function scavengeLimit() {
+  if (state.enemyRank === "boss" && state.enemyKanji) return SCAVENGE_LIMIT.boss;
+  if (state.enemyRank === "elite" && state.enemyKanji) return SCAVENGE_LIMIT.elite;
+  return SCAVENGE_LIMIT.normal;
+}
+
+function beginPick(mode, choices, rest, thenEffects = [], limit = 0) {
   if ((mode === "scavenge" || mode === "foeScavenge") && (state.phase === "battle" || state.phase === "path")) {
     state.phase = "reward";
   }
-  state.pending = { mode, choices, selected: [], rest, thenEffects };
+  state.pending = { mode, choices, selected: [], rest, thenEffects, limit };
   saveRunToStorage();
   const view = $("view-battle");
   if (view) view.classList.add("intermission");
@@ -154,9 +161,8 @@ function renderInlineScavenge(p) {
   const head = document.createElement("div");
   head.className = "scavenge-dock-head";
   const isFoe = p.mode === "foeScavenge";
-  head.textContent = isFoe
-    ? `🩸 ${t("pickFoeScavengePrompt")}`
-    : `🎴 ${t("pickScavengePrompt")}`;
+  const limit = p.limit || 0;
+  head.textContent = (isFoe ? `🩸 ${t("pickFoeScavengePrompt")}` : `🎴 ${t("pickScavengePrompt")}`) + (limit ? ` · ${t("scavengeLimitTag")(limit)}` : "");
   wrap.appendChild(head);
 
   const grid = document.createElement("div");
@@ -175,6 +181,7 @@ function renderInlineScavenge(p) {
       playClickSfx();
       const cur = p.selected || [];
       if (cur.includes(idx)) p.selected = cur.filter(x => x !== idx);
+      else if (limit && cur.length >= limit) p.selected = [...cur.slice(1), idx];   // over the limit: the oldest pick drops
       else p.selected = [...cur, idx];
       saveRunToStorage();
       renderInlineScavenge(p);
@@ -195,7 +202,7 @@ function renderInlineScavenge(p) {
       resolveScavengePick(sel.map(i => p.choices[i]));
     };
     btnRow.appendChild(takeBtn);
-  } else {
+  } else if (!limit || p.choices.length <= limit) {
     const takeAllBtn = document.createElement("button");
     takeAllBtn.className = "btn btn-gold";
     takeAllBtn.textContent = t("scavengeTakeAllBtn")(p.choices.length);

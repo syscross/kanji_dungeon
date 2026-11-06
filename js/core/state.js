@@ -59,7 +59,8 @@ function createDefaultStoryState() {
     catBlessedNextRun: false,
     friendGiftClaimed: false,
     metNpcs: [],
-    villageVisits: 0
+    villageVisits: 0,
+    sectorTime: {}           // depthId -> cumulative seconds spent in that gaol (story mode never resets a sector's clock)
   };
 }
 
@@ -305,6 +306,10 @@ function _flushSaveRunToStorage() {
   _saveScheduled = false;
   const mode = state.gameMode || activeGameMode || "arcade";
   if (mode === "story") {
+    if (config.story && state.depthId && state.depthId !== "depth_0") {
+      if (!config.story.sectorTime) config.story.sectorTime = {};
+      config.story.sectorTime[state.depthId] = Math.max(config.story.sectorTime[state.depthId] || 0, state.elapsedSec || 0);
+    }
     if (
       !state.active ||
       state.depthId === "depth_0" ||

@@ -874,11 +874,9 @@
 
 /* Special Possessions Card Grid inside Bag Viewer (#pick-modal) */
 .special-bag-box {
-  background: rgba(229, 192, 123, 0.06);
-  border: 1px solid #634f2b;
-  border-radius: 6px;
-  padding: 10px 12px 12px;
-  margin-bottom: 8px;
+  padding: 0 0 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed #4a3b22;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -901,6 +899,7 @@
   overflow: visible;
   padding: 2px 0 0;
 }
+.pick-grid.special-card-grid .pick-tile { min-width: 0; }
 .pick-tile.special-card-tile {
   display: flex;
   flex-direction: column;

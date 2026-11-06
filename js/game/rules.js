@@ -11,6 +11,9 @@ const REROLL_HP_COST = 5;
 const SUMMON_HP_COST = 10;
 const SUMMON_COST_STEP = 0;
 
+/* Kanji kept from a scavenge after a kill / in a cache. The rest is left behind. */
+const SCAVENGE_LIMIT = { normal: 1, elite: 2, boss: 3 };
+
 const VERDICTS = ["FIZZLE", "WEAK", "SOLID", "CLEVER", "MASTERFUL"];
 const VERDICT_LABELS = {
   FIZZLE: "不発 FIZZLE", WEAK: "凡 WEAK", SOLID: "良 SOLID", CLEVER: "妙 CLEVER", MASTERFUL: "絶 MASTERFUL"
@@ -31,7 +34,7 @@ const HEAL_RANGE = { none: [0, 0], minor: [7, 12], major: [15, 24] };
 
 const ENEMY_HP = { normal: 60, elite: 90, boss: 140 };
 const RANK_DAMAGE_MULT = { normal: 1, elite: 1.22, boss: 1.4 };
-const RANK_MARK = { normal: "", elite: "", boss: "" };
+const RANK_MARK = { normal: "", elite: "強", boss: "主" };
 
 /*
  * Enemy counterattack baseline before rank/intent/defense modifiers.

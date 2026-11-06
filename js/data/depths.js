@@ -5,6 +5,8 @@
  * Every enemy in `roster` is strictly selected from that depth's Kanken grade in kanken_data.json
  * and represents an entity, creature, person, spirit, or living horror (never pure tools/verbs like 刀 or 破,
  * which belong in cards and enemy intents).
+ * Names are single kanji by default; a few compounds per deep gaol (狂鬼 邪霊 血傑 怨鬼 九尾狐 傀儡 髑髏 饕餮 魑魅魍魎)
+ * are the exception that makes them uncanny — see GUIDELINE §4 before adding more.
  */
 
 const DEPTHS = {
@@ -107,10 +109,10 @@ const DEPTHS = {
       JA: "民草が巻き込まれた辺境はここで終わり、鬼を斬るために自ら刃を握った討伐隊の領域が始まる。\n人の声を真似る食人鬼と狂暴な魔獣が雷落ちる塔や腐敗の沼に巣食い、覚悟を決めた者だけがこの哭き声の谷へ踏み込める。"
     },
     roster: {
-      normal: ["狂獣", "悪僧", "影盗", "人狩", "黒影", "凶鳥"],
-      elite: ["巨兵", "狂鬼"],
-      boss: "百鬼",
-      bossPool: ["百鬼", "雷神", "鬼雄"]
+      normal: ["獣", "僧", "盗", "狩", "影", "凶"],
+      elite: ["巨", "狂鬼"],
+      boss: "鬼",
+      bossPool: ["鬼", "雷", "雄"]
     }
   },
   depth_8: {
@@ -122,10 +124,10 @@ const DEPTHS = {
       JA: "熟練の武人ですら単独で踏み込めば怨霊に肉体を乗っ取られて帰るという魔境。\n魂を溶かして妖刀を鍛える炉、生贄の血が乾かぬ祭壇、暴かれた古墳、絶叫の牢獄が闇に口を開けている。"
     },
     roster: {
-      normal: ["悪霊", "怪異", "山賊", "木偶", "血猟", "蛮族", "亡鯨"],
-      elite: ["亡侍", "幽鬼", "邪霊"],
-      boss: "魔王",
-      bossPool: ["魔王", "魔帝", "黒騎"]
+      normal: ["霊", "怪", "賊", "偶", "猟", "蛮", "鯨"],
+      elite: ["侍", "幽", "邪霊"],
+      boss: "魔",
+      bossPool: ["魔", "帝", "騎"]
     }
   },
   depth_9: {
@@ -137,10 +139,10 @@ const DEPTHS = {
       JA: "一時代を血で統べた覇王や大元帥、人を超えようとして怪異に堕ちた者たちが覇権を争う修羅道。\n処刑刀の塚や鉄艦沈む堀、竜眠る洞を突破するには、敵の殺気を見切り真っ向から斬り伏せる境地が求められる。"
     },
     roster: {
-      normal: ["怪猫", "毒蛇", "血猿", "疫蚊", "影忍", "凶偵", "獄曹"],
-      elite: ["怪仙", "血傑"],
-      boss: "覇王",
-      bossPool: ["覇王", "火竜", "元帥"]
+      normal: ["猫", "蛇", "猿", "蚊", "忍", "偵", "曹"],
+      elite: ["仙", "血傑"],
+      boss: "覇",
+      bossPool: ["覇", "竜", "帥"]
     }
   },
   depth_10: {
@@ -152,10 +154,10 @@ const DEPTHS = {
       JA: "人の言葉と常識が届く最も深く暗い極限の境界。\n光なき山麓と嵐の断崖の向こうで地獄釜が煮え立ち、千年の怨念が冥府の柵を塞いでいる。"
     },
     roster: {
-      normal: ["猛虎", "怪亀", "毒蜂", "凶鶴", "暴駒", "妖魔", "大顎"],
-      elite: ["骸骨", "怨鬼"],
-      boss: "冥王",
-      bossPool: ["冥王", "常闇", "鬱鬼"]
+      normal: ["虎", "亀", "蜂", "鶴", "駒", "妖", "顎"],
+      elite: ["骸", "怨鬼"],
+      boss: "冥",
+      bossPool: ["冥", "闇", "鬱"]
     }
   },
   depth_11: {
@@ -182,10 +184,10 @@ const DEPTHS = {
       JA: "🩸 無視して入獄"
     },
     roster: {
-      normal: ["血餓狼", "九尾狐", "黒影豹", "大牙猪", "血沼鰐", "深海鮫", "鋼爪鷲", "焔獅子"],
-      elite: ["人喰屍", "屠殺兇"],
-      boss: "古神龍",
-      bossPool: ["古神龍", "紅焔鳳", "天帝鷹"]
+      normal: ["狼", "九尾狐", "豹", "猪", "鰐", "鮫", "鷲", "獅"],
+      elite: ["屍", "兇"],
+      boss: "龍",
+      bossPool: ["龍", "鳳", "鷹"]
     }
   },
   depth_12: {
@@ -212,10 +214,10 @@ const DEPTHS = {
       JA: "💀 奈落へ入獄"
     },
     roster: {
-      normal: ["魑魅魍魎", "百足蠱蟲", "血咒巫女", "旱魃凶鬼", "深淵毒蛟", "漆黒毒蝮"],
-      elite: ["呪糸傀儡", "白骨髑髏"],
-      boss: "魔神饕餮",
-      bossPool: ["魔神饕餮", "魑魅魍魎", "白骨髑髏"]
+      normal: ["巫", "蟲", "蠱", "魃", "蛟", "蝮"],
+      elite: ["傀儡", "髑髏"],
+      boss: "饕餮",
+      bossPool: ["饕餮", "魑魅魍魎", "髑髏"]
     }
   }
 };

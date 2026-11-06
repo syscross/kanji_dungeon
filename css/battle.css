@@ -367,7 +367,11 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   cursor: pointer;
   border-radius: 4px;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.chip > span { display: inline; }
 .chip:hover { border-color: var(--crimson); color: #fff; }
 .chip-cost { color: #ff8a95; font-size: 0.68rem; }
 .prompt-row { display: flex; gap: 8px; width: 100%; }
@@ -431,38 +435,15 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .kanji-card[data-len="4"] .char { font-size: 0.64rem; letter-spacing: -1.5px; }
   .kanji-card[data-len="5"] .char { font-size: 0.54rem; letter-spacing: -1.5px; }
   .cmd-chips { gap: 5px; }
-  .chip { flex: 1; padding: 7px 4px; font-size: 0.72rem; text-align: center; }
+  .chip { flex: 1 1 0; padding: 7px 2px; font-size: 0.7rem; text-align: center; }
   #b-send-btn { padding: 0 12px; }
 }
 
-/* On-screen keyboard open: keep only what is needed to write the spell. */
-body.kb-open .topbar { display: none; }
-body.kb-open .cmd-chips,
-body.kb-open .deck-pile,
-body.kb-open .boss-tags,
-body.kb-open #b-player-state { display: none; }
-body.kb-open .enemy-stage { padding: 6px 10px; }
-body.kb-open .boss-card { width: 46px; height: 52px; }
-body.kb-open .boss-kanji { font-size: 1.8rem; }
-body.kb-open .boss-kanji.multi,
-body.kb-open .boss-kanji[data-len="2"] { font-size: 1.02rem; }
-body.kb-open .boss-kanji[data-len="3"] { font-size: 0.72rem; }
-body.kb-open .boss-kanji[data-len="4"],
-body.kb-open .boss-kanji[data-len="5"] { font-size: 0.56rem; }
-body.kb-open .boss-info { gap: 5px; }
-body.kb-open #b-player-hand .kanji-card { width: 50px; height: 58px; }
-body.kb-open #b-player-hand .kanji-card .char { font-size: 1.65rem; }
-body.kb-open #b-player-hand .kanji-card.multi .char,
-body.kb-open #b-player-hand .kanji-card[data-len="2"] .char { font-size: 0.98rem; letter-spacing: -1px; }
-body.kb-open #b-player-hand .kanji-card.multi.multi-long .char,
-body.kb-open #b-player-hand .kanji-card[data-len="3"] .char { font-size: 0.72rem; letter-spacing: -1.5px; }
-body.kb-open #b-player-hand .kanji-card[data-len="4"] .char,
-body.kb-open #b-player-hand .kanji-card[data-len="5"] .char { font-size: 0.56rem; letter-spacing: -1.5px; }
-body.kb-open #b-player-hand .kanji-card .dict-link { display: none; }
-body.kb-open .kanji-card.enemy-sm { width: 30px; height: 36px; }
-body.kb-open .kanji-card.enemy-sm .char { font-size: 1rem; }
-body.kb-open .player-dock { gap: 6px; padding: 6px 8px; }
-body.kb-open .gm-box { min-height: 48px; }
+/* On-screen keyboard open: nothing is resized or hidden (no layout jump). The log gives up
+ * its height first; if the visible viewport is still too short, the battle view scrolls and the
+ * browser keeps the focused input in view. */
+body.kb-open .gm-box { min-height: 40px; }
+body.kb-open #view-battle { overflow-y: auto; }
 
 /* ---- Phases (js/game/run.js renderPhase) ----
  * intermission: path / spoils / event / draft — the dock shows choices instead of the hand.
@@ -527,7 +508,9 @@ body.kb-open .gm-box { min-height: 48px; }
   max-width: calc(50% - 4px);
   padding: 11px 8px;
 }
-.fork-kanji { font-family: 'Noto Serif JP', serif; font-size: 2.15rem; font-weight: 900; color: var(--gold); line-height: 1.08; }
+.fork-kanji { font-family: 'Noto Serif JP', serif; font-size: 2.15rem; font-weight: 900; color: var(--gold); line-height: 1.08; white-space: nowrap; }
+.fork-kanji.multi { font-size: 1.5rem; letter-spacing: -1px; }
+.sign-badge.multi { font-size: 0.92rem; letter-spacing: -0.5px; }
 .fork-omen {
   font-size: 0.72rem;
   color: var(--muted);
@@ -624,9 +607,10 @@ body.kb-open .gm-box { min-height: 48px; }
   color: var(--gold);
   border: 1.5px solid #6e5931;
   background: rgba(229,192,123,0.08);
-  width: 34px;
+  min-width: 34px;
   height: 32px;
-  padding: 0;
+  padding: 0 5px;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -741,8 +725,26 @@ body.kb-open .gm-box { min-height: 48px; }
 .boss-card.neutral { border-color: #6e5931; box-shadow: 0 0 18px rgba(229,192,123,0.18); cursor: default; }
 .boss-card.neutral .boss-kanji { color: var(--gold); text-shadow: 0 0 14px rgba(229,192,123,0.4); }
 .rank-mark {
-  display: none !important;
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a0d14;
+  border: 1.5px solid var(--crimson);
+  color: #ff8a95;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 900;
+  font-size: 0.82rem;
+  line-height: 1;
+  box-shadow: 0 0 10px rgba(215, 58, 73, 0.55);
+  z-index: 6;
+  pointer-events: none;
 }
+.boss-card.neutral .rank-mark { display: none; }
 .enemy-stage.no-foe .boss-tags,
 .enemy-stage.no-foe .hp-line,
 .enemy-stage.no-foe .enemy-hand-wrap { visibility: hidden; }
