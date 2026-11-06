@@ -94,6 +94,81 @@ function openDeckViewer() {
   });
 }
 
+/* ---- Battle Left Pile: 使用 (Discard / Used Pile) viewer ---- */
+
+function openDiscardPileViewer() {
+  playClickSfx();
+  closeDropdowns();
+  const raw = Array.isArray(state.discard) ? state.discard : [];
+  const cards = raw.map(c => (typeof c === "string" ? c : c.kanji)).filter(Boolean);
+  const titleText = pickLang({
+    EN: `【使用 — Used Pile (${cards.length})】`,
+    KO: `【사용(使用) — 사용한 패 (${cards.length}장)】`,
+    JA: `【使用 — 捨て札 (${cards.length}枚)】`,
+    ZH_CN: `【使用 — 弃牌堆 (${cards.length}张)】`,
+    ZH_TW: `【使用 — 棄牌堆 (${cards.length}張)】`
+  });
+  const descText = cards.length
+    ? pickLang({
+        EN: `Cards discarded from previous turns or rerolls. When the right Draw Pile (所持) runs out, all cards here are shuffled back into 所持.`,
+        KO: `이전 턴이나 리롤로 지나간 한자 패입니다. 우측의 소지(所持) 패를 모두 뽑으면, 이곳의 패가 다시 섞여 우측 소지(所持)로 들어갑니다.`,
+        JA: `前のターンや引き直しで送られた漢字札です。右側の所持（山札）をすべて引き切ると、ここの札が再び混ざって所持に戻ります。`,
+        ZH_CN: `上一回合或重掷后进入此处的汉字牌。当右侧所持（抽牌堆）抽空时，此处的牌会重新洗回右侧所持。`,
+        ZH_TW: `上一回合或重擲後進入此處的漢字牌。當右側所持（抽牌堆）抽空時，此處的牌會重新洗回右側所持。`
+      })
+    : pickLang({
+        EN: `No used cards yet. Cards from finished turns or rerolls gather here, then shuffle back into the right Draw Pile (所持) when it empties.`,
+        KO: `아직 사용한 패가 없습니다. 턴이 끝나거나 리롤을 하면 중앙의 5장 패가 이곳으로 이동하며, 우측 소지(所持)를 다 뽑으면 다시 소지로 들어갑니다.`,
+        JA: `まだ使用した札はありません。ターン終了や引き直しで手札5枚がここへ移動し、右側の所持を引き切ると再び所持へ戻ります。`,
+        ZH_CN: `尚无已使用的牌。回合结束或重掷时中央的5张手牌会移至此处，右侧所持抽空后将洗回所持。`,
+        ZH_TW: `尚無已使用的牌。回合結束或重擲時中央的5張手牌會移至此處，右側所持抽空後將洗回所持。`
+      });
+  openPicker({
+    title: titleText,
+    desc: descText,
+    cards
+  });
+}
+
+/* ---- Battle Right Pile: 所持 (Draw Pile) viewer ---- */
+
+function openDrawPileViewer() {
+  playClickSfx();
+  closeDropdowns();
+  const raw = Array.isArray(state.drawPile) ? state.drawPile : [];
+  const cards = raw
+    .map(c => (typeof c === "string" ? c : c.kanji))
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, "ja"));
+  const titleText = pickLang({
+    EN: `【所持 — Draw Pile (${cards.length})】`,
+    KO: `【소지(所持) — 뽑을 패 (${cards.length}장)】`,
+    JA: `【所持 — 山札 (${cards.length}枚)】`,
+    ZH_CN: `【所持 — 抽牌堆 (${cards.length}张)】`,
+    ZH_TW: `【所持 — 抽牌堆 (${cards.length}張)】`
+  });
+  const descText = cards.length
+    ? pickLang({
+        EN: `Remaining cards waiting to be drawn (Stage 【${state.sign || "門"}】 cards + your Bag cards, shown in sorted order). When all cards here are drawn, the left Used Pile (使用) shuffles back in.`,
+        KO: `앞으로 뽑히게 될 남은 한자 패입니다 (스테이지 【${state.sign || "門"}】 환경 한자 + 내 가방 한자 · 순서 비공개 정렬). 이 패를 모두 뽑으면 좌측 사용(使用) 패가 다시 섞여 들어옵니다.`,
+        JA: `これから引かれる残りの漢字札です（ステージ【${state.sign || "門"}】環境漢字＋所持袋の漢字・順不同表示）。すべて引き切ると左側の使用札が再び混ざって戻ります。`,
+        ZH_CN: `等待抽取的剩余汉字牌（关卡【${state.sign || "門"}】环境汉字＋行囊汉字，按字序排列）。全部抽完后，左侧使用牌堆会重新洗回此处。`,
+        ZH_TW: `等待抽取的剩餘漢字牌（關卡【${state.sign || "門"}】環境漢字＋行囊漢字，按字序排列）。全部抽完後，左側使用牌堆會重新洗回此處。`
+      })
+    : pickLang({
+        EN: `All cards in the Draw Pile (所持) have been drawn! On the next turn or reroll, the left Used Pile (使用: ${(state.discard || []).length}) will be shuffled back into 所持.`,
+        KO: `우측 소지(所持)의 패를 모두 뽑았습니다! 다음 턴이나 리롤 시 좌측 사용(使用: ${(state.discard || []).length}장) 패가 다시 섞여 이곳으로 들어옵니다.`,
+        JA: `右側の所持（山札）をすべて引き切りました！次のターンまたは引き直し時に、左側の使用札（${(state.discard || []).length}枚）が再び混ざってここに戻ります。`,
+        ZH_CN: `右侧所持已全部抽完！下一回合或重掷时，左侧使用牌堆（${(state.discard || []).length}张）将重新洗回此处。`,
+        ZH_TW: `右側所持已全部抽完！下一回合或重擲時，左側使用牌堆（${(state.discard || []).length}張）將重新洗回此處。`
+      });
+  openPicker({
+    title: titleText,
+    desc: descText,
+    cards
+  });
+}
+
 /* ---- Stage Environment Cards viewer (triggered by clicking top-right #b-sign) ---- */
 
 function openStageCardsViewer() {

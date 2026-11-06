@@ -21,11 +21,11 @@ function setupViewport() {
 
   const update = () => {
     raf = 0;
-    const kbOpen = isCoarsePointer() && isTextEntryFocused();
-    // While typing on touch devices, follow the visual viewport (area above the keyboard).
-    // Otherwise use the layout viewport so pinch-zoom doesn't resize the game.
-    const h = kbOpen && vv ? vv.height : window.innerHeight;
-    const top = kbOpen && vv ? vv.offsetTop : 0;
+    const vvShrunk = Boolean(vv && (window.innerHeight - vv.height > 60));
+    const kbOpen = (isCoarsePointer() && isTextEntryFocused()) || (vvShrunk && isTextEntryFocused());
+    const useVv = Boolean(vv && (kbOpen || vvShrunk));
+    const h = useVv ? vv.height : window.innerHeight;
+    const top = useVv ? vv.offsetTop : 0;
     root.style.setProperty("--app-h", `${Math.round(h)}px`);
     root.style.setProperty("--app-top", `${Math.round(top)}px`);
     const changed = document.body.classList.contains("kb-open") !== kbOpen;

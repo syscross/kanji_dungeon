@@ -293,8 +293,17 @@ function renderPhase() {
       renderFork();
       break;
     case "path": renderFork(); break;
-    case "battle_encounter_omen": {
-      const pe = state.pendingEncounter;
+    case "battle_encounter_omen":
+    case "battle_encounter_ready": {
+      let pe = state.pendingEncounter;
+      if (!pe || !pe.kanji) {
+        const fallbackRank = state.step >= PATH_STEPS ? "boss" : "normal";
+        const picked = pickEnemyForStage(fallbackRank);
+        if (picked && picked.kanji) {
+          pe = { rank: picked.rank || fallbackRank, kanji: picked.kanji, picked };
+          state.pendingEncounter = pe;
+        }
+      }
       if (pe && pe.kanji) {
         setDockActions([
           {
@@ -305,6 +314,7 @@ function renderPhase() {
         ]);
       } else {
         state.phase = "path";
+        if (!state.fork || !state.fork.length) state.fork = generateFork(Math.max(1, state.step));
         renderFork();
       }
       break;
@@ -589,7 +599,6 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
     state.phase = "battle_encounter_omen";
     state.pendingEncounter = { rank: actualRank, kanji, picked };
     state.enemyKanji = "";
-    updateBattleHUD(false);
 
     playGongSfx();
     const omenLines = actualRank === "boss"
@@ -608,13 +617,7 @@ function startBattle(rank, forcedKanji = null, { ambush = false } = {}) {
         ];
     logBeat("foe-omen-log", "🩸 【 살기의 전조 】", omenLines);
 
-    setDockActions([
-      {
-        label: "⚔ 무기를 쥐고 기척을 마주한다",
-        gold: true,
-        onClick: () => triggerEnemyCinematicReveal(kanji, actualRank)
-      }
-    ]);
+    renderPhase();
     saveRunToStorage();
     return;
   }

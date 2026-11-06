@@ -15,9 +15,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=20261106e" />
-  <link rel="stylesheet" href="/css/screens.css?v=20261106e" />
-  <link rel="stylesheet" href="/css/battle.css?v=20261106e" />
+  <link rel="stylesheet" href="/css/base.css?v=20261106f" />
+  <link rel="stylesheet" href="/css/screens.css?v=20261106f" />
+  <link rel="stylesheet" href="/css/battle.css?v=20261106f" />
 </head>
 <body>
   <canvas id="ember-canvas"></canvas>
@@ -340,18 +340,22 @@
         </div>
 
         <div class="hand-table">
-          <button class="deck-pile" onclick="openDeckViewer()" data-i18n-title="deckBtn">
+          <button type="button" class="deck-pile discard-pile" id="b-discard-pile" onclick="openDiscardPileViewer()" title="使用">
+            <span>使用</span>
+            <small id="b-discard-count">0</small>
+          </button>
+          <div class="card-row" id="b-player-hand"></div>
+          <button type="button" class="deck-pile draw-pile" id="b-draw-pile" onclick="openDrawPileViewer()" title="所持">
             <span>所持</span>
             <small id="b-deck-count">0</small>
           </button>
-          <div class="card-row" id="b-player-hand"></div>
         </div>
 
         <div class="cmd-chips">
           <button class="chip" title="/ask" onclick="triggerAskChip()"><span data-i18n="askChip">❓ Ask</span></button>
           <button class="chip" title="/reroll" onclick="triggerSlash('/reroll')"><span id="b-reroll-label">🎲 Reroll</span></button>
           <button class="chip" title="/talk" onclick="triggerTalkChip()"><span data-i18n="talkChip">💬 Talk</span></button>
-          <button class="chip" title="/flee" onclick="prefillSlash('/flee ')"><span data-i18n="fleeChip">🏃 Flee</span></button>
+          <button class="chip" title="/flee" onclick="triggerFleeChip()"><span data-i18n="fleeChip">🏃 Flee</span></button>
           <button class="chip" title="/summon" onclick="triggerSummonChip()"><span id="b-summon-label">🐉 Summon −10</span></button>
         </div>
 
@@ -366,44 +370,44 @@
   </div>
 
   <!-- Classic scripts sharing globals. Load order: i18n → data → core → ai → fx → ui → game → main -->
-  <script src="/js/i18n/index.js?v=20261106e"></script>
-  <script src="/js/i18n/en.js?v=20261106e"></script>
-  <script src="/js/i18n/ko.js?v=20261106e"></script>
-  <script src="/js/i18n/ja.js?v=20261106e"></script>
-  <script src="/js/i18n/zh-cn.js?v=20261106e"></script>
-  <script src="/js/i18n/zh-tw.js?v=20261106e"></script>
-  <script src="/js/data/depths.js?v=20261106e"></script>
-  <script src="/js/data/pool-policy.js?v=20261106e"></script>
-  <script src="/js/data/stages.js?v=20261106e"></script>
-  <script src="/js/data/rewards.js?v=20261106e"></script>
-  <script src="/js/data/events.js?v=20261106e"></script>
-  <script src="/js/data/guide.js?v=20261106e"></script>
-  <script src="/js/data/achievements.js?v=20261106e"></script>
-  <script src="/js/core/state.js?v=20261106e"></script>
-  <script src="/js/ai/providers.js?v=20261106e"></script>
-  <script src="/js/ai/gm.js?v=20261106e"></script>
-  <script src="/js/ai/local-engine.js?v=20261106e"></script>
-  <script src="/js/fx/audio.js?v=20261106e"></script>
-  <script src="/js/fx/embers.js?v=20261106e"></script>
-  <script src="/js/ui/dom.js?v=20261106e"></script>
-  <script src="/js/ui/hud.js?v=20261106e"></script>
-  <script src="/js/ui/picker.js?v=20261106e"></script>
-  <script src="/js/ui/viewport.js?v=20261106e"></script>
-  <script src="/js/ui/keyboard.js?v=20261106e"></script>
-  <script src="/js/ui/settings.js?v=20261106e"></script>
-  <script src="/js/ui/connect.js?v=20261106e"></script>
-  <script src="/js/ui/install.js?v=20261106e"></script>
-  <script src="/js/ui/screens.js?v=20261106e"></script>
-  <script src="/js/game/rules.js?v=20261106e"></script>
-  <script src="/js/game/deck.js?v=20261106e"></script>
-  <script src="/js/game/achievements.js?v=20261106e"></script>
-  <script src="/js/game/effects.js?v=20261106e"></script>
-  <script src="/js/game/rewards.js?v=20261106e"></script>
-  <script src="/js/game/events.js?v=20261106e"></script>
-  <script src="/js/game/story.js?v=20261106e"></script>
-  <script src="/js/game/run.js?v=20261106e"></script>
-  <script src="/js/game/battle.js?v=20261106e"></script>
-  <script src="/js/game/beats.js?v=20261106e"></script>
-  <script src="/js/main.js?v=20261106e"></script>
+  <script src="/js/i18n/index.js?v=20261106f"></script>
+  <script src="/js/i18n/en.js?v=20261106f"></script>
+  <script src="/js/i18n/ko.js?v=20261106f"></script>
+  <script src="/js/i18n/ja.js?v=20261106f"></script>
+  <script src="/js/i18n/zh-cn.js?v=20261106f"></script>
+  <script src="/js/i18n/zh-tw.js?v=20261106f"></script>
+  <script src="/js/data/depths.js?v=20261106f"></script>
+  <script src="/js/data/pool-policy.js?v=20261106f"></script>
+  <script src="/js/data/stages.js?v=20261106f"></script>
+  <script src="/js/data/rewards.js?v=20261106f"></script>
+  <script src="/js/data/events.js?v=20261106f"></script>
+  <script src="/js/data/guide.js?v=20261106f"></script>
+  <script src="/js/data/achievements.js?v=20261106f"></script>
+  <script src="/js/core/state.js?v=20261106f"></script>
+  <script src="/js/ai/providers.js?v=20261106f"></script>
+  <script src="/js/ai/gm.js?v=20261106f"></script>
+  <script src="/js/ai/local-engine.js?v=20261106f"></script>
+  <script src="/js/fx/audio.js?v=20261106f"></script>
+  <script src="/js/fx/embers.js?v=20261106f"></script>
+  <script src="/js/ui/dom.js?v=20261106f"></script>
+  <script src="/js/ui/hud.js?v=20261106f"></script>
+  <script src="/js/ui/picker.js?v=20261106f"></script>
+  <script src="/js/ui/viewport.js?v=20261106f"></script>
+  <script src="/js/ui/keyboard.js?v=20261106f"></script>
+  <script src="/js/ui/settings.js?v=20261106f"></script>
+  <script src="/js/ui/connect.js?v=20261106f"></script>
+  <script src="/js/ui/install.js?v=20261106f"></script>
+  <script src="/js/ui/screens.js?v=20261106f"></script>
+  <script src="/js/game/rules.js?v=20261106f"></script>
+  <script src="/js/game/deck.js?v=20261106f"></script>
+  <script src="/js/game/achievements.js?v=20261106f"></script>
+  <script src="/js/game/effects.js?v=20261106f"></script>
+  <script src="/js/game/rewards.js?v=20261106f"></script>
+  <script src="/js/game/events.js?v=20261106f"></script>
+  <script src="/js/game/story.js?v=20261106f"></script>
+  <script src="/js/game/run.js?v=20261106f"></script>
+  <script src="/js/game/battle.js?v=20261106f"></script>
+  <script src="/js/game/beats.js?v=20261106f"></script>
+  <script src="/js/main.js?v=20261106f"></script>
 </body>
 </html>

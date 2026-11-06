@@ -1,6 +1,12 @@
 /* Battle screen. Layout: battle bar / enemy stage / GM log (flex) / player dock. */
 
-#view-battle { gap: 8px; overflow: hidden; }
+#view-battle {
+  gap: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+#view-battle::-webkit-scrollbar { display: none; }
 
 /* Battle bar */
 .battle-bar {
@@ -138,8 +144,8 @@
 
 /* GM log — takes all remaining height */
 .gm-box {
-  flex: 1 1 auto;
-  min-height: 72px;
+  flex: 1 1 56px;
+  min-height: 56px;
   overflow-y: auto;
   background: rgba(11, 13, 20, 0.92);
   border: 1.5px solid var(--border);
@@ -236,15 +242,21 @@
 .gm-box strong { color: var(--gold); }
 .gm-box em { font-style: normal; color: var(--muted); }
 
-/* Player dock */
+/* Player dock — pinned to bottom: 0 so it overlaps upper UI when vertical space is short */
 .player-dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  margin-top: auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  background: linear-gradient(0deg, rgba(18, 20, 31, 0.88) 0%, rgba(12, 14, 22, 0.45) 100%);
-  border: 1.5px solid #2b1d24;
+  background: linear-gradient(0deg, rgba(10, 12, 19, 0.98) 0%, rgba(16, 18, 28, 0.95) 100%);
+  border: 1.5px solid #352129;
+  box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.85);
   padding: 9px 12px;
 }
 .player-stat-row {
@@ -260,12 +272,12 @@
 .hand-table {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
 }
 .deck-pile {
-  width: 66px;
+  width: 64px;
   height: 92px;
   background: repeating-linear-gradient(135deg, #241319, #241319 6px, #140b0f 6px, #140b0f 12px);
   border: 2px solid var(--gold);
@@ -274,18 +286,36 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   color: var(--gold);
   font-family: 'Noto Serif JP', serif;
   font-size: 0.82rem;
   box-shadow: -4px 4px 0 #1b1116, -8px 8px 14px rgba(0,0,0,0.7);
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.deck-pile:hover { transform: translateY(-3px); border-color: var(--crimson); }
+.deck-pile.discard-pile {
+  background: repeating-linear-gradient(45deg, #1b1d2b, #1b1d2b 6px, #10121b 6px, #10121b 12px);
+  border-color: #6b535e;
+  color: #b8b2c2;
+  box-shadow: -4px 4px 0 #12131c, -8px 8px 14px rgba(0,0,0,0.7);
+}
+.deck-pile.draw-pile {
+  box-shadow: 4px 4px 0 #1b1116, 8px 8px 14px rgba(0,0,0,0.7);
+}
+.deck-pile:hover { transform: translateY(-3px); border-color: var(--crimson); color: #fff; }
+.deck-pile.reshuffled {
+  animation: pileReshufflePulse 0.55s cubic-bezier(0.2, 0.85, 0.3, 1);
+}
+@keyframes pileReshufflePulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(229, 192, 123, 0); }
+  45% { transform: scale(1.12) rotate(3deg); border-color: var(--gold); box-shadow: 0 0 22px rgba(229, 192, 123, 0.75); }
+  100% { transform: scale(1); }
+}
 button.deck-pile { font-family: 'Noto Serif JP', serif; }
-.deck-pile small { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
-.deck-pile span { font-size: 1.25rem; font-weight: 900; }
+.deck-pile small { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 700; }
+.deck-pile span { font-size: 1.18rem; font-weight: 900; line-height: 1.1; }
 
 .card-row {
   display: flex;
@@ -293,11 +323,12 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   justify-content: center;
   flex-wrap: nowrap;
   perspective: 800px;
+  flex: 1 1 auto;
 }
-.enemy-hand-wrap .card-row { justify-content: flex-start; gap: 6px; }
+.enemy-hand-wrap .card-row { justify-content: flex-start; gap: 6px; flex: 0 1 auto; }
 @keyframes deckDraw3D {
-  0% { opacity: 0; transform: translateX(-110px) translateY(18px) rotate(-14deg) rotateY(180deg) scale(0.5); }
-  60% { opacity: 1; transform: translateX(4px) translateY(-5px) rotate(2deg) rotateY(18deg) scale(1.04); }
+  0% { opacity: 0; transform: translateX(96px) translateY(16px) rotate(12deg) rotateY(-180deg) scale(0.5); }
+  60% { opacity: 1; transform: translateX(-4px) translateY(-5px) rotate(-2deg) rotateY(-16deg) scale(1.04); }
   100% { opacity: 1; transform: none; }
 }
 .kanji-card {
@@ -428,25 +459,33 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .gm-box { padding: 8px; font-size: 0.8rem; }
   .log-entry { padding: 6px 8px; }
   .player-dock { padding: 7px 8px; gap: 7px; }
-  .deck-pile { display: none; }
-  .card-row { gap: 7px; }
-  .kanji-card { width: 58px; height: 74px; }
-  .kanji-card .char { font-size: 2rem; }
+  .hand-table { gap: 5px; }
+  .deck-pile {
+    width: 36px;
+    height: 64px;
+    padding: 2px;
+    border-width: 1.5px;
+    box-shadow: none;
+  }
+  .deck-pile span { font-size: 0.76rem; }
+  .deck-pile small { font-size: 0.7rem; }
+  .card-row { gap: 5px; }
+  .kanji-card { width: 52px; height: 70px; }
+  .kanji-card .char { font-size: 1.85rem; }
   .kanji-card.multi .char,
-  .kanji-card[data-len="2"] .char { font-size: 1.16rem; letter-spacing: -1px; }
+  .kanji-card[data-len="2"] .char { font-size: 1.1rem; letter-spacing: -1px; }
   .kanji-card.multi.multi-long .char,
-  .kanji-card[data-len="3"] .char { font-size: 0.82rem; letter-spacing: -1.5px; }
-  .kanji-card[data-len="4"] .char { font-size: 0.64rem; letter-spacing: -1.5px; }
-  .kanji-card[data-len="5"] .char { font-size: 0.54rem; letter-spacing: -1.5px; }
+  .kanji-card[data-len="3"] .char { font-size: 0.78rem; letter-spacing: -1.5px; }
+  .kanji-card[data-len="4"] .char { font-size: 0.62rem; letter-spacing: -1.5px; }
+  .kanji-card[data-len="5"] .char { font-size: 0.52rem; letter-spacing: -1.5px; }
   .cmd-chips { gap: 4px; }
   .chip { flex: 1 1 auto; min-width: 0; padding: 6px 4px; font-size: clamp(0.64rem, 2.65vw, 0.72rem); letter-spacing: -0.3px; text-align: center; }
   #b-send-btn { padding: 0 12px; }
 }
 
-/* On-screen keyboard open: nothing is resized or hidden (no layout jump). The log gives up
- * its height first; if the visible viewport is still too short, the battle view scrolls and the
- * browser keeps the focused input in view. */
-body.kb-open .gm-box { min-height: 40px; }
+/* On-screen keyboard open or short vertical viewport: .player-dock is sticky at bottom: 0
+ * so it overlaps the upper UI instead of getting clipped or buried under the keyboard. */
+body.kb-open .gm-box { min-height: 36px; }
 body.kb-open #view-battle { overflow-y: auto; }
 
 /* ---- Phases (js/game/run.js renderPhase) ----

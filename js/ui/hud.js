@@ -126,6 +126,13 @@ function updateBattleHUD(animateCards = false) {
   updateTimerBadge();
   renderRunRosterBar();
 
+  const viewEl = $("view-battle");
+  if (viewEl) {
+    const over = ["cleared", "dead", "abandoned", "returned"].includes(state.phase);
+    viewEl.classList.toggle("intermission", !over && state.phase !== "battle");
+    viewEl.classList.toggle("run-over", over);
+  }
+
   const inFight = state.phase === "battle";
   const card = stageCardContent();
   const bossKanjiEl = $("b-boss-kanji");
@@ -152,7 +159,27 @@ function updateBattleHUD(animateCards = false) {
 
   $("b-player-state").textContent = state.playerState || "";
   setHpBar("b-player-bar", "b-player-hp", state.playerHp, state.maxHp);
-  $("b-deck-count").textContent = state.deck.length;
+
+  const discardCountEl = $("b-discard-count");
+  if (discardCountEl) {
+    discardCountEl.textContent = inFight ? (state.discard || []).length : 0;
+  }
+  const drawCountEl = $("b-deck-count");
+  if (drawCountEl) {
+    drawCountEl.textContent = inFight ? (state.drawPile || []).length : 0;
+  }
+  if (state._reshuffledThisDraw) {
+    state._reshuffledThisDraw = false;
+    ["b-discard-pile", "b-draw-pile"].forEach(id => {
+      const pileEl = $(id);
+      if (pileEl) {
+        pileEl.classList.remove("reshuffled");
+        void pileEl.offsetWidth;
+        pileEl.classList.add("reshuffled");
+      }
+    });
+  }
+
   updateRerollChip();
   updateSummonChip();
 

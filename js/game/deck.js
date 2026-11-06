@@ -51,8 +51,10 @@ function resetPilesForFight() {
   state.playerHandSources = [];
 }
 
-/* Discard the current hand and draw 5 fresh cards purely at random from the combined pile. */
+/* Discard the current hand into Left 使用 (`state.discard`) and draw 5 fresh cards from Right 所持 (`state.drawPile`).
+ * Whenever Right 所持 runs out, Left 使用 is shuffled back into Right 所持 (Slay the Spire cycle). */
 function drawHand() {
+  state._reshuffledThisDraw = false;
   for (let i = 0; i < state.playerHand.length; i++) {
     state.discard.push({
       kanji: state.playerHand[i],
@@ -67,6 +69,7 @@ function drawHand() {
       if (!state.discard.length) break;
       state.drawPile = shuffle(state.discard);
       state.discard = [];
+      state._reshuffledThisDraw = true;
     }
     const drawn = state.drawPile.pop();
     if (!drawn) break;

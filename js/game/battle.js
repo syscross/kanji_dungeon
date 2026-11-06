@@ -30,65 +30,55 @@ function triggerSlash(cmd) {
 }
 
 /*
- * Clicking the leftmost Ask (/ask) chip:
- * - Unifies /hint and /prompt:
- *   * If the input box is empty (or just "/ask"), immediately requests a tactical briefing & hint!
- *   * If the input box already has a question/text, wraps it as `/ask <text>` and submits immediately!
+ * Unified Command + Optional Argument chip helper for:
+ *   ❓ Ask (/ask [question])
+ *   💬 Talk (/talk [words to enemy])
+ *   🏃 Flee (/flee [escape tactic])
+ *   🐉 Summon (/summon [direction for Ancient God])
+ *
+ * Clicking any of these 4 chips does NOT auto-submit immediately:
+ * - If the input box is empty, it inserts `/cmd ` and focuses the input so the player can either
+ *   press Enter / Cast immediately (for no-argument execution) OR type an optional argument.
+ * - If the input box already starts with a slash command, it replaces that slash command prefix
+ *   with `/cmd ` while preserving any argument text the player typed.
+ * - If the input box contains plain text without a slash command, it wraps that text as `/cmd <text>`
+ *   and focuses the input so the player can review/edit and press Enter / Cast.
  */
+function prefillCommandChip(cmdWord) {
+  playClickSfx();
+  if (!canAct()) return;
+  const inp = $("b-input");
+  const raw = inp.value;
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    inp.value = `${cmdWord} `;
+  } else if (trimmed.startsWith("/")) {
+    const rest = trimmed.replace(/^\/\S+\s*/, "");
+    inp.value = rest ? `${cmdWord} ${rest}` : `${cmdWord} `;
+  } else {
+    inp.value = `${cmdWord} ${trimmed}`;
+  }
+  inp.focus();
+  const len = inp.value.length;
+  try {
+    inp.setSelectionRange(len, len);
+  } catch (_) { /* ignore */ }
+}
+
 function triggerAskChip() {
-  playClickSfx();
-  if (!canAct()) return;
-  const inp = $("b-input");
-  const cur = inp.value.trim();
-  if (!cur || cur === "/ask" || cur === "/hint" || cur === "/prompt") {
-    inp.value = "/ask";
-  } else if (!/^\/(ask|hint|prompt|질문|힌트)\b/i.test(cur)) {
-    inp.value = `/ask ${cur}`;
-  }
-  handleBattleSubmit(null);
+  prefillCommandChip("/ask");
 }
 
-/*
- * Clicking the Talk (/talk) chip:
- * - Pure conversation with the enemy wraith/boss without advancing the combat turn!
- * - If the input box is empty, prefills `/talk ` and focuses the input so the player can write what to say;
- *   clicking it again while `/talk` is in the input (or submitting `/talk` directly) sends a default greeting/question.
- * - If the input box already has text, wraps it as `/talk <text>` and submits immediately!
- */
 function triggerTalkChip() {
-  playClickSfx();
-  if (!canAct()) return;
-  const inp = $("b-input");
-  const cur = inp.value.trim();
-  if (!cur) {
-    inp.value = "/talk ";
-    inp.focus();
-    return;
-  }
-  if (/^\/(talk|대화|말)$/i.test(cur)) {
-    inp.value = `/talk ${t("defaultTalkMove")}`;
-  } else if (!/^\/(talk|대화|말)\b/i.test(cur)) {
-    inp.value = `/talk ${cur}`;
-  }
-  handleBattleSubmit(null);
+  prefillCommandChip("/talk");
 }
 
-/*
- * Clicking the Ancient God Summon chip:
- * - If the input box is empty, summons the Ancient God immediately with no argument (autonomous play).
- * - If the input box has text (e.g. "회복 위주로" or "/summon 방어"), uses that text as the tactical direction!
- */
+function triggerFleeChip() {
+  prefillCommandChip("/flee");
+}
+
 function triggerSummonChip() {
-  playClickSfx();
-  if (!canAct()) return;
-  const inp = $("b-input");
-  const cur = inp.value.trim();
-  if (!cur || cur === "/summon") {
-    inp.value = "/summon";
-  } else if (!cur.toLowerCase().startsWith("/summon")) {
-    inp.value = `/summon ${cur}`;
-  }
-  handleBattleSubmit(null);
+  prefillCommandChip("/summon");
 }
 
 function setInputBusy(busy) {
@@ -119,6 +109,10 @@ function doReroll() {
 
 async function handleBattleSubmit(e) {
   if (e && e.preventDefault) e.preventDefault();
+  if (state.active && state.phase === "battle_encounter_omen" && state.pendingEncounter && state.pendingEncounter.kanji) {
+    triggerEnemyCinematicReveal(state.pendingEncounter.kanji, state.pendingEncounter.rank || "normal");
+    return;
+  }
   const inp = $("b-input");
   const raw = inp.value.trim();
   if (!raw || !canAct()) return;
