@@ -131,6 +131,13 @@ const KEYLESS_PROVIDERS = ["free_keyless", "offline", "custom"];
  *  opts.summon      — passed to the offline judge (the god plays the whole hand)
  */
 async function callLLM(prompt, expectJson = true, opts = {}) {
+  if (typeof resolveValidModel === "function") {
+    const validModel = resolveValidModel(config.provider, config.model);
+    if (validModel !== config.model) {
+      config.model = validModel;
+      localStorage.setItem(STORAGE.model, validModel);
+    }
+  }
   const { provider, apiKey, model, customEndpoint } = config;
   const temperature = opts.temperature ?? (expectJson ? 0.6 : 0.7);
   const systemPrompt = prompt;

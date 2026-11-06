@@ -49,8 +49,12 @@ function onProviderChange(preferredModel = null) {
   presetSel.appendChild(customOpt);
 
   const defaultModelId = pInfo.models[0].id;
-  const targetModel = (typeof preferredModel === "string" && preferredModel.trim())
-    ? preferredModel.trim()
+  const cleanedPref = typeof preferredModel === "string" ? preferredModel.trim() : "";
+  const isStaleFallback =
+    (p !== "free_keyless" && cleanedPref === "openai") ||
+    (p !== "offline" && cleanedPref === "offline");
+  const targetModel = (cleanedPref && !isStaleFallback)
+    ? cleanedPref
     : defaultModelId;
 
   $("s-model-custom").value = targetModel;
@@ -94,6 +98,9 @@ function onInstModeChange() {
 }
 
 function syncSettingsUI() {
+  if (typeof resolveValidModel === "function") {
+    config.model = resolveValidModel(config.provider, config.model);
+  }
   $("s-default-inst").value = DEFAULT_GM_RULES;
   $("s-provider").value = config.provider;
   onProviderChange(config.model);
@@ -113,7 +120,10 @@ function saveSettings(silent = false) {
   const presetVal = $("s-model-preset") && $("s-model-preset").value !== "__custom__"
     ? $("s-model-preset").value
     : "";
-  config.model = $("s-model-custom").value.trim() || presetVal || PROVIDERS[config.provider].models[0].id;
+  const rawModel = $("s-model-custom").value.trim() || presetVal || PROVIDERS[config.provider].models[0].id;
+  config.model = typeof resolveValidModel === "function"
+    ? resolveValidModel(config.provider, rawModel)
+    : rawModel;
   config.instMode = $("s-inst-mode").value;
   config.customInst = $("s-custom-inst").value.trim();
 
@@ -258,7 +268,7 @@ function handleImportSaveFile(event) {
 function promptWipeAllSaveData() {
   playClickSfx();
   const title = "⚠️ 【세이브 데이터 영구 삭제】";
-  const desc = "스토리 모드 진행도, 보유 엔화, 영구 특수 성물, 도감 기록, 아케이드 진행 상황이 모두 영구 삭제됩니다.\n정말로 모든 세이브 데이터를 초기화하시겠습니까?";
+  const desc = "스토리 모드 진행도, 보유 엔화, 영구 특수 성물, 도감 기록, 아케이드 진행 상황이 모두 영구 삭제됩니다.\n(API 키, AI 제공자 및 모델 설정은 그대로 유지됩니다.)\n정말로 모든 세이브 데이터를 초기화하시겠습니까?";
   if (typeof openConfirmModal === "function") {
     openConfirmModal(title, desc, () => {
       wipeAllSaveData();
@@ -270,12 +280,25 @@ function promptWipeAllSaveData() {
 
 function wipeAllSaveData() {
   playSealStampSfx();
-  Object.values(STORAGE).forEach(k => {
-    // Keep API keys and provider so user doesn't have to re-enter their key unless they want to
-    if (k !== STORAGE.keys && k !== STORAGE.legacyKey && k !== STORAGE.provider && k !== STORAGE.endpoint) {
-      localStorage.removeItem(k);
-    }
+  // Only remove game progress save keys; preserve AI provider, model, API keys, custom endpoint, GM rule mode, and language
+  const saveKeysToRemove = [
+    STORAGE.achievements,
+    STORAGE.seenFoes,
+    STORAGE.stats,
+    STORAGE.records,
+    STORAGE.savedRun,
+    STORAGE.savedStoryRun,
+    STORAGE.storyState,
+    STORAGE.gameMode
+  ];
+  saveKeysToRemove.forEach(k => {
+    if (k) localStorage.removeItem(k);
   });
+
+  if (typeof resolveValidModel === "function") {
+    config.model = resolveValidModel(config.provider, config.model);
+  }
+  persistConfig();
 
   config.achievements = {};
   config.seenFoes = {};
@@ -287,6 +310,7 @@ function wipeAllSaveData() {
   state.active = false;
 
   loadSavedRunFromStorage();
+  syncSettingsUI();
   updateSavedRunBanner();
   renderDepthSpine();
 

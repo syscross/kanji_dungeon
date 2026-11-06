@@ -117,13 +117,41 @@ if (legacyKey) {
   localStorage.removeItem(STORAGE.legacyKey);
 }
 
+const DEFAULT_PROVIDER_MODELS = {
+  gemini: "gemini-flash-lite-latest",
+  anthropic: "claude-haiku-5-5",
+  openai: "gpt-5-mini",
+  deepseek: "deepseek-chat",
+  groq: "llama-3.3-70b-versatile",
+  xai: "grok-3-mini",
+  openrouter: "google/gemini-flash-lite-latest",
+  custom: "qwen2.5:14b",
+  free_keyless: "openai",
+  offline: "offline"
+};
+
+function resolveValidModel(provider, rawModel) {
+  const fallback = (typeof PROVIDERS !== "undefined" && PROVIDERS[provider]?.models?.[0]?.id)
+    || DEFAULT_PROVIDER_MODELS[provider]
+    || "gemini-flash-lite-latest";
+  const m = typeof rawModel === "string" ? rawModel.trim() : "";
+  if (!m) return fallback;
+  if (provider !== "free_keyless" && m === "openai") return fallback;
+  if (provider !== "offline" && m === "offline") return fallback;
+  return m;
+}
+
 const initialProvider = localStorage.getItem(STORAGE.provider) || "free_keyless";
+const initialModel = resolveValidModel(initialProvider, localStorage.getItem(STORAGE.model));
+if (localStorage.getItem(STORAGE.model) !== initialModel) {
+  localStorage.setItem(STORAGE.model, initialModel);
+}
 
 let config = {
   provider: initialProvider,
   apiKey: savedKeys[initialProvider] || "",
   customEndpoint: localStorage.getItem(STORAGE.endpoint) || "http://localhost:11434/v1/chat/completions",
-  model: localStorage.getItem(STORAGE.model) || "openai",
+  model: initialModel,
   instMode: localStorage.getItem(STORAGE.instMode) || "Default",
   customInst: localStorage.getItem(STORAGE.customInst) || "",
   lang: localStorage.getItem(STORAGE.lang) || "KO",
