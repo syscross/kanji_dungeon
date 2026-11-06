@@ -384,15 +384,18 @@
 .node-bosses span.boss.encountered { color: #9aa2b2; }
 .node-bosses span.boss.seen { color: var(--gold); text-shadow: 0 0 8px rgba(229, 192, 123, 0.45); }
 
-/* Kanji picker (scavenge / picks / deck viewer) — left-aligned flex row */
+/* Kanji picker: centered for gameplay picks/scavenging, left-aligned for read-only deck/pile viewers */
 .pick-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 8px;
   max-width: 100%;
   width: 100%;
   margin: 0;
+}
+.pick-grid.readonly {
+  justify-content: flex-start;
 }
 .pick-tile {
   width: calc(20% - 7px);
@@ -406,6 +409,12 @@
   font-size: 2rem;
   cursor: pointer;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  overflow: hidden;
+  container-type: inline-size;
   white-space: nowrap;
   transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
 }
@@ -413,11 +422,18 @@
 .pick-tile.tier-common { color: #f5b066; border-color: #7a5228; }
 .pick-tile.tier-abyss { color: #ff5c6c; border-color: #8c2633; text-shadow: 0 0 10px rgba(255, 77, 94, 0.4); }
 .pick-tile.multi,
-.pick-tile[data-len="2"] { font-size: 1.24rem; white-space: nowrap; letter-spacing: -1px; }
+.pick-tile[data-len="2"] { font-size: min(1.18rem, 39cqw); white-space: nowrap; letter-spacing: -0.04em; }
 .pick-tile.multi.multi-long,
-.pick-tile[data-len="3"] { font-size: 0.88rem; white-space: nowrap; letter-spacing: -1.5px; }
-.pick-tile[data-len="4"] { font-size: 0.68rem; white-space: nowrap; letter-spacing: -1.5px; }
-.pick-tile[data-len="5"] { font-size: 0.56rem; white-space: nowrap; letter-spacing: -1.5px; }
+.pick-tile[data-len="3"] { font-size: min(0.82rem, 26cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-tile[data-len="4"] { font-size: min(0.62rem, 19.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-tile[data-len="5"] { font-size: min(0.5rem, 15.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-tile[data-len="6"],
+.pick-tile[data-len="7"],
+.pick-tile[data-len="8"] {
+  font-size: calc(78cqw / var(--char-len, 6));
+  white-space: nowrap;
+  letter-spacing: -0.05em;
+}
 .pick-tile:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--gold); }
 .pick-tile.selected {
   border-color: var(--gold);

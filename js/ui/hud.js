@@ -216,7 +216,8 @@ function makeCardEl(k, isEnemy = false, idx = 0, animate = true, source = null) 
   const charLen = [...String(k)].length;
   const multiCls = charLen > 1 ? ` multi${charLen >= 3 ? " multi-long" : ""}` : "";
   el.className = `kanji-card tier-${tier}${isEnemy ? " enemy-sm" : ""}${srcCls}${multiCls}`;
-  el.dataset.len = String(Math.min(5, Math.max(1, charLen)));
+  el.dataset.len = String(Math.min(8, Math.max(1, charLen)));
+  el.style.setProperty("--char-len", String(Math.max(1, charLen)));
   if (animate) el.style.animationDelay = `${idx * 65}ms`;
   else el.style.animation = "none";
 

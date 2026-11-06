@@ -272,8 +272,8 @@
 .hand-table {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
+  gap: 14px;
   width: 100%;
 }
 .deck-pile {
@@ -323,7 +323,7 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   justify-content: center;
   flex-wrap: nowrap;
   perspective: 800px;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
 }
 .enemy-hand-wrap .card-row { justify-content: flex-start; gap: 6px; flex: 0 1 auto; }
 @keyframes deckDraw3D {
@@ -341,6 +341,9 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0 5px;
+  overflow: hidden;
+  container-type: inline-size;
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
@@ -364,7 +367,15 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
 }
 .kanji-card:active { transform: scale(0.95); }
 .kanji-card .key-hint { position: absolute; bottom: 3px; left: 6px; font-size: 0.6rem; color: var(--muted); }
-.kanji-card .char { font-family: 'Noto Serif JP', serif; font-size: 2.8rem; color: #f7f3e8; line-height: 1; }
+.kanji-card .char {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 2.8rem;
+  color: #f7f3e8;
+  line-height: 1;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+}
 .kanji-card .dict-link {
   position: absolute;
   top: 0;
@@ -470,14 +481,17 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .deck-pile span { font-size: 0.76rem; }
   .deck-pile small { font-size: 0.7rem; }
   .card-row { gap: 5px; }
-  .kanji-card { width: 52px; height: 70px; }
+  .kanji-card { width: 52px; height: 70px; padding: 0 3px; }
   .kanji-card .char { font-size: 1.85rem; }
   .kanji-card.multi .char,
-  .kanji-card[data-len="2"] .char { font-size: 1.1rem; letter-spacing: -1px; }
+  .kanji-card[data-len="2"] .char { font-size: min(1.02rem, 38cqw); letter-spacing: -0.04em; }
   .kanji-card.multi.multi-long .char,
-  .kanji-card[data-len="3"] .char { font-size: 0.78rem; letter-spacing: -1.5px; }
-  .kanji-card[data-len="4"] .char { font-size: 0.62rem; letter-spacing: -1.5px; }
-  .kanji-card[data-len="5"] .char { font-size: 0.52rem; letter-spacing: -1.5px; }
+  .kanji-card[data-len="3"] .char { font-size: min(0.72rem, 25.5cqw); letter-spacing: -0.05em; }
+  .kanji-card[data-len="4"] .char { font-size: min(0.55rem, 19cqw); letter-spacing: -0.05em; }
+  .kanji-card[data-len="5"] .char { font-size: min(0.45rem, 15.2cqw); letter-spacing: -0.05em; }
+  .kanji-card[data-len="6"] .char,
+  .kanji-card[data-len="7"] .char,
+  .kanji-card[data-len="8"] .char { font-size: calc(76cqw / var(--char-len, 6)); letter-spacing: -0.05em; }
   .cmd-chips { gap: 4px; }
   .chip { flex: 1 1 auto; min-width: 0; padding: 6px 4px; font-size: clamp(0.64rem, 2.65vw, 0.72rem); letter-spacing: -0.3px; text-align: center; }
   #b-send-btn { padding: 0 12px; }
@@ -621,6 +635,7 @@ body.kb-open #view-battle { overflow-y: auto; }
 }
 .pick-grid.scavenge-inline {
   max-width: 440px;
+  justify-content: center;
 }
 .pick-grid.scavenge-inline .pick-tile {
   width: calc(20% - 7px);
@@ -752,17 +767,31 @@ body.kb-open #view-battle { overflow-y: auto; }
 .kanji-card.tier-common .char { color: #f5b066; }
 .kanji-card.tier-abyss .char { color: #ff5c6c; text-shadow: 0 0 12px rgba(255, 77, 94, 0.5); }
 .kanji-card.multi .char,
-.kanji-card[data-len="2"] .char { font-size: 1.56rem; white-space: nowrap; letter-spacing: -1px; }
+.kanji-card[data-len="2"] .char { font-size: min(1.42rem, 38cqw); white-space: nowrap; letter-spacing: -0.04em; }
 .kanji-card.multi.multi-long .char,
-.kanji-card[data-len="3"] .char { font-size: 1.08rem; white-space: nowrap; letter-spacing: -1.5px; }
-.kanji-card[data-len="4"] .char { font-size: 0.84rem; white-space: nowrap; letter-spacing: -1.5px; }
-.kanji-card[data-len="5"] .char { font-size: 0.68rem; white-space: nowrap; letter-spacing: -1.5px; }
+.kanji-card[data-len="3"] .char { font-size: min(0.98rem, 25.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.kanji-card[data-len="4"] .char { font-size: min(0.74rem, 19cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.kanji-card[data-len="5"] .char { font-size: min(0.6rem, 15.2cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.kanji-card[data-len="6"] .char,
+.kanji-card[data-len="7"] .char,
+.kanji-card[data-len="8"] .char {
+  font-size: calc(76cqw / var(--char-len, 6));
+  white-space: nowrap;
+  letter-spacing: -0.05em;
+}
 .pick-grid.scavenge-inline .pick-tile.multi,
-.pick-grid.scavenge-inline .pick-tile[data-len="2"] { font-size: 1.12rem; white-space: nowrap; letter-spacing: -1px; }
+.pick-grid.scavenge-inline .pick-tile[data-len="2"] { font-size: min(1.02rem, 38cqw); white-space: nowrap; letter-spacing: -0.04em; }
 .pick-grid.scavenge-inline .pick-tile.multi.multi-long,
-.pick-grid.scavenge-inline .pick-tile[data-len="3"] { font-size: 0.8rem; white-space: nowrap; letter-spacing: -1.5px; }
-.pick-grid.scavenge-inline .pick-tile[data-len="4"],
-.pick-grid.scavenge-inline .pick-tile[data-len="5"] { font-size: 0.64rem; white-space: nowrap; letter-spacing: -1.5px; }
+.pick-grid.scavenge-inline .pick-tile[data-len="3"] { font-size: min(0.72rem, 25.5cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-grid.scavenge-inline .pick-tile[data-len="4"] { font-size: min(0.55rem, 19cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-grid.scavenge-inline .pick-tile[data-len="5"] { font-size: min(0.45rem, 15.2cqw); white-space: nowrap; letter-spacing: -0.05em; }
+.pick-grid.scavenge-inline .pick-tile[data-len="6"],
+.pick-grid.scavenge-inline .pick-tile[data-len="7"],
+.pick-grid.scavenge-inline .pick-tile[data-len="8"] {
+  font-size: calc(76cqw / var(--char-len, 6));
+  white-space: nowrap;
+  letter-spacing: -0.05em;
+}
 
 /* Stage card in neutral (non-combat) mode, rank mark */
 .boss-card.neutral { border-color: #6e5931; box-shadow: 0 0 18px rgba(229,192,123,0.18); cursor: default; }
