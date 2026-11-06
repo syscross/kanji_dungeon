@@ -15,7 +15,8 @@ const STORAGE = {
   records: "kd_records",
   savedRun: "kd_saved_run",
   savedStoryRun: "kd_saved_story_run",
-  storyState: "kd_story_state"
+  storyState: "kd_story_state",
+  gameMode: "kd_game_mode"
 };
 
 const RUN_VERSION = 3; // bump when the saved-run shape changes; older saves are discarded
@@ -31,7 +32,12 @@ function readJson(key, fallback) {
 
 let KANKEN_DATA = {};
 let currentView = "title";
-let activeGameMode = "arcade"; // "story" | "arcade"
+let activeGameMode = localStorage.getItem(STORAGE.gameMode) === "story" ? "story" : "arcade"; // "story" | "arcade"
+
+function setActiveGameMode(mode) {
+  activeGameMode = mode === "story" ? "story" : "arcade";
+  localStorage.setItem(STORAGE.gameMode, activeGameMode);
+}
 
 const STORY_STATE_VERSION = 2;
 
@@ -51,6 +57,12 @@ function createDefaultStoryState() {
     defeatedBosses: [],
     encounteredFoes: [],
     gaolBosses: {},
+    clearedDepths: [],       // ["depth_1", ...] tracks which Gaol chapters have had their stolen words restored
+    lastClearedDepth: 0,     // most recently cleared Gaol number (1..12) for village return chronicle
+    lastChronicleShownFor: 0,// prevents repeating the same Gaol return chronicle
+    resurrectionCount: 0,    // times revived by 【生】 Talisman (tracks ink corrosion in veins)
+    seenDialogues: {},       // { [dialogueKey]: true } for one-time story milestone dialogues
+    spotResonanceDone: {},   // { [spotKey_depth]: true } for Kanji-in-bag contextual village interactions
     humanEndingSeen: false,
     shuraEndingSeen: false,
     visitedDepth11: false,
@@ -88,6 +100,9 @@ function loadStoryStateFromStorage() {
     specialItems: Array.isArray(saved.specialItems) ? saved.specialItems : def.specialItems,
     defeatedFoes: Array.isArray(saved.defeatedFoes) ? saved.defeatedFoes : def.defeatedFoes,
     defeatedBosses: Array.isArray(saved.defeatedBosses) ? saved.defeatedBosses : def.defeatedBosses,
+    clearedDepths: Array.isArray(saved.clearedDepths) ? saved.clearedDepths : def.clearedDepths,
+    seenDialogues: saved.seenDialogues && typeof saved.seenDialogues === "object" ? saved.seenDialogues : def.seenDialogues,
+    spotResonanceDone: saved.spotResonanceDone && typeof saved.spotResonanceDone === "object" ? saved.spotResonanceDone : def.spotResonanceDone,
     metNpcs: migratedNpcs,
     unlockedDepth: typeof saved.unlockedDepth === "number" ? saved.unlockedDepth : def.unlockedDepth
   };
@@ -367,10 +382,10 @@ function loadSavedRunFromStorage() {
   const storyRun = getSavedStoryRun();
   const arcadeRun = getSavedArcadeRun();
   if (storyRun) {
-    activeGameMode = "story";
+    setActiveGameMode("story");
     state = { ...createRunState(), ...storyRun, gameMode: "story" };
   } else if (arcadeRun) {
-    activeGameMode = "arcade";
+    setActiveGameMode("arcade");
     state = { ...createRunState(), ...arcadeRun, gameMode: "arcade" };
   } else {
     localStorage.removeItem(STORAGE.savedStoryRun);

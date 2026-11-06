@@ -6,9 +6,11 @@ function parseInputCommand(raw) {
   const parts = trimmed.split(/\s+/);
   const cmd = parts[0].toLowerCase();
   const arg = parts.slice(1).join(" ").trim();
-  if (cmd === "/hint") return { type: "HINT", arg: "" };
+  if (cmd === "/ask" || cmd === "/hint" || cmd === "/prompt" || cmd === "/질문" || cmd === "/힌트") {
+    return { type: "ASK", arg };
+  }
   if (cmd === "/reroll") return { type: "REROLL", arg: "" };
-  if (cmd === "/prompt") return { type: "PROMPT", arg };
+  if (cmd === "/talk" || cmd === "/대화" || cmd === "/말") return { type: "TALK", arg };
   if (cmd === "/summon" || cmd === "/소환") return { type: "SUMMON", arg };
   if (cmd === "/flee" || cmd === "/escape" || cmd === "/도주") return { type: "FLEE", arg };
   return { type: "UNKNOWN_SLASH", cmd, arg };
@@ -24,6 +26,52 @@ function prefillSlash(prefix) {
 function triggerSlash(cmd) {
   playClickSfx();
   $("b-input").value = cmd;
+  handleBattleSubmit(null);
+}
+
+/*
+ * Clicking the leftmost Ask (/ask) chip:
+ * - Unifies /hint and /prompt:
+ *   * If the input box is empty (or just "/ask"), immediately requests a tactical briefing & hint!
+ *   * If the input box already has a question/text, wraps it as `/ask <text>` and submits immediately!
+ */
+function triggerAskChip() {
+  playClickSfx();
+  if (!canAct()) return;
+  const inp = $("b-input");
+  const cur = inp.value.trim();
+  if (!cur || cur === "/ask" || cur === "/hint" || cur === "/prompt") {
+    inp.value = "/ask";
+  } else if (!/^\/(ask|hint|prompt|질문|힌트)\b/i.test(cur)) {
+    inp.value = `/ask ${cur}`;
+  }
+  handleBattleSubmit(null);
+}
+
+/*
+ * Clicking the Talk (/talk) chip:
+ * - Lets the player speak directly to the enemy wraith/boss!
+ * - If the input box is empty, prefills `/talk ` and focuses the input so the player can write what to say (or tap hand kanji).
+ * - If the input box already has text, wraps it as `/talk <text>` and submits immediately!
+ */
+function triggerTalkChip() {
+  playClickSfx();
+  if (!canAct()) return;
+  const inp = $("b-input");
+  const cur = inp.value.trim();
+  if (!cur) {
+    inp.value = "/talk ";
+    inp.focus();
+    return;
+  }
+  if (/^\/(talk|대화|말)$/i.test(cur)) {
+    inp.value = "/talk ";
+    inp.focus();
+    return;
+  }
+  if (!/^\/(talk|대화|말)\b/i.test(cur)) {
+    inp.value = `/talk ${cur}`;
+  }
   handleBattleSubmit(null);
 }
 
@@ -85,27 +133,26 @@ async function handleBattleSubmit(e) {
     doReroll();
     return;
   }
-  if (parsed.type === "PROMPT" && !parsed.arg) {
-    logMd(t("promptUsage"), "hint-log", false);
-    return;
-  }
   if (parsed.type === "UNKNOWN_SLASH") {
     logMd(t("unknownCmd")(parsed.cmd), "hint-log", false);
     return;
   }
 
-  // Free briefings (no turn spent)
-  if (parsed.type === "HINT" || parsed.type === "PROMPT") {
+  // Unified Ask (/ask, /hint, /prompt — no turn spent)
+  if (parsed.type === "ASK") {
     if (typeof playWhisperSfx === "function") playWhisperSfx();
-    achOnCommand(parsed.type);
+    achOnCommand("ASK");
     setInputBusy(true);
-    const stopJudging = startJudgingIndicator(parsed.type);
+    const stopJudging = startJudgingIndicator("ASK");
     try {
-      const prompt = parsed.type === "HINT" ? buildHintPrompt() : buildQuestionPrompt(parsed.arg);
+      const prompt = typeof buildAskPrompt === "function"
+        ? buildAskPrompt(parsed.arg)
+        : (parsed.arg ? buildQuestionPrompt(parsed.arg) : buildHintPrompt());
       const reply = await callLLM(prompt, false);
       const sec = stopJudging();
       inp.value = "";
-      logMd(`💡 **[${parsed.type} · ⏱ ${sec}s]**\n${reply}`, "hint-log", false);
+      const askHeader = parsed.arg ? `ASK: "${parsed.arg}"` : "ASK";
+      logMd(`💡 **[${askHeader} · ⏱ ${sec}s]**\n${reply}`, "hint-log", false);
     } catch (err) {
       stopJudging();
       logMd(t("apiError")(err.message), "hint-log", false);
@@ -116,11 +163,13 @@ async function handleBattleSubmit(e) {
     return;
   }
 
-  // Judged turn: normal move, escape attempt (/flee), or ancient god summon (/summon).
+  // Judged turn: normal move, enemy dialogue (/talk), escape attempt (/flee), or ancient god summon (/summon).
   const summon = parsed.type === "SUMMON";
   const flee = parsed.type === "FLEE";
+  const talk = parsed.type === "TALK";
   let summonDirective = "";
   let fleeDirective = "";
+  let talkDirective = "";
   let summonPaid = 0;
   let usedFreeSummon = false;
 
@@ -143,6 +192,10 @@ async function handleBattleSubmit(e) {
   } else if (flee) {
     if (typeof playFootstepSfx === "function") playFootstepSfx();
     fleeDirective = buildFleeDirective(parsed.arg);
+  } else if (talk) {
+    if (typeof playWhisperSfx === "function") playWhisperSfx();
+    achOnCommand("TALK");
+    talkDirective = typeof buildTalkDirective === "function" ? buildTalkDirective(parsed.arg) : "";
   } else {
     if (typeof playCastIncantationSfx === "function") playCastIncantationSfx();
   }
@@ -151,15 +204,21 @@ async function handleBattleSubmit(e) {
     ? (parsed.arg || t("summonDefaultMove"))
     : flee
       ? (parsed.arg || t("defaultFleeMove"))
-      : raw;
+      : talk
+        ? (parsed.arg || t("defaultTalkMove"))
+        : raw;
 
   setInputBusy(true);
-  const stopJudging = startJudgingIndicator(summon ? "SUMMON" : flee ? "FLEE" : "JUDGE");
+  const stopJudging = startJudgingIndicator(summon ? "SUMMON" : flee ? "FLEE" : talk ? "TALK" : "JUDGE");
   try {
-    const res = await callLLM(buildJudgePrompt(moveText, summonDirective, fleeDirective), true, { summon, flee });
+    const res = await callLLM(
+      buildJudgePrompt(moveText, summonDirective, fleeDirective, talkDirective),
+      true,
+      { summon, flee, talk }
+    );
     const sec = stopJudging();
     inp.value = "";
-    applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee, summonArg: parsed.arg });
+    applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee, talk, summonArg: parsed.arg });
   } catch (err) {
     stopJudging();
     if (usedFreeSummon) {
@@ -222,7 +281,7 @@ function applySpecialEvent(j) {
   }
 }
 
-function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = false, summonArg = "" } = {}) {
+function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = false, talk = false, summonArg = "" } = {}) {
   state.fieldState = j.fieldState;
   state.playerState = j.playerState;
   state.enemyState = j.enemyState;
@@ -233,7 +292,7 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   const n = resolveTurnNumbers(j);
   const specialNote = applySpecialEvent(j);
 
-  // Reward countering enemy intent with full defense or MASTERFUL play with +1 free reroll token
+  // Reward countering enemy intent with full defense or MASTERFUL play with +1 reroll token
   let bonusNote = "";
   if (j.verdict === "MASTERFUL" || (j.verdict === "CLEVER" && n.defense === "full")) {
     state.rerollTokens += 1;
@@ -244,14 +303,14 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   const hpBefore = state.playerHp;
   state.playerHp = Math.min(state.maxHp, state.playerHp + n.heal);
   const healed = state.playerHp - hpBefore;
-  achOnTurnJudged({ ...j, playerHeal: healed }, { summon });
+  achOnTurnJudged({ ...j, playerHeal: healed }, { summon, talk });
 
   const usedTxt = j.used.length ? `${t("usedCards")}: ${j.used.join(" · ")} → ` : "";
   const gains = [];
   if (n.enemyDamage > 0) gains.push(`**${t("dmgEnemy")(n.enemyDamage)}**`);
   if (healed > 0) gains.push(`**${t("healYou")(healed)}**`);
 
-  const who = summon ? "🐉" : flee ? "🏃" : "🗣";
+  const who = summon ? "🐉" : flee ? "🏃" : talk ? "💬" : "🗣";
   const actorLabel = summon ? t("logGod") : t("logYou");
   const displayMove = summon
     ? `${j.godChant || rawInput}${summonArg ? ` *(${t("summonDirLabel")}: ${summonArg})*` : ""}`
@@ -259,7 +318,8 @@ function applyTurnResult(rawInput, j, sec = "0.0", { summon = false, flee = fals
   const youLine = `${who} **[T${state.turn} · ${actorLabel}]** ${displayMove} *(${state.playerHand.join(" ")})*`;
   const judgeTag = j.offline ? `🔌 ${t("offlineTag")}` : `⏱ ${sec}s`;
   const gainsStr = gains.length ? `${usedTxt}${gains.join(", ")}` : usedTxt;
-  const gmLine = `⚖ **[${VERDICT_LABELS[j.verdict]} · ${judgeTag}]** ${j.judgment}${gainsStr ? `\n   ${gainsStr}` : ""}${specialNote}${bonusNote}`;
+  const enemyReplyLine = j.enemyReply ? `\n🗣 **【${state.enemyKanji}】**: *"${j.enemyReply}"*` : "";
+  const gmLine = `⚖ **[${VERDICT_LABELS[j.verdict]} · ${judgeTag}]** ${j.judgment}${enemyReplyLine}${gainsStr ? `\n   ${gainsStr}` : ""}${specialNote}${bonusNote}`;
   const verdictClass = `verdict-${j.verdict.toLowerCase()}`;
 
   if (state.enemyHp <= 0) {
@@ -378,6 +438,11 @@ function tryTriggerLifeTalisman() {
     !state.lifeTalismanUsedThisRun
   ) {
     state.lifeTalismanUsedThisRun = true;
+    if (typeof ensureStoryConfig === "function") {
+      const st = ensureStoryConfig();
+      st.resurrectionCount = (st.resurrectionCount || 0) + 1;
+      persistStoryState();
+    }
     const reviveHp = Math.max(20, Math.round((state.maxHp || 100) * 0.2));
     state.playerHp = Math.min(state.maxHp, reviveHp);
     if (typeof playHealSfx === "function") playHealSfx();

@@ -9,9 +9,9 @@ const GUIDE_PAGES = {
     { title: "3/5 — 적의 패",
       body: "• 보스 옆에 **적이 이번 턴에 쥔 글자**가 보인다. 적은 이 글자로 반격한다.\n• 적의 火에 水로 맞서는 식으로 **막거나 받아치면** 반격이 줄거나 사라진다.\n• 로그에는 적의 패와 실제로 쓴 글자가 함께 남는다." },
     { title: "4/5 — 보조 수단",
-      body: "• **💡 힌트** — 턴을 쓰지 않고 패의 뜻과 조합 아이디어를 듣는다.\n• **🎲 리롤** — 5 HP(또는 무료권)로 패를 새로 쥔다.\n• **❓ 질문 (/prompt 질문)** — 글자나 전술을 묻는다.\n• **🐉 고신 소환 (/summon)** — 10 HP(또는 무료 고신권)로 고대의 신을 부른다. 그냥 부르면 신이 알아서 싸우고, `/summon 방어 위주로`처럼 쓰면 방향만 정해준다." },
+      body: "• **❓ 질문 (/ask [질문])** — 턴을 쓰지 않고 패의 뜻·조합 힌트를 듣거나, 입력창에 적은 질문을 GM에게 묻는다.\n• **🎲 리롤** — 리롤 횟수(또는 5 HP)로 패를 새로 쥔다.\n• **💬 대화 (/talk [대화])** — 적 원령에게 직접 말을 건넨다. 손패의 한자 뜻을 대화에 실어 설득·위압·공양하면 적의 공격 의도를 흔들거나 무혈로 굴복시킬 수도 있다.\n• **🐉 고신 소환 (/summon)** — 고신 소환 횟수(또는 10 HP)로 고대의 신을 부른다. 그냥 부르면 신이 알아서 싸우고, `/summon 방어 위주로`처럼 쓰면 방향만 정해준다." },
     { title: "5/5 — 전리품 · 기록 · 조작",
-      body: "• 이긴 뒤에는 **전리품 하나**를 고른다. 회복, 최대 HP, 글자 추가, 소각, 무료 리롤·고신 등.\n• 옥을 빠져나가면 **시간 · 턴 · 판관(사용한 AI 모델)**이 기록된다. 판관에 따라 판정의 엄격함이 다르니, 기록에 함께 남긴다.\n• PC: 방향키/WASD + Enter, **Alt+1~5**로 카드 삽입, ESC로 창 닫기.\n• 진행은 자동 저장된다. 새로고침해도 이어진다." }
+      body: "• 이긴 뒤에는 **전리품 하나**를 고른다. 회복, 최대 HP, 글자 추가, 소각, 리롤·고신 횟수 등.\n• 옥을 빠져나가면 **시간 · 턴 · 판관(사용한 AI 모델)**이 기록된다. 판관에 따라 판정의 엄격함이 다르니, 기록에 함께 남긴다.\n• PC: 방향키/WASD + Enter, **Alt+1~5**로 카드 삽입, ESC로 창 닫기.\n• 진행은 자동 저장된다. 새로고침해도 이어진다." }
   ],
   EN: [
     { title: "1/5 — The Descent",
@@ -21,9 +21,9 @@ const GUIDE_PAGES = {
     { title: "3/5 — The Enemy's Hand",
       body: "• Next to the boss you see **the kanji it holds this turn** — it counterattacks with them.\n• **Block or counter** them (water against its fire) and the counterattack shrinks or vanishes.\n• The log records the enemy's hand and the kanji it actually used." },
     { title: "4/5 — Tools",
-      body: "• **💡 Hint** — meanings and combo ideas, no turn spent.\n• **🎲 Reroll** — 5 HP (or a free token) for a new hand.\n• **❓ Ask (/prompt question)** — ask about a kanji or tactic.\n• **🐉 Ancient god (/summon)** — 10 HP (or a free token) to call an old god. Alone it fights for you; `/summon defend` gives it a direction." },
+      body: "• **❓ Ask (/ask [question])** — no turn spent. Click with an empty box for a full tactical hint, or type a question first to ask the GM.\n• **🎲 Reroll** — spend a Reroll charge (or 5 HP) for a new hand.\n• **💬 Talk (/talk [words])** — speak directly to the enemy. Weave hand kanji into your speech to shake its intent, bargain, or pacify it.\n• **🐉 Ancient god (/summon)** — spend a Summon charge (or 10 HP) to call an old god. Alone it fights for you; `/summon defend` gives it a direction." },
     { title: "5/5 — Spoils · Records · Controls",
-      body: "• After a win, **take one spoil**: healing, max HP, a new kanji, a burn, free rerolls/summons…\n• Walking out records **time · turns · judge (the AI model used)** — judges differ in strictness, so the record says who judged.\n• Desktop: Arrows/WASD + Enter, **Alt+1~5** inserts cards, ESC closes popups.\n• Progress saves automatically and survives a refresh." }
+      body: "• After a win, **take one spoil**: healing, max HP, a new kanji, a burn, reroll/summon charges…\n• Walking out records **time · turns · judge (the AI model used)** — judges differ in strictness, so the record says who judged.\n• Desktop: Arrows/WASD + Enter, **Alt+1~5** inserts cards, ESC closes popups.\n• Progress saves automatically and survives a refresh." }
   ],
   JA: [
     { title: "1/5 — 探索",
@@ -33,9 +33,9 @@ const GUIDE_PAGES = {
     { title: "3/5 — 敵の手札",
       body: "• ボスの横に**敵がこのターン持つ字**が見える。敵はこの字で反撃する。\n• 敵の火に水で応じるように**防ぐ・返す**と、反撃は弱まるか消える。\n• ログには敵の手札と実際に使った字が残る。" },
     { title: "4/5 — 補助",
-      body: "• **💡 解説** — ターンを使わず手札の意味と組み合わせ案を聞く。\n• **🎲 引き直し** — 5 HP(または無料券)で手札を引き直す。\n• **❓ 質問 (/prompt 質問)** — 字や戦術を尋ねる。\n• **🐉 古神召喚 (/summon)** — 10 HP(または無料券)を捧げて古の神を呼ぶ。そのまま呼べば神が勝手に戦い、`/summon 守り重視`のように書けば方針だけ伝える。" },
+      body: "• **❓ 質問 (/ask [質問])** — ターンを使わず手札の解説と戦術案を聞くか、入力欄の問いをGMに尋ねる。\n• **🎲 引き直し** — 引き直し回数(または5 HP)で手札を引き直す。\n• **💬 対話 (/talk [言葉])** — 敵の怨霊に直接語りかける。手札の漢字の意味を言葉に込めれば、敵の攻撃意図を鈍らせたり和解できることもある。\n• **🐉 古神召喚 (/summon)** — 古神回数(または10 HP)で古の神を呼ぶ。そのまま呼べば神が勝手に戦い、`/summon 守り重視`のように書けば方針だけ伝える。" },
     { title: "5/5 — 戦利品 · 記録 · 操作",
-      body: "• 勝利後は**戦利品を一つ**選ぶ。回復、最大HP、字の追加、焼却、無料引き直し・古神など。\n• 獄を抜けると**時間 · ターン · 裁定者(使用AIモデル)**が記録される。裁定者によって厳しさが違うため、記録に残す。\n• PC: 矢印/WASD + Enter、**Alt+1~5**でカード挿入、ESCで閉じる。\n• 進行は自動保存され、再読み込みしても続く。" }
+      body: "• 勝利後は**戦利品を一つ**選ぶ。回復、最大HP、字の追加、焼却、引き直し・古神回数など。\n• 獄を抜けると**時間 · ターン · 裁定者(使用AIモデル)**が記録される。裁定者によって厳しさが違うため、記録に残す。\n• PC: 矢印/WASD + Enter、**Alt+1~5**でカード挿入、ESCで閉じる。\n• 進行は自動保存され、再読み込みしても続く。" }
   ]
 };
 

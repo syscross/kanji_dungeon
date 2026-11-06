@@ -77,7 +77,7 @@ function getLockedIntentDescription() {
   return `${JSON.stringify(state.enemyHand)}`;
 }
 
-function buildJudgePrompt(rawInput, summonDirective = "", fleeDirective = "") {
+function buildJudgePrompt(rawInput, summonDirective = "", fleeDirective = "", talkDirective = "") {
   const recent = state.recentActions.length
     ? state.recentActions.map((a, i) => `  ${i + 1}) "${a}"`).join("\n")
     : "  (none)";
@@ -116,7 +116,7 @@ function buildJudgePrompt(rawInput, summonDirective = "", fleeDirective = "") {
 - ENEMY TELEGRAPHED INTENT KANJI: ${JSON.stringify(state.enemyHand)}
 - CONCRETE ENEMY INTENTION (LOCKED BY ENGINE — DO NOT REINTERPRET ARBITRARILY): ${lockedIntent}${enemyEscapeNote}
 - Player's recent moves:
-${recent}${summonDirective}${fleeDirective}
+${recent}${summonDirective}${fleeDirective}${talkDirective}
 
 ## Contract
 ${getRuleBody()}${lethalNote}
@@ -134,6 +134,7 @@ Write every text field in ${langName()}. Reply with ONLY this JSON object, keys 
 {
   "card_roles": { ${state.playerHand.map(k => `"${k}": "role in a few words, or null"`).join(", ")} },
   "god_chant": "if SUMMON is active: 1 short sentence of the ancient god's incantation/action using the hand kanji; otherwise null",
+  "enemy_reply": "if TALK (/talk) is active or the foe speaks back: 1-2 vivid in-character sentences spoken directly by 【${state.enemyKanji}】 (${foeShortName}) in first person; otherwise null",
   "reason": "one short sentence: why this verdict",
   "verdict": "FIZZLE | WEAK | SOLID | CLEVER | MASTERFUL",
   "attack": true,
@@ -184,6 +185,29 @@ The player is attempting to flee from 【${state.enemyKanji}】 this turn!
 - Usually set "attack": false on a pure escape attempt unless their distraction also harms the foe.`;
 }
 
+/*
+ * Unique Enemy Dialogue Command (/talk):
+ * The player speaks directly to the enemy wraith/boss 【enemyKanji】!
+ * - Even without hand cards, speaking to the foe triggers a vivid in-character response in "enemy_reply" (reveal lore, grudge, or taunt) and is at least WEAK if it touches on the foe's nature or stage.
+ * - If the player weaves PLAYER HAND kanji into their words (persuasion, intimidation, Zen koan, exorcism chant, offering, or psychological counter), judge it as SOLID / CLEVER / MASTERFUL:
+ *   * Can shake the foe's resolve ("defense": "partial" or "full" as the foe hesitates in its locked intent),
+ *   * Can deal spiritual/mental damage ("attack": true) or calm the player's spirit ("heal": "minor"),
+ *   * Can even trigger "special_event": "INSTANT_PACIFY" if the player's words + hand cards conceptually resolve the foe's grudge!
+ */
+function buildTalkDirective(arg) {
+  const foeShortName = typeof getEnemyShortName === "function" ? getEnemyShortName(state.enemyKanji) : "";
+  const lockedIntent = getLockedIntentDescription();
+  return `
+
+## TALK — DIRECT CONVERSATION WITH THE ENEMY (【${state.enemyKanji}】 ${foeShortName})
+The player chose **/talk** to speak directly to 【${state.enemyKanji}】 (${foeShortName}) instead of a conventional physical strike!
+- REQUIRED: Fill "enemy_reply" with 1–2 vivid, atmospheric sentences spoken directly by 【${state.enemyKanji}】 in ${langName()} (in-character voice matching its kanji nature, rank ${state.enemyRank}, and grudge; if it is a beast/insect, describe its eerie vocalization + telepathic/instinctive meaning).
+- Evaluating the conversation:
+  1. If the player weaves PLAYER HAND cards (${JSON.stringify(state.playerHand)}) into their speech (persuasion, command, riddle, offering, intimidation, or conceptual counter to ${lockedIntent}) → judge as SOLID, CLEVER, or MASTERFUL! Words backed by true Kanji power can inflict spiritual damage ("attack": true), make 【${state.enemyKanji}】 hesitate or stay its hand ("defense": "partial" or "full"), or even trigger "special_event": "INSTANT_PACIFY" if the speech conceptually resolves 【${state.enemyKanji}】's obsession!
+  2. If the player speaks without using hand cards, but says something meaningful/in-world to 【${state.enemyKanji}】 → judge as WEAK (with "attack": false, or "defense": "partial" if their words momentarily startle/distract 【${state.enemyKanji}】), and have 【${state.enemyKanji}】 answer in "enemy_reply" before executing its locked intention.
+  3. Only judge as FIZZLE if the player's speech is out-of-character meta-begging or complete gibberish.`;
+}
+
 function buildHintPrompt() {
   const lockedIntent = getLockedIntentDescription();
   const escHint = state.enemyEscapeIntent
@@ -192,13 +216,22 @@ function buildHintPrompt() {
   return `You are the Game Master of KANJI DUNGEON. Give a terse tactical briefing in ${langName()} (max 7 lines, no headers):
 - Stage 【${state.sign || "門"}】 & Player hand ${JSON.stringify(state.playerHand)}: each as 字(exact reading: meaning), on one or two lines.
 - Foe 【${state.enemyKanji}】 telegraphed intent ${JSON.stringify(state.enemyHand)} — Concrete locked intention: ${lockedIntent}${escHint}
-- Two one-line ideas that use the hand cards' meanings to strike 【${state.enemyKanji}】 AND counter/evade its concrete locked intention (or escape). Mention a real 熟語 if two hand cards form one.`;
+- Two one-line ideas that use the hand cards' meanings to strike 【${state.enemyKanji}】 AND counter/evade its concrete locked intention (or talk/escape). Mention a real 熟語 if two hand cards form one.`;
 }
 
 function buildQuestionPrompt(question) {
   const lockedIntent = getLockedIntentDescription();
-  return `You are the Game Master of KANJI DUNGEON. Answer tersely in ${langName()} (max 4 lines). Context — stage: 【${state.sign || "門"}】, player hand: ${JSON.stringify(state.playerHand)}, enemy intent: ${JSON.stringify(state.enemyHand)} (${lockedIntent}), foe: 【${state.enemyKanji}】.
+  return `You are the Game Master of KANJI DUNGEON. Answer tersely in ${langName()} (max 5 lines). Context — stage: 【${state.sign || "門"}】, player hand: ${JSON.stringify(state.playerHand)}, enemy intent: ${JSON.stringify(state.enemyHand)} (${lockedIntent}), foe: 【${state.enemyKanji}】.
 Question: "${question}"`;
+}
+
+function buildAskPrompt(question) {
+  if (!question || !question.trim()) return buildHintPrompt();
+  const lockedIntent = getLockedIntentDescription();
+  return `You are the Game Master of KANJI DUNGEON. Answer the player's question AND give a brief tactical tip in ${langName()} (max 6 lines, no headers):
+- Stage 【${state.sign || "門"}】, Player hand ${JSON.stringify(state.playerHand)}, Foe 【${state.enemyKanji}】 intent ${JSON.stringify(state.enemyHand)} (${lockedIntent}).
+- Player's question: "${question.trim()}"
+- Answer the question directly, then suggest 1 concrete move using the current hand cards.`;
 }
 
 function inferVerdict(res) {
@@ -242,11 +275,16 @@ function normalizeJudgment(res) {
     ? String(res.mutated_kanji).replace(/[^\u4e00-\u9faf\u3400-\u4dbf]/g, "").slice(0, 4)
     : "";
 
+  const enemyReply = res.enemy_reply && !isNullish(res.enemy_reply)
+    ? String(res.enemy_reply).trim().slice(0, 260)
+    : null;
+
   return {
     offline: Boolean(res._offline),
     verdict,
     used: verdict === "FIZZLE" ? [] : used,
     godChant: res.god_chant && !isNullish(res.god_chant) ? String(res.god_chant).trim().slice(0, 220) : null,
+    enemyReply,
     enemyUsed: enemyUsed.length ? enemyUsed : [...state.enemyHand],
     attack: verdict !== "FIZZLE" && rawAttack,
     heal: pick(res.heal, ["none", "minor", "major"], "none"),

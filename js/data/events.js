@@ -373,7 +373,7 @@ const EVENTS = {
             "鏡の自分が一拍遅れて動く。手に字を握っている。"),
     options: [
       { label: EVT_L("Reach in (Max HP −6) — copy kanji", "손을 넣는다 (최대 HP −6) — 한자 복제", "手を入れる (最大HP −6) — 漢字複製"), effects: [{ dup: "pick", then: [{ maxHp: -6 }] }], when: s => s.deck.length > 0 },
-      { label: EVT_L("Shatter (−6 HP) — 【鏡】 · Free God +1", "깨뜨린다 (−6 HP) — 【鏡】 · 무료 고신 +1", "割る (−6 HP) — 【鏡】・無料古神+1"), effects: [{ hp: -6 }, { addCard: "鏡" }, { freeSummons: 1 }] },
+      { label: EVT_L("Shatter (−6 HP) — 【鏡】 · God +1", "깨뜨린다 (−6 HP) — 【鏡】 · 고신 +1", "割る (−6 HP) — 【鏡】・古神+1"), effects: [{ hp: -6 }, { addCard: "鏡" }, { freeSummons: 1 }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
@@ -386,7 +386,7 @@ const EVENTS = {
     options: [
       { label: EVT_L("Light with blood (−6 HP) — reveal fork", "피로 점화 (−6 HP) — 다음 갈림길 공개", "血で灯す (−6 HP) — 次の分かれ道を見る"), effects: [{ hp: -6 }, { reveal: true }] },
       { label: EVT_L("Search around — claim stage kanji", "불빛 수색 — 스테이지 한자 획득", "周囲を照らす — ステージ漢字を獲得"), effects: [{ scavenge: 4 }] },
-      { label: EVT_L("Take lantern — 【灯】 · Free Reroll +1", "등롱 챙기기 — 【灯】 · 무료 리롤 +1", "持ち去る — 【灯】・無料引き直し+1"), effects: [{ addCard: "灯" }, { tokens: 1 }] },
+      { label: EVT_L("Take lantern — 【灯】 · Reroll +1", "등롱 챙기기 — 【灯】 · 리롤 +1", "持ち去る — 【灯】・引き直し+1"), effects: [{ addCard: "灯" }, { tokens: 1 }] },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }
     ]
   },
@@ -409,7 +409,7 @@ const EVENTS = {
         ]
       },
       {
-        label: EVT_L("Feed rations — Free Reroll +2 · claim stage kanji", "먹이 주기 — 무료 리롤 +2 · 스테이지 한자 획득", "餌を分ける — 無料引き直し+2・ステージ漢字獲得"),
+        label: EVT_L("Feed rations — Reroll +2 · claim stage kanji", "먹이 주기 — 리롤 +2 · 스테이지 한자 획득", "餌を分ける — 引き直し+2・ステージ漢字獲得"),
         effects: [{ tokens: 2 }, { scavenge: 4 }]
       },
       { label: EVT_L("Leave", "지나간다", "立ち去る"), effects: [] }

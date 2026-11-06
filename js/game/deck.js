@@ -17,18 +17,24 @@ function depthPool() {
   return playableDepthPool(state.depthId);
 }
 
-/* Build the 10 environment cards present in the current stage, strictly within the current Kanken grade or lower. */
+/* Build the 10 environment cards present in the current stage, prioritizing the current Kanken grade pool. */
 function buildStageCards(depthId, sign) {
   const targetDepth = depthId || state.depthId;
   const maxD = depthNumber(targetDepth);
   const allFoesInDepth = typeof allRosterKanji === "function" ? allRosterKanji(targetDepth) : [];
   const info = STAGE_SIGNS[sign] || STAGE_SIGNS.田;
-  const rawThemed = (info.cards || ["火", "水", "木", "石", "土"])
+  const validThemed = (info.cards || ["火", "水", "木", "石", "土"])
     .filter(k => k !== sign && !allFoesInDepth.includes(k) && getKanjiDepthNum(k) <= maxD && isPlayableKanji(k));
-  const themed = sample(rawThemed.length ? rawThemed : ["火", "水", "土", "風", "光"], 5);
+  const exactThemed = validThemed.filter(k => getKanjiDepthNum(k) === maxD);
+  const fallbackThemed = validThemed.filter(k => getKanjiDepthNum(k) < maxD);
+  const themedPicks = [
+    ...sample(exactThemed, 5),
+    ...sample(fallbackThemed, Math.max(0, 5 - exactThemed.length))
+  ].slice(0, 5);
+  const themed = themedPicks.length ? themedPicks : sample(depthPool().filter(k => k !== sign && !allFoesInDepth.includes(k)), 5);
   const pool = depthPool().filter(k => k !== sign && !themed.includes(k) && !allFoesInDepth.includes(k));
-  const localGradeCards = sample(pool, 5);
-  return shuffle([...themed, ...localGradeCards]);
+  const localGradeCards = sample(pool, Math.max(5, 10 - themed.length));
+  return shuffle([...themed, ...localGradeCards]).slice(0, 10);
 }
 
 function resetPilesForFight() {
@@ -73,7 +79,7 @@ function drawHand() {
 
 /*
  * Generate the enemy's telegraphed Intent Kanji (1-2 kanji shown on the enemy bar).
- * - Strictly uses kanji from the current Kanken grade or lower.
+ * - Prioritizes kanji from the current Kanken grade pool (`getKanjiDepthNum(k) === maxD`).
  * - Computes and locks `state.enemyIntentType` and `state.enemyIntentDesc` so the AI GM never interprets enemy intentions arbitrarily.
  */
 function recordSeenEnemyHands() {
@@ -115,15 +121,19 @@ function dealEnemyHand() {
     return;
   }
 
-  const gradePool = (DEPTH_INTENT_POOLS[did] || ["口", "足", "手", "目"]).filter(k => getKanjiDepthNum(k) <= maxD);
+  const rawGradePool = (DEPTH_INTENT_POOLS[did] || ["口", "足", "手", "目"]).filter(k => getKanjiDepthNum(k) <= maxD);
+  const exactGradePool = rawGradePool.filter(k => getKanjiDepthNum(k) === maxD);
+  const gradePool = exactGradePool.length ? exactGradePool : rawGradePool;
 
   if (prof && prof.countdown && prof.countdown.length) {
-    const seq = prof.countdown.filter(k => getKanjiDepthNum(k) <= maxD);
+    const exactSeq = prof.countdown.filter(k => getKanjiDepthNum(k) === maxD);
+    const seq = exactSeq.length ? exactSeq : prof.countdown.filter(k => getKanjiDepthNum(k) <= maxD);
     const activeSeq = seq.length ? seq : prof.countdown;
     const idx = (Math.max(1, state.turn) - 1) % activeSeq.length;
     const primary = activeSeq[idx];
-    const subCandidates = [...new Set([...(prof.normal || []), ...gradePool])]
-      .filter(k => k !== primary && getKanjiDepthNum(k) <= maxD);
+    const allSub = [...new Set([...(prof.normal || []), ...gradePool])].filter(k => k !== primary && getKanjiDepthNum(k) <= maxD);
+    const exactSub = allSub.filter(k => getKanjiDepthNum(k) === maxD);
+    const subCandidates = exactSub.length ? exactSub : allSub;
     const secondary = subCandidates.length ? subCandidates[Math.floor(Math.random() * subCandidates.length)] : null;
     state.enemyHand = secondary ? [primary, secondary] : [primary];
     recordSeenEnemyHands();
@@ -131,11 +141,14 @@ function dealEnemyHand() {
   }
 
   if (prof && prof.normal && prof.normal.length) {
-    const validNormal = prof.normal.filter(k => getKanjiDepthNum(k) <= maxD);
+    const exactNormal = prof.normal.filter(k => getKanjiDepthNum(k) === maxD);
+    const validNormal = exactNormal.length ? exactNormal : prof.normal.filter(k => getKanjiDepthNum(k) <= maxD);
     const primaryPool = validNormal.length ? validNormal : gradePool;
     const first = primaryPool[Math.floor(Math.random() * primaryPool.length)];
-    // Mix 1 foe-specific intent + 1 depth intent pool kanji for variety within the grade
-    const secondPool = [...new Set([...validNormal, ...gradePool])].filter(k => k !== first);
+    // Mix 1 foe-specific intent + 1 depth intent pool kanji from the current grade
+    const allSecond = [...new Set([...validNormal, ...gradePool])].filter(k => k !== first);
+    const exactSecond = allSecond.filter(k => getKanjiDepthNum(k) === maxD);
+    const secondPool = exactSecond.length ? exactSecond : allSecond;
     const second = secondPool.length ? secondPool[Math.floor(Math.random() * secondPool.length)] : null;
     state.enemyHand = second ? [first, second] : [first];
     recordSeenEnemyHands();

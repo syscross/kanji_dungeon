@@ -354,22 +354,23 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
 
 .cmd-chips {
   display: flex;
-  gap: 6px;
-  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 5px;
+  justify-content: space-between;
   width: 100%;
 }
 .chip {
+  flex: 1 1 auto;
   background: #171b29;
   border: 1px solid var(--border);
   color: #c0c6d4;
-  padding: 6px 10px;
-  font-size: 0.75rem;
+  padding: 6px 8px;
+  font-size: 0.74rem;
   cursor: pointer;
   border-radius: 4px;
   white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: center;
+  min-width: max-content;
 }
 .chip > span { display: inline; }
 .chip:hover { border-color: var(--crimson); color: #fff; }
@@ -434,8 +435,8 @@ button.deck-pile { font-family: 'Noto Serif JP', serif; }
   .kanji-card[data-len="3"] .char { font-size: 0.82rem; letter-spacing: -1.5px; }
   .kanji-card[data-len="4"] .char { font-size: 0.64rem; letter-spacing: -1.5px; }
   .kanji-card[data-len="5"] .char { font-size: 0.54rem; letter-spacing: -1.5px; }
-  .cmd-chips { gap: 5px; }
-  .chip { flex: 1 1 0; padding: 7px 2px; font-size: 0.7rem; text-align: center; }
+  .cmd-chips { gap: 4px; }
+  .chip { flex: 1 1 auto; min-width: 0; padding: 6px 4px; font-size: clamp(0.64rem, 2.65vw, 0.72rem); letter-spacing: -0.3px; text-align: center; }
   #b-send-btn { padding: 0 12px; }
 }
 
@@ -750,9 +751,19 @@ body.kb-open #view-battle { overflow-y: auto; }
 .enemy-stage.no-foe .enemy-hand-wrap { visibility: hidden; }
 
 /* Log beat cards */
-.beat-log { text-align: center; border-left: none; padding: 12px 10px; box-sizing: border-box; }
-.beat-title { font-family: 'Noto Serif JP', serif; font-size: 1.15rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 6px; }
-.beat-line { font-size: 0.8rem; }
+.beat-log { text-align: center; border-left: none; padding: 12px 10px; box-sizing: border-box; max-width: 100%; overflow: hidden; }
+.beat-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(0.95rem, 3.6vw, 1.12rem);
+  font-weight: 900;
+  letter-spacing: 1px;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+.beat-line { font-size: 0.8rem; line-height: 1.5; word-break: keep-all; overflow-wrap: break-word; }
 .log-entry.beat-log.foe-omen-log {
   border: 1.5px solid #8c1d2e !important;
   border-left: 1.5px solid #8c1d2e !important;
@@ -775,7 +786,7 @@ body.kb-open #view-battle { overflow-y: auto; }
   border: 1px solid var(--gold);
   background: radial-gradient(circle at 50% 0%, rgba(229,192,123,0.22), rgba(14,16,24,0.92) 70%);
 }
-.clear-log .beat-title { color: var(--gold); font-size: 1.5rem; text-shadow: 0 0 20px rgba(229,192,123,0.6); }
+.clear-log .beat-title { color: var(--gold); font-size: clamp(1.02rem, 3.9vw, 1.28rem); letter-spacing: 1px; text-shadow: 0 0 20px rgba(229,192,123,0.6); }
 .clear-log .beat-line { padding: 2px 0; }
 .clear-log .beat-line:last-child, .death-log .beat-line:last-child { margin-top: 6px; color: var(--muted); }
 .death-log {
@@ -783,7 +794,7 @@ body.kb-open #view-battle { overflow-y: auto; }
   background: linear-gradient(180deg, rgba(90, 10, 22, 0.55), rgba(22, 10, 14, 0.85));
   text-align: left;
 }
-.death-log .beat-title { color: var(--crimson); text-align: center; text-shadow: 0 0 16px rgba(215,58,73,0.7); font-size: 1.4rem; }
+.death-log .beat-title { color: var(--crimson); text-align: center; text-shadow: 0 0 16px rgba(215,58,73,0.7); font-size: clamp(1.02rem, 3.9vw, 1.25rem); }
 .death-log .beat-line { padding: 2px 0; }
 .death-log .beat-line:last-child { text-align: center; }
 .log-entry.sep-log { background: none; border: none; text-align: center; color: var(--muted); font-size: 0.74rem; letter-spacing: 2px; padding: 4px; }

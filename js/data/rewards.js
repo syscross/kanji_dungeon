@@ -25,16 +25,16 @@ const REWARDS = {
     kanji: "召",
     params: { normal: { n: 1 }, elite: { n: 2 } },
     label: {
-      EN: p => `Summon — Free God +${p.n}`, KO: p => `강림 — 무료 고신 +${p.n}`, JA: p => `降臨 — 無料古神 +${p.n}`,
-      ZH_CN: p => `降临 — 免费古神 +${p.n}`, ZH_TW: p => `降臨 — 免費古神 +${p.n}`
+      EN: p => `Summon — God +${p.n}`, KO: p => `강림 — 고신 +${p.n}`, JA: p => `降臨 — 古神 +${p.n}`,
+      ZH_CN: p => `降临 — 古神 +${p.n}`, ZH_TW: p => `降臨 — 古神 +${p.n}`
     }
   },
   tokens: {
     kanji: "替",
     params: { normal: { n: 2 }, elite: { n: 3 } },
     label: {
-      EN: p => `Shuffle — Free Reroll +${p.n}`, KO: p => `교체 — 무료 리롤 +${p.n}`, JA: p => `交替 — 無料引き直し +${p.n}`,
-      ZH_CN: p => `交替 — 免费重抽 +${p.n}`, ZH_TW: p => `交替 — 免費重抽 +${p.n}`
+      EN: p => `Shuffle — Reroll +${p.n}`, KO: p => `교체 — 리롤 +${p.n}`, JA: p => `交替 — 引き直し +${p.n}`,
+      ZH_CN: p => `交替 — 重抽 +${p.n}`, ZH_TW: p => `交替 — 重抽 +${p.n}`
     }
   },
   card: {

@@ -19,7 +19,7 @@ const DEPTHS = {
       JA: "稲穂の揺れていた田も、子供の声が響いた学び舎も、穏やかだった村も、一夜にして血霧に沈んだ。\n最も基本的な言葉すら歪んだ辺境で、飢えた野犬や蠢く古木、虚空を彷徨う亡者が生者の息遣いを追っている。"
     },
     roster: {
-      normal: ["犬", "虫", "人", "木", "石", "貝", "目"],
+      normal: ["犬", "虫", "人", "木", "石", "貝", "目", "九"],
       elite: ["森", "車"],
       boss: "王",
       bossPool: ["王", "天", "月"]
@@ -59,9 +59,9 @@ const DEPTHS = {
     name: "古戦場",
     gloss: { EN: "The Old Battlefield", KO: "번국의 옛 싸움터", JA: "古き戦場", ZH_CN: "古战场", ZH_TW: "古戰場" },
     lore: {
-      KO: "역병과 기근 끝에 각 지방의 번국들이 서로의 목을 겨누며 벌인 대전란의 흔적으로, 가시나무 들판과 검은 개펄부터 험준한 산길까지 거대한 무덤이 되었다.\n전쟁은 진작 끝났건만, 불타는 고성과 폐허가 된 병영 거리에는 자신이 죽은 줄도 모르는 망령의 군세가 여전히 진군 북을 울리고 있다.",
-      EN: "In the wake of plague and famine, the provinces tore each other apart until briar wastes, black mudflats, and mountain crossroads became one vast grave.\nThough the war is long over, dead soldiers and phantom armies still march through the burning fortress and ruined garrison streets.",
-      JA: "疫病と飢饉の果てに諸藩が刃を交えた大戦乱の跡。茨の荒野から黒い干潟、険しい山道に至るまでが巨大な墓標と化した。\n戦はとうに終わったはずが、燃える古城や廃墟の街では、己の死すら知らぬ亡霊の軍勢が今なお進軍の太鼓を鳴らしている。"
+      KO: "역병과 기근 끝에 각 지방의 번국들이 서로의 목을 겨누며 벌인 대전란의 흔적으로, 이바라키의 들판과 니가타의 검은 개펄부터 기후의 산길까지 거대한 무덤이 되었다.\n전쟁은 진작 끝났건만, 이름만 남은 옛 번국의 땅마다 자신이 죽은 줄도 모르는 망령의 군세가 여전히 진군 북을 울리고 있다.",
+      EN: "In the wake of plague and famine, the provinces tore each other apart until briar wastes, black mudflats, and mountain passes became one vast grave.\nThough the war is long over, dead soldiers and phantom armies still march across the old domains.",
+      JA: "疫病と飢饉の果てに諸藩が刃を交えた大戦乱の跡。茨の荒野から黒い干潟、険しい山道に至るまでが巨大な墓標と化した。\n戦はとうに終わったはずが、名ばかり残る古き藩の地では、己の死すら知らぬ亡霊の軍勢が今なお進軍の太鼓を鳴らしている。"
     },
     roster: {
       normal: ["熊", "鹿", "兵", "徒", "卒", "隊", "機"],
@@ -140,7 +140,7 @@ const DEPTHS = {
     },
     roster: {
       normal: ["猫", "蛇", "猿", "蚊", "忍", "偵", "曹"],
-      elite: ["仙", "血傑"],
+      elite: ["仙", "傑"],
       boss: "覇",
       bossPool: ["覇", "竜", "帥"]
     }
@@ -155,7 +155,7 @@ const DEPTHS = {
     },
     roster: {
       normal: ["虎", "亀", "蜂", "鶴", "駒", "妖", "顎"],
-      elite: ["骸", "怨鬼"],
+      elite: ["骸", "怨"],
       boss: "冥",
       bossPool: ["冥", "闇", "鬱"]
     }
@@ -184,7 +184,7 @@ const DEPTHS = {
       JA: "🩸 無視して入獄"
     },
     roster: {
-      normal: ["狼", "九尾狐", "豹", "猪", "鰐", "鮫", "鷲", "獅"],
+      normal: ["狼", "狐", "豹", "猪", "鰐", "鮫", "鷲", "獅"],
       elite: ["屍", "兇"],
       boss: "龍",
       bossPool: ["龍", "鳳", "鷹"]

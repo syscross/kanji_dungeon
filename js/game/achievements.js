@@ -113,7 +113,7 @@ function achOnRunStart(depthId) {
 }
 
 function achOnCommand(type) {
-  if (type === "HINT" || type === "PROMPT") unlockAchievement("scholar");
+  if (type === "ASK" || type === "TALK" || type === "HINT" || type === "PROMPT") unlockAchievement("scholar");
   if (type === "REROLL") unlockAchievement("gambler");
   if (type === "SUMMON") unlockAchievement("summoner");
 }

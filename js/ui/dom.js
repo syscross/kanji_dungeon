@@ -30,15 +30,70 @@ function formatGmText(raw) {
 
 /* Modals — dynamic z-index stack so newly opened modals (e.g. #confirm-modal over #settings-modal) always sit on top */
 let _modalZCounter = 2000;
+let _curtainTimers = [];
+
+function registerCinematicTimer(fn, delayMs) {
+  const id = setTimeout(() => {
+    _curtainTimers = _curtainTimers.filter(t => t !== id);
+    fn();
+  }, delayMs);
+  _curtainTimers.push(id);
+  return id;
+}
+
+function cancelPendingCinematics() {
+  while (_curtainTimers.length) {
+    clearTimeout(_curtainTimers.pop());
+  }
+  const curtain = $("cinematic-curtain");
+  if (curtain) {
+    curtain.className = "";
+  }
+}
+
+function viewHashFor(name) {
+  return name === "title" ? window.location.pathname : `#${name}`;
+}
+
+function initBrowserHistory() {
+  const targetUrl = viewHashFor(currentView || "title");
+  try {
+    history.replaceState({ appSentinel: true, view: currentView || "title" }, "", targetUrl);
+    history.pushState({ appActive: true, view: currentView || "title" }, "", targetUrl);
+  } catch (_) { /* ignore security errors in restricted environments */ }
+}
+
+function pushAppHistoryState(extra = {}) {
+  const view = extra.view || currentView || "title";
+  const targetUrl = viewHashFor(view);
+  try {
+    history.pushState({ appActive: true, ...extra, view }, "", targetUrl);
+  } catch (_) { /* ignore */ }
+}
+
+function ensureActiveHistoryEntry() {
+  const targetUrl = viewHashFor(currentView || "title");
+  try {
+    if (!history.state || history.state.appSentinel) {
+      history.pushState({ appActive: true, view: currentView || "title" }, "", targetUrl);
+    } else {
+      history.replaceState({ appActive: true, view: currentView || "title" }, "", targetUrl);
+    }
+  } catch (_) { /* ignore */ }
+}
 
 function openModal(id) {
   const el = $(id);
   if (!el) return;
+  const wasActive = el.classList.contains("active");
   _modalZCounter += 2;
   // Confirmation & info modals get an extra boost so they can never be obscured by any dialog
   const boost = (id === "confirm-modal" || id === "info-modal") ? 500 : 0;
   el.style.zIndex = String(_modalZCounter + boost);
   el.classList.add("active");
+  if (!wasActive) {
+    pushAppHistoryState({ view: currentView, modal: id });
+  }
 }
 
 function closeModal(id) {
@@ -110,6 +165,7 @@ function closeConfirmModal(confirmed) {
 /* Views */
 function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
   closeDropdowns();
+  cancelPendingCinematics();
   const curtain = $("cinematic-curtain");
   if (!curtainKanji) {
     if (typeof playGateSlideSfx === "function") playGateSlideSfx();
@@ -127,9 +183,9 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
   }
   $("curtain-sub").textContent = curtainSub;
   if ($("curtain-stages")) $("curtain-stages").textContent = "";
-  setTimeout(() => {
+  registerCinematicTimer(() => {
     switchDomView(viewName, true);
-    setTimeout(() => {
+    registerCinematicTimer(() => {
       curtain.className = "";
     }, 240);
   }, 330);
@@ -138,12 +194,12 @@ function transitionToView(viewName, curtainKanji = null, curtainSub = "") {
 /* Heavy gate-unsealing descent animation when entering a Gaol */
 function enterGaolCinematic(depthId, onReady) {
   closeDropdowns();
+  cancelPendingCinematics();
   const curtain = $("cinematic-curtain");
   const tier = typeof depthTier === "function" ? depthTier(depthId) : "edu";
-  const stageSigns = (typeof DEPTH_STAGE_POOLS !== "undefined" && DEPTH_STAGE_POOLS[depthId]) || [];
 
   playGongSfx();
-  setTimeout(() => {
+  registerCinematicTimer(() => {
     if (typeof playSealStampSfx === "function") playSealStampSfx();
   }, 340);
 
@@ -161,27 +217,39 @@ function enterGaolCinematic(depthId, onReady) {
   }
 
   curtain.className = `active descent tier-${tier}`;
-  setTimeout(() => {
+  registerCinematicTimer(() => {
     switchDomView("battle", true);
     if (typeof onReady === "function") onReady();
-    setTimeout(() => {
+    registerCinematicTimer(() => {
       curtain.classList.remove("active");
     }, 460);
   }, 1150);
 }
 
 function switchDomView(name, pushHist = true) {
-  currentView = name;
+  const validViews = ["title", "select", "battle"];
+  const safeName = validViews.includes(name) ? name : "title";
+  const targetEl = $(`view-${safeName}`);
+  if (!targetEl) return;
+
+  const prevView = currentView;
+  currentView = safeName;
   kbIndex = 0;
+
   if (pushHist) {
-    history.replaceState({ view: name }, "", name === "title" ? window.location.pathname : `#${name}`);
+    if (prevView !== safeName || !history.state || history.state.view !== safeName) {
+      pushAppHistoryState({ view: safeName });
+    } else {
+      ensureActiveHistoryEntry();
+    }
   }
-  document.body.dataset.view = name;
+
+  document.body.dataset.view = safeName;
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-  $(`view-${name}`).classList.add("active");
-  if (name === "select") renderDepthSpine();
-  if (name === "title") updateSavedRunBanner();
-  if (name === "battle") scrollLogToBottom();
+  targetEl.classList.add("active");
+  if (safeName === "select") renderDepthSpine();
+  if (safeName === "title") updateSavedRunBanner();
+  if (safeName === "battle") scrollLogToBottom();
 }
 
 /* Dropdowns (language menu, battle menu) */

@@ -27,6 +27,9 @@ function setHpBar(barId, numId, hp, max) {
  * - During events (including friendly/ambiguous NPCs): top-left portrait stays as the Stage Kanji (state.sign), while the NPC/event appears only in the log.
  * - If an event NPC reveals itself as an enemy, phase switches to "battle" and the portrait transforms into the enemy kanji! */
 function stageCardContent() {
+  if (state.enemyKanji === "九尾狐") {
+    state.enemyKanji = state.depthId === "depth_11" ? "狐" : "九";
+  }
   if (state.phase === "dead") {
     return { kanji: state.enemyKanji || state.sign || "開", neutral: !state.enemyKanji };
   }
@@ -388,8 +391,10 @@ function startJudgingIndicator(kind = "JUDGE") {
   const entry = document.createElement("div");
   entry.className = "log-entry pending-log";
   const keyMap = {
+    ASK: "judgingAskMsg",
     HINT: "judgingHintMsg",
     PROMPT: "judgingPromptMsg",
+    TALK: "judgingTalkMsg",
     SUMMON: "judgingSummonMsg",
     FLEE: "judgingFleeMsg",
     JUDGE: "judgingMsg"

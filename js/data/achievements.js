@@ -20,7 +20,7 @@ const COMMON_ACHIEVEMENTS = [
   { id: "summoner", icon: "🐉", name: "血盟召喚",
     desc: { EN: "Call a summon with /summon.", KO: "/summon으로 소환수를 불러냈다.", JA: "/summon で召喚獣を呼び出した。", ZH_CN: "用 /summon 召唤了召唤兽。", ZH_TW: "用 /summon 召喚了召喚獸。" } },
   { id: "scholar", icon: "📜", name: "探究者",
-    desc: { EN: "Study the Kanji with /hint or /prompt.", KO: "/hint 또는 /prompt로 한자를 탐구했다.", JA: "/hint か /prompt で漢字を探究した。", ZH_CN: "用 /hint 或 /prompt 探究汉字。", ZH_TW: "用 /hint 或 /prompt 探究漢字。" } },
+    desc: { EN: "Study the Kanji or converse with /ask or /talk.", KO: "/ask 또는 /talk로 한자와 원령을 탐구했다.", JA: "/ask か /talk で漢字と怨霊を探究した。", ZH_CN: "用 /ask 或 /talk 探究汉字与怨灵。", ZH_TW: "用 /ask 或 /talk 探究漢字與怨靈。" } },
   { id: "gambler", icon: "🎲", name: "運命転換",
     desc: { EN: "Redraw your hand with /reroll.", KO: "/reroll로 패를 갈아엎었다.", JA: "/reroll で手札を引き直した。", ZH_CN: "用 /reroll 重抽手牌。", ZH_TW: "用 /reroll 重抽手牌。" } },
   { id: "flawless", icon: "🛡️", name: "無傷",

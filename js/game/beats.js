@@ -177,9 +177,22 @@ function logBossClearImmediate() {
   bossCard.classList.remove("hit", "player-dead", "abandoned", "returned", "completed");
   bossCard.classList.add("defeated");
 
-  // Depth 10 Boss (2급 구간, 冥府) leaves an ominous dying curse!
-  if (dNum === 10 && typeof getDepth10BossLastWords === "function") {
-    logMd(getDepth10BossLastWords(state.enemyKanji || state.runBoss || "冥"), "verdict-clever");
+  const bossKanji = state.enemyKanji || state.runBoss || depthRoster(depthId).boss;
+  if (typeof getBossLastWords === "function") {
+    const dyingLine = getBossLastWords(bossKanji, depthId);
+    if (dyingLine) {
+      logMd(`💬 **【${bossKanji}】** — *${dyingLine}*`, "verdict-clever");
+    }
+  } else if (dNum === 10 && typeof getDepth10BossLastWords === "function") {
+    logMd(getDepth10BossLastWords(bossKanji), "verdict-clever");
+  }
+
+  if (typeof isStoryMode === "function" && isStoryMode() && typeof getGaolRestoredLore === "function") {
+    const restored = getGaolRestoredLore(depthId);
+    if (restored && restored.lore) {
+      const kList = restored.kanji.map(k => `【${k}】`).join("·");
+      logMd(`🕯 **${kList}** — ${restored.lore}`, "fx-log");
+    }
   }
 
   logBeat("clear-log", `【完】 ${depthName(depthId)}`, [
@@ -195,11 +208,11 @@ function logBossClearImmediate() {
       const nextDid = `depth_${dNum + 1}`;
       if (KANKEN_DATA[nextDid]) {
         logMd(pickLang({
-          EN: `🔓 **【Gaol Unlocked】**: The seal to **【${depthNumStr(nextDid)} ${depthName(nextDid)} (${kankenLabel(nextDid)})】** has been broken!`,
-          KO: `🔓 **【옥문 해금】**: 다음 심연인 **【${depthNumStr(nextDid)} ${depthName(nextDid)} (${kankenLabel(nextDid)})】**로 향하는 봉인이 풀렸습니다!`,
-          JA: `🔓 **【獄門解禁】**: 次の深淵 **【${depthNumStr(nextDid)} ${depthName(nextDid)}（${kankenLabel(nextDid)}）】** への封印が解かれた！`,
-          ZH_CN: `🔓 **【狱门解禁】**: 通往下一深渊 **【${depthNumStr(nextDid)} ${depthName(nextDid)}（${kankenLabel(nextDid)}）】** 的封印已解开！`,
-          ZH_TW: `🔓 **【獄門解禁】**: 通往下一深淵 **【${depthNumStr(nextDid)} ${depthName(nextDid)}（${kankenLabel(nextDid)}）】** 的封印已解開！`
+          EN: `🔓 **【Gaol Unsealed】**: The path to **【${depthNumStr(nextDid)} ${depthName(nextDid)}】** lies open.`,
+          KO: `🔓 **【봉인 해금】**: 다음 심연인 **【${depthNumStr(nextDid)} ${depthName(nextDid)}】**로 향하는 문이 열렸습니다.`,
+          JA: `🔓 **【獄門解禁】**: 次の深淵 **【${depthNumStr(nextDid)} ${depthName(nextDid)}】** への門が開かれた。`,
+          ZH_CN: `🔓 **【狱门解禁】**: 通往下一深渊 **【${depthNumStr(nextDid)} ${depthName(nextDid)}】** 的门已开启。`,
+          ZH_TW: `🔓 **【獄門解禁】**: 通往下一深淵 **【${depthNumStr(nextDid)} ${depthName(nextDid)}】** 的門已開啟。`
         }), "fx-log");
       }
     }

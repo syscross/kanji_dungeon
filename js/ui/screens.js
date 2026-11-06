@@ -54,7 +54,7 @@ function updateSavedRunBanner() {
 
 function handleStoryModeClick() {
   playClickSfx();
-  activeGameMode = "story";
+  setActiveGameMode("story");
   const storyRun = (
     state.active &&
     state.gameMode === "story" &&
@@ -77,7 +77,7 @@ function handleStoryModeClick() {
 
 function handlePlayGameClick() {
   playClickSfx();
-  activeGameMode = "arcade";
+  setActiveGameMode("arcade");
   const arcadeRun = (state.active && state.gameMode === "arcade" && state.playerHp > 0)
     ? state
     : getSavedArcadeRun();
@@ -131,7 +131,7 @@ function renderDepthSpine() {
       expBar.style.display = "flex";
       const infoEl = $("select-exp-info");
       const nPhase = typeof getStoryNarrativePhase === "function" ? getStoryNarrativePhase() : "early";
-      const auraBadge = nPhase === "shura_12" ? " · 🩸 修羅(奈落)" : nPhase === "abyss_11" ? " · 🩸 修羅" : nPhase === "peace_10" ? " · 🌸 인간계 평정" : "";
+      const auraBadge = nPhase === "shura_12" || nPhase === "abyss_11" ? " · 🩸 修羅" : nPhase === "peace_10" ? " · 黎明" : "";
       if (infoEl) {
         infoEl.textContent = `🪙 ${st.yen.toLocaleString()} 円 · 📿 ${t("specialBagShort")} ${st.specialItems.length} · 🀄 ${t("normalBagShort")} ${st.deck.length}${auraBadge}`;
       }
@@ -265,10 +265,12 @@ function openDepthEnterModal(did) {
 
   if (did === "depth_0") {
     const card = $("depth-modal-card");
-    card.className = "modal-card depth-modal-card tier-edu";
+    const nPhase = typeof getStoryNarrativePhase === "function" ? getStoryNarrativePhase() : "early";
+    const isShura = nPhase === "abyss_11" || nPhase === "shura_12";
+    card.className = `modal-card depth-modal-card ${isShura ? "tier-abyss" : "tier-edu"}`;
     const seal = $("dm-seal");
     seal.textContent = "里";
-    seal.className = "depth-modal-seal tier-edu";
+    seal.className = `depth-modal-seal ${isShura ? "tier-abyss" : "tier-edu"}`;
     const zoneEl = $("dm-zone");
     zoneEl.textContent = pickLang({
       EN: "HOMETOWN",
@@ -277,17 +279,18 @@ function openDepthEnterModal(did) {
       ZH_CN: "故乡据点",
       ZH_TW: "故鄉據點"
     });
-    zoneEl.className = "depth-modal-zone tier-edu";
+    zoneEl.className = `depth-modal-zone ${isShura ? "tier-abyss" : "tier-edu"}`;
     $("dm-title").textContent = `【${t("villageNodeTitle")}】 — ${t("villageNodeGloss")}`;
     $("dm-meta").textContent = "";
     $("dm-meta").style.display = "none";
-    $("dm-lore").textContent = pickLang({
-      EN: "Broken roofs lie buried under black ash, and the characters on the village signposts have been gouged out as if clawed by unseen beasts. Through the suffocating fog, only a faint paper lantern sways in the distance.",
-      KO: "오랜만에 돌아온 고향의 처마들은 검은 재에 파묻혀 있고, 어귀의 이정표와 현판은 누군가 후벼 판 듯 글자가 흉측하게 파여 나갔습니다. 숨 막히는 잿빛 안개 너머로 오직 꺼져가는 등불만이 희미하게 흔들리며 돌아온 이를 맞이합니다.",
-      JA: "久方ぶりに戻った故郷の軒並みは黒い灰に埋もれ、道標や扁額は抉られたように文字が削り取られている。息詰まる灰色の霧の向こうで、ただ一つ消えかけの灯だけが揺れていた。",
-      ZH_CN: "久违的故乡屋檐埋在黑灰之下，路标与牌匾上的字迹被残忍挖去。令人窒息的灰雾深处，唯有微弱的灯火仍在摇曳。",
-      ZH_TW: "久違的故鄉屋簷埋在黑灰之下，路標與牌匾上的字跡被殘忍挖去。令人窒息的灰霧深處，唯有微弱的燈火仍在搖曳。"
-    });
+    const villageModalLore = typeof getVillageGateModalLore === "function"
+      ? getVillageGateModalLore(nPhase)
+      : pickLang({
+          EN: "Broken roofs lie buried under black ash, and the characters on the village signposts have been gouged out. Through the fog, only a faint paper lantern sways.",
+          KO: "오랜만에 돌아온 고향의 처마들은 검은 재에 파묻혀 있고, 어귀의 이정표와 현판은 누군가 후벼 판 듯 글자가 파여 나갔습니다. 잿빛 안개 너머로 꺼져가는 등불만이 흔들립니다.",
+          JA: "久方ぶりに戻った故郷の軒並みは黒い灰に埋もれ、道標や扁額は抉られたように文字が削り取られている。灰色の霧の向こうで消えかけの灯だけが揺れていた。"
+        });
+    $("dm-lore").textContent = villageModalLore;
     $("dm-lore").classList.remove("warn-step");
 
     const stageWrap = $("dm-stages-wrap");
