@@ -132,7 +132,7 @@ I18N.KO = {
   enemyIntentUsed: "집행",
   leCounter: (boss) => `【${boss}】이(가) 빈틈을 파고들어 덮쳐옵니다!`,
   victoryStats: (turns, dmg) => `${turns}턴 · 받은 피해 ${dmg}`,
-  nextChallenger: (boss) => `👁 **【${boss}】** 조우`,
+  nextChallenger: (boss) => `👁 **【${boss}】** 조우:`,
   reEncounterChallenger: (boss, hp, max) => `👁 상처 입은 **【${boss}】** 재조우 (HP ${hp}/${max})`,
   woundedState: "부상",
   stageCardsLog: "스테이지 환경 한자",

@@ -93,8 +93,8 @@ function startRun(depthId) {
     const gaolEntryWhispers = {
       1: {
         EN: "🕯 *At the threshold of the First Gate, stolen elementary words of fire, water, and wild beasts prowl the ash.*",
-        KO: "🕯 *첫 번째 옥문 어귀—마을 이정표에서 뜯겨 나간 물과 불, 들개와 구미호【九】의 원초적인 획들이 안개 속을 배회합니다.*",
-        JA: "🕯 *第一の獄門の入り口——里の道標から剥がれ落ちた水や火、野犬や九尾の狐【九】の原初の画が霧の中を徘徊している。*"
+        KO: "🕯 *첫 번째 옥문 어귀—마을 이정표에서 뜯겨 나간 물과 불, 들개와 구미호의 원초적인 획들이 안개 속을 배회합니다.*",
+        JA: "🕯 *第一の獄門の入り口——里の道標から剥がれ落ちた水や火、野犬や九尾狐の原初の画が霧の中を徘徊している。*"
       },
       2: {
         EN: "🕯 *Cold gusts sweep the Second Gaol; the stolen seasons and directions swirl like lost leaves.*",

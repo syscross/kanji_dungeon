@@ -1028,7 +1028,7 @@ const FOE_NAMES = {
   石: STG_L("Living Boulder", "살의를 품은 거석", "殺意宿す巨石"),
   貝: STG_L("Starved Shell", "굶주린 귀조개", "飢えた怪貝"),
   目: STG_L("Bloodshot Gaze", "충혈된 거대 눈동자", "充血した大目玉"),
-  九: STG_L("Nine-Tailed Fox", "구미호", "九尾の狐"),
+  九: STG_L("Nine-Tailed Fox", "붉은 꼬리 구미호", "九尾狐"),
   森: STG_L("Devouring Thicket", "숨 쉬는 검은 숲", "息づく黒森"),
   車: STG_L("Runaway War-Cart", "폭주하는 불수레", "暴走する火車"),
   王: STG_L("Ruined Monarch", "폐허의 군왕", "廃墟の王"),
