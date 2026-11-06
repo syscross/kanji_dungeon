@@ -50,8 +50,9 @@ function triggerAskChip() {
 
 /*
  * Clicking the Talk (/talk) chip:
- * - Lets the player speak directly to the enemy wraith/boss!
- * - If the input box is empty, prefills `/talk ` and focuses the input so the player can write what to say (or tap hand kanji).
+ * - Pure conversation with the enemy wraith/boss without advancing the combat turn!
+ * - If the input box is empty, prefills `/talk ` and focuses the input so the player can write what to say;
+ *   clicking it again while `/talk` is in the input (or submitting `/talk` directly) sends a default greeting/question.
  * - If the input box already has text, wraps it as `/talk <text>` and submits immediately!
  */
 function triggerTalkChip() {
@@ -65,11 +66,8 @@ function triggerTalkChip() {
     return;
   }
   if (/^\/(talk|대화|말)$/i.test(cur)) {
-    inp.value = "/talk ";
-    inp.focus();
-    return;
-  }
-  if (!/^\/(talk|대화|말)\b/i.test(cur)) {
+    inp.value = `/talk ${t("defaultTalkMove")}`;
+  } else if (!/^\/(talk|대화|말)\b/i.test(cur)) {
     inp.value = `/talk ${cur}`;
   }
   handleBattleSubmit(null);
@@ -163,13 +161,38 @@ async function handleBattleSubmit(e) {
     return;
   }
 
-  // Judged turn: normal move, enemy dialogue (/talk), escape attempt (/flee), or ancient god summon (/summon).
+  // Enemy Dialogue (/talk — pure conversation with the enemy, NO turn spent!)
+  if (parsed.type === "TALK") {
+    if (typeof playWhisperSfx === "function") playWhisperSfx();
+    achOnCommand("TALK");
+    setInputBusy(true);
+    const stopJudging = startJudgingIndicator("TALK");
+    const speechText = parsed.arg || t("defaultTalkMove");
+    try {
+      const prompt = typeof buildTalkPrompt === "function"
+        ? buildTalkPrompt(speechText)
+        : speechText;
+      const reply = await callLLM(prompt, false, { talk: true });
+      const sec = stopJudging();
+      inp.value = "";
+      const foeName = typeof getEnemyShortName === "function" ? getEnemyShortName(state.enemyKanji) : "";
+      const foeLabel = foeName ? `【${state.enemyKanji}】 ${foeName}` : `【${state.enemyKanji}】`;
+      logMd(`💬 **[${t("logYou")}]** "${speechText}"\n🗣 **${foeLabel}** *(⏱ ${sec}s)*:\n${String(reply || "").trim()}`, "hint-log", true);
+    } catch (err) {
+      stopJudging();
+      logMd(t("apiError")(err.message), "hint-log", false);
+    } finally {
+      setInputBusy(false);
+      if (!isCoarsePointer()) inp.focus();
+    }
+    return;
+  }
+
+  // Judged turn: normal move, escape attempt (/flee), or ancient god summon (/summon).
   const summon = parsed.type === "SUMMON";
   const flee = parsed.type === "FLEE";
-  const talk = parsed.type === "TALK";
   let summonDirective = "";
   let fleeDirective = "";
-  let talkDirective = "";
   let summonPaid = 0;
   let usedFreeSummon = false;
 
@@ -192,10 +215,6 @@ async function handleBattleSubmit(e) {
   } else if (flee) {
     if (typeof playFootstepSfx === "function") playFootstepSfx();
     fleeDirective = buildFleeDirective(parsed.arg);
-  } else if (talk) {
-    if (typeof playWhisperSfx === "function") playWhisperSfx();
-    achOnCommand("TALK");
-    talkDirective = typeof buildTalkDirective === "function" ? buildTalkDirective(parsed.arg) : "";
   } else {
     if (typeof playCastIncantationSfx === "function") playCastIncantationSfx();
   }
@@ -204,21 +223,19 @@ async function handleBattleSubmit(e) {
     ? (parsed.arg || t("summonDefaultMove"))
     : flee
       ? (parsed.arg || t("defaultFleeMove"))
-      : talk
-        ? (parsed.arg || t("defaultTalkMove"))
-        : raw;
+      : raw;
 
   setInputBusy(true);
-  const stopJudging = startJudgingIndicator(summon ? "SUMMON" : flee ? "FLEE" : talk ? "TALK" : "JUDGE");
+  const stopJudging = startJudgingIndicator(summon ? "SUMMON" : flee ? "FLEE" : "JUDGE");
   try {
     const res = await callLLM(
-      buildJudgePrompt(moveText, summonDirective, fleeDirective, talkDirective),
+      buildJudgePrompt(moveText, summonDirective, fleeDirective),
       true,
-      { summon, flee, talk }
+      { summon, flee }
     );
     const sec = stopJudging();
     inp.value = "";
-    applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee, talk, summonArg: parsed.arg });
+    applyTurnResult(moveText, normalizeJudgment(res), sec, { summon, flee, summonArg: parsed.arg });
   } catch (err) {
     stopJudging();
     if (usedFreeSummon) {

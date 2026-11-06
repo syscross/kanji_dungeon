@@ -7,7 +7,14 @@ function localKanjiEngine(expectJson, opts = {}) {
   const hand = state.playerHand;
   const boss = state.enemyKanji;
   const intentInfo = state.enemyIntentDesc || state.enemyHand.join(" · ");
-  if (!expectJson) return t("leHint")(hand.join(" · "), intentInfo, boss);
+  if (!expectJson) {
+    if (opts.talk) {
+      return typeof t("leEnemyTalkReply") === "function"
+        ? t("leEnemyTalkReply")(boss)
+        : `…【${boss}】 stares at you through the mist and murmurs a hollow echo.`;
+    }
+    return t("leHint")(hand.join(" · "), intentInfo, boss);
+  }
 
   const raw = state._lastRawInput || "";
   const summoning = Boolean(opts.summon);

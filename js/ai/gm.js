@@ -187,25 +187,18 @@ The player is attempting to flee from 【${state.enemyKanji}】 this turn!
 
 /*
  * Unique Enemy Dialogue Command (/talk):
- * The player speaks directly to the enemy wraith/boss 【enemyKanji】!
- * - Even without hand cards, speaking to the foe triggers a vivid in-character response in "enemy_reply" (reveal lore, grudge, or taunt) and is at least WEAK if it touches on the foe's nature or stage.
- * - If the player weaves PLAYER HAND kanji into their words (persuasion, intimidation, Zen koan, exorcism chant, offering, or psychological counter), judge it as SOLID / CLEVER / MASTERFUL:
- *   * Can shake the foe's resolve ("defense": "partial" or "full" as the foe hesitates in its locked intent),
- *   * Can deal spiritual/mental damage ("attack": true) or calm the player's spirit ("heal": "minor"),
- *   * Can even trigger "special_event": "INSTANT_PACIFY" if the player's words + hand cards conceptually resolve the foe's grudge!
+ * Pure conversation with the enemy wraith/boss 【enemyKanji】 without advancing the combat turn!
  */
-function buildTalkDirective(arg) {
+function buildTalkPrompt(speech) {
   const foeShortName = typeof getEnemyShortName === "function" ? getEnemyShortName(state.enemyKanji) : "";
   const lockedIntent = getLockedIntentDescription();
-  return `
-
-## TALK — DIRECT CONVERSATION WITH THE ENEMY (【${state.enemyKanji}】 ${foeShortName})
-The player chose **/talk** to speak directly to 【${state.enemyKanji}】 (${foeShortName}) instead of a conventional physical strike!
-- REQUIRED: Fill "enemy_reply" with 1–2 vivid, atmospheric sentences spoken directly by 【${state.enemyKanji}】 in ${langName()} (in-character voice matching its kanji nature, rank ${state.enemyRank}, and grudge; if it is a beast/insect, describe its eerie vocalization + telepathic/instinctive meaning).
-- Evaluating the conversation:
-  1. If the player weaves PLAYER HAND cards (${JSON.stringify(state.playerHand)}) into their speech (persuasion, command, riddle, offering, intimidation, or conceptual counter to ${lockedIntent}) → judge as SOLID, CLEVER, or MASTERFUL! Words backed by true Kanji power can inflict spiritual damage ("attack": true), make 【${state.enemyKanji}】 hesitate or stay its hand ("defense": "partial" or "full"), or even trigger "special_event": "INSTANT_PACIFY" if the speech conceptually resolves 【${state.enemyKanji}】's obsession!
-  2. If the player speaks without using hand cards, but says something meaningful/in-world to 【${state.enemyKanji}】 → judge as WEAK (with "attack": false, or "defense": "partial" if their words momentarily startle/distract 【${state.enemyKanji}】), and have 【${state.enemyKanji}】 answer in "enemy_reply" before executing its locked intention.
-  3. Only judge as FIZZLE if the player's speech is out-of-character meta-begging or complete gibberish.`;
+  const said = (speech && speech.trim()) ? speech.trim() : t("defaultTalkMove");
+  return `You are roleplaying the enemy 【${state.enemyKanji}】 (${foeShortName}, ${RANK_WORDS[state.enemyRank] || "foe"}) inside the dark-fantasy TRPG KANJI DUNGEON.
+- Current Gaol: ${depthName(state.depthId)} (${kankenLabel(state.depthId)})
+- Stage: 【${state.sign || "門"}】 · Enemy HP: ${state.enemyHp}/${state.enemyMaxHp} (${state.enemyState || "watchful"})
+- Enemy's current telegraphed intent: ${JSON.stringify(state.enemyHand)} (${lockedIntent})
+- The player pauses their blade and speaks directly to you: "${said}"
+- Reply in ${langName()} in 2–3 vivid, atmospheric sentences (plain text only, no headers, no JSON) directly as 【${state.enemyKanji}】 in first person (if 【${state.enemyKanji}】 is a beast, insect, or phenomenon, briefly describe its eerie sound/motion in asterisks and convey its ominous voice/thoughts). Reflect 【${state.enemyKanji}】's kanji meaning, obsession/grudge, and current telegraphed intention.`;
 }
 
 function buildHintPrompt() {
@@ -216,7 +209,7 @@ function buildHintPrompt() {
   return `You are the Game Master of KANJI DUNGEON. Give a terse tactical briefing in ${langName()} (max 7 lines, no headers):
 - Stage 【${state.sign || "門"}】 & Player hand ${JSON.stringify(state.playerHand)}: each as 字(exact reading: meaning), on one or two lines.
 - Foe 【${state.enemyKanji}】 telegraphed intent ${JSON.stringify(state.enemyHand)} — Concrete locked intention: ${lockedIntent}${escHint}
-- Two one-line ideas that use the hand cards' meanings to strike 【${state.enemyKanji}】 AND counter/evade its concrete locked intention (or talk/escape). Mention a real 熟語 if two hand cards form one.`;
+- Two one-line ideas that use the hand cards' meanings to strike 【${state.enemyKanji}】 AND counter/evade its concrete locked intention (or escape). Mention a real 熟語 if two hand cards form one.`;
 }
 
 function buildQuestionPrompt(question) {
