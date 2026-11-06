@@ -827,7 +827,7 @@ const FOE_ENCOUNTER_LINES = {
   石: STG_L("A moss-crusted boulder shudders to life and rumbles forward, shaking the earth.", "이끼 낀 거대한 바위가 둔중한 지축을 울리며 살의를 품고 굴러들어온다.", "苔むした巨石が地響きを立てて動き出し、敵意を帯びて迫る。"),
   貝: STG_L("A giant shell snaps open with a hollow crack, revealing pallid, hungry flesh.", "단단한 껍데기가 딱딱 소리를 내며 벌어지고 굶주린 살점이 드러난다.", "硬い殻が不気味な音を立てて開き、飢えた肉が覗く。"),
   目: STG_L("The darkness splits vertically as a colossal, bloodshot eye fixes its gaze on you.", "어둠 한복판이 세로로 갈라지더니 충혈된 거대한 눈동자가 그대를 노려본다.", "闇の真ん中が縦に裂け、充血した巨大な目玉がこちらを睨みつける。"),
-  九: STG_L("Nine spectral tails fan out through the mist as a nine-tailed fox spirit gleams with bewitching eyes.", "안개 속에서 아홉 갈래의 하얀 꼬리가 부채처럼 펼쳐지며 구미호가 홀리는 눈빛을 번뜩인다.", "霧の中で九つの白い尾が扇のように広がり、九尾の狐が妖しく光る瞳で牙を剥く。"),
+  九: STG_L("Nine spectral tails fan out through the mist as a nine-tailed fox spirit gleams with bewitching eyes.", "안개 속에서 아홉 갈래의 붉은 꼬리가 부채처럼 펼쳐지며 구미호가 홀리는 눈빛을 번뜩인다.", "霧の中で九つの白い尾が扇のように広がり、九尾の狐が妖しく光る瞳で牙を剥く。"),
   森: STG_L("The entire thicket inhales at once like a single, sprawling maw.", "빽빽한 수풀 전체가 하나의 거대한 아가리처럼 숨을 들이쉰다.", "鬱蒼とした森全体が、一つの巨大な顎門のように息を吸い込む。"),
   車: STG_L("Burning wheels shriek through the night air as a runaway war-cart charges.", "불타는 바퀴가 밤공기를 찢으며 폭주하는 수레가 맹렬히 돌진해 온다.", "燃える車輪が夜気を裂き、暴走する車が猛然と突進してくる。"),
   王: STG_L("A ruined monarch in a shattered crown raises a heavy hand in royal decree.", "부서진 왕관을 쓴 폐허의 군왕이 땅을 울리며 어명을 내리듯 손을 든다.", "砕けた冠を戴く廃墟の王が大地を揺らし、勅命を下すように手を挙げる。"),
